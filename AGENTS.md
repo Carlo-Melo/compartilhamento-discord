@@ -1,0 +1,14 @@
+# Instruções do projeto
+- Stack decidida pelo usuário: Java 21 com Spring Boot, Angular, PostgreSQL; backend em camadas.
+- Ler specs/README.md e specs/00-principios.md antes de implementar.
+- Backend: controller -> service -> repository; integrações externas encapsuladas em integration. Não retornar entidades JPA na API. DTOs explícitos e autorização no service/security.
+- Frontend: Angular organizado por core, shared e features; regras de permissão nunca dependem só de guards.
+- MVP funcional antes de aparência. Não implementar Activity, app nativo, gravação ou pagamentos sem nova decisão.
+- Áudio obrigatório; não contornar seletor/consentimento do navegador.
+- Não iniciar serviços pagos, publicar ou registrar contas para cumprir tarefa de documentação.
+- Atualizar requisitos/contratos/cenários quando mudar comportamento. Informar hipóteses ainda sem prova.
+- Consultar o usuário para mudanças de escopo, dependências externas/custos ou decisões de produto ainda não respondidas.
+- Credenciais em variáveis/segredos locais; nunca em código, logs ou conversa.
+- Revisão aprovada: sem cadastro/login OAuth de usuários no site; acesso por tickets privados, temporários e de uso único emitidos pelo bot.
+- PostgreSQL somente para identificar bots e seus vínculos com servidores Discord. Sem usuários, transmissões, tickets, contexto web, mensagens, filas ou histórico persistidos.
+- Estado operacional em memória; reinício invalida acessos e exige limpar salas antigas antes de readiness. Segredos de bot/SFU ficam fora do banco.

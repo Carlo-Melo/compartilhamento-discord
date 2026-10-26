@@ -1,0 +1,34 @@
+# Segredos e estado local
+.env
+.env.*
+!.env.example
+.envrc
+.envrc.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa
+id_ed25519
+secrets/
+# Java
+**/target/
+*.class
+*.log
+# Angular/Node
+**/node_modules/
+**/dist/
+**/.angular/
+coverage/
+# IDE / SO
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+# Dados e evidências locais
+infra/data/
+tests/artifacts/
+work/
