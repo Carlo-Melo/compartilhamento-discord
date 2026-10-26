@@ -3,6 +3,8 @@ Estado: bootstrap **T-01 validado localmente em 26/10/2026**; [evidência e limi
 
 T-02 concluída: cinco testes JUnit aprovados (três locais e dois contra SFU real) e dez verificações da ferramenta Angular aprovadas, com RTP de vídeo/áudio recebido e decodificado, grants, escopo e exclusão/reuso. G1 e G2 completos continuam pendentes: captura real, nove espectadores e TURN não foram executados. [Relatório detalhado](../tests/manual/T-02-livekit.md).
 
+T-03 implementada em prova restrita, com testes automatizados de validação/liberação de tracks, publicação parcial, cancelamento concorrente, confirmação SFU e encerramento. Os testes usam doubles para falhas; não comprovam captura Windows nem som audível. **G1 permanece pendente**: decisões externas e participação nas duas máquinas foram adiadas pelo usuário. [Resultados e matriz a executar](../tests/manual/T-03-captura-real.md).
+
 ## Portões de avanço
 - G0: stack/escopo e contratos consistentes. Atual entrega prepara isso.
 - G1 / POC-01: duas máquinas Windows, Chrome e Edge, tela inteira + áudio de sistema real. 15min por combinação; som de teste audível no receptor, sem microfone; cancelamento e encerramento funcionando.

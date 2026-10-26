@@ -1,5 +1,5 @@
 # 11 — Plano de implementação por entregas
-**T-01 e T-02 CONCLUÍDAS em 26/10/2026**, com [evidência de bootstrap](../tests/manual/T-01-bootstrap.md) e [integração LiveKit real](../tests/manual/T-02-livekit.md). T-03 a T-24 continuam **NÃO INICIADAS**. Revisão 1.2 substitui login OAuth/persistência operacional por acesso emitido pelo bot e memória.
+**T-01 e T-02 CONCLUÍDAS em 26/10/2026**, com [evidência de bootstrap](../tests/manual/T-01-bootstrap.md) e [integração LiveKit real](../tests/manual/T-02-livekit.md). **T-03 IMPLEMENTADA, HOMOLOGAÇÃO PENDENTE**: [resultado e preparação externa](../tests/manual/T-03-captura-real.md). T-04 a T-24 continuam **NÃO INICIADAS**. Revisão 1.2 substitui login OAuth/persistência operacional por acesso emitido pelo bot e memória.
 
 | ID | Entrega concreta | Depende de | Requisitos / evidência |
 |---|---|---|---|
@@ -43,7 +43,15 @@ Próxima tarefa após a T-01: **T-02 — validar SDK LiveKit JVM/browser, sala, 
 - Auxiliar fora do artefato padrão e bloqueado nos profiles prod/production; origem, marcador e loopback verificados. Sem tabelas novas, tickets ou integrações Discord.
 - Prova Angular aprovada: duas identidades RTC, tracks sintéticas confirmadas na SFU, RTP crescente, quadros decodificados e RMS de áudio recebido; espectador negado pela SFU, isolamento entre salas, exclusão/desconexão e reuso negado antes do TTL.
 - Conexão usa parâmetros padrão do SDK; overrides locais de retry/timeouts foram retirados após falha inicial. Diagnósticos de transporte não foram mantidos como configuração de produção.
-- Próxima tarefa: **T-03 — captura real de vídeo e áudio de sistema entre duas máquinas**, não iniciada. Nove espectadores/TURN e limpeza de startup continuam nas suas etapas.
+- Próxima tarefa: **T-03 — captura real de vídeo e áudio de sistema entre duas máquinas**, implementação abaixo. Nove espectadores/TURN e limpeza de startup continuam nas suas etapas.
+
+## Resultado da T-03 — implementada, aguardando homologação
+
+- Captura nativa após clique com vídeo e áudio obrigatórios, prévia silenciada, estados, mensagens acionáveis e liberação em falhas/parada/track encerrada. Publicação VP8/Opus e confirmação de ambas fontes por consulta SFU.
+- Página separada de espectador com assinatura restrita, vídeo/áudio, liberação por gesto, volume, tela cheia e saída.
+- Auxiliar Java e build Angular exclusivos `capture-proof`, chaves experimentais por papel e origem HTTPS privada exata; configuração SFU/proxy/scripts separados da T-02. Sem persistência operacional, bot ou tickets antecipados.
+- Testes independentes e runbook entregues. O usuário pediu registrar para depois suas decisões sobre segunda máquina/rede/TLS/firewall; nenhum listener LAN ou confiança de certificado foi configurado pelo agente.
+- **T-03 não concluída:** executar G1/POC-01 (matriz Chrome/Edge Windows, 15 minutos por combinação, vídeo e som real audível) e registrar resultados antes de declarar homologação. [Roteiro completo](../tests/manual/T-03-captura-real.md).
 
 ## Fatias de entrega
 1. T-01–04: provar mídia real antes do bot completo.

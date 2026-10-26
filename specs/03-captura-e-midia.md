@@ -1,5 +1,5 @@
 # 03 — Captura e distribuição de mídia
-Status: especificação de comportamento. T-02 valida administração/grants e transporte sintético no Angular contra SFU real local. Captura real, áudio do Windows e capacidade não homologados.
+Status: especificação de comportamento. T-02 valida administração/grants e transporte sintético no Angular contra SFU real local. T-03 implementa captura por consentimento, publicação e reprodução na prova restrita descrita abaixo. Captura real, áudio do Windows entre máquinas e capacidade não homologados.
 
 ## Contrato de captura
 - Captura somente no Windows em Chrome/Edge homologados. Registrar versões exatas na POC; não inferir suporte pelo user-agent.
@@ -42,3 +42,15 @@ Em duas máquinas reais, homologar monitor + áudio de sistema, reproduzir som d
 
 ## Estado volátil
 Tokens, leases e associação com a sala ficam em memória. Em reinício, a aplicação elimina salas antigas do namespace antes de aceitar novos acessos; vínculo persistido no banco não restaura mídia. O usuário solicita novo ticket ao bot. A permissão nativa para escolher/capturar tela continua necessária.
+
+## Prova experimental T-03 implementada
+
+- Angular `capture-proof` oferece páginas distintas `/dev/capture/broadcast` e `/dev/capture/watch`, ausentes dos builds `production` e `development` da T-02. O clique chama `getDisplayMedia` antes de qualquer espera de rede. A prévia fica silenciada; falha de qualquer track obrigatória, resultado tardio de seletor, parada ou navegação libera recursos locais.
+- Perfil Maven/Spring `capture-proof` e opt-in separado; backend e administração SFU em loopback. Origem HTTPS privada exata e chaves experimentais distintas por papel restringem esta prova. Não constituem tickets nem autorização do produto. [Contrato auxiliar](api/capture-proof.openapi.json), separado da API definitiva.
+- Uma sala experimental ativa e uma identidade estável de cada papel, até 32 salas por processo; uma nova conexão do mesmo papel substitui a anterior. Permissões SFU restringem publicação e assinatura. Espectador assina somente fontes de tela/áudio da identidade de apresentador fornecida pelo backend.
+- VP8, sem simulcast/backup codec; tela com alvo 720p/30 fps/2 Mbps ou 1080p/30 fps/4 Mbps; Opus até 128 kbps. Hints e alvos de negociação não garantem resolução, fonte, áudio ou bitrate retornados. H.264, nove espectadores e TURN não foram homologados.
+- Publicação só aparece confirmada após consulta administrativa à SFU mostrar vídeo `SCREEN_SHARE` e áudio `SCREEN_SHARE_AUDIO` não silenciados do apresentador esperado. Isso não comprova som audível: a homologação requer ouvir conteúdo de teste no receptor. Silêncio não é ausência de track.
+- Reconexão SDK por até 30s, seguida de nova confirmação SFU; falha encerra e libera captura. Não há renovação customizada de token nem fluxo de produto nesta prova. Limpeza remota não confirmada permanece visível com repetição manual; não iniciar outra prova antes de confirmá-la.
+- Encerramento normal exclui a sala. Fechamento abrupto não garante HTTP; após reinício/falha, derrubar somente a composição SFU T-03 antes de retomar. Limpeza de namespace antes de readiness do produto continua na T-19.
+
+[Roteiro, evidência e decisões externas](../tests/manual/T-03-captura-real.md). O usuário adiou preparação de rede/certificado e participação nas duas máquinas. Nenhuma seleção nativa de captura foi autorizada pelo agente.
