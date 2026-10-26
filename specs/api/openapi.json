@@ -1,0 +1,1852 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Compartilhamento Discord — API MVP",
+    "version": "0.2.0-spec",
+    "description": "Contrato de especificação Java 21/Spring Boot e Angular. Acesso temporário emitido pelo bot, sem login de usuários. PostgreSQL apenas para bot e vínculo com guild; contexto operacional em memória."
+  },
+  "servers": [
+    {
+      "url": "https://app.example.com",
+      "description": "Placeholder; domínio ainda não escolhido."
+    }
+  ],
+  "security": [
+    {
+      "accessCookie": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Access"
+    },
+    {
+      "name": "Session"
+    },
+    {
+      "name": "Integration"
+    },
+    {
+      "name": "Operations"
+    }
+  ],
+  "paths": {
+    "/api/csrf": {
+      "get": {
+        "operationId": "getCsrf",
+        "tags": [
+          "Access"
+        ],
+        "summary": "Obter bootstrap e token CSRF, inclusive antes de consumir ticket.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Emite cookie legível XSRF-TOKEN e token sincronizado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CsrfToken"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{sessionId}": {
+      "parameters": [
+        {
+          "name": "sessionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getSession",
+        "tags": [
+          "Session"
+        ],
+        "summary": "Snapshot autorizado; inclui estado terminal sem token de mídia.",
+        "responses": {
+          "200": {
+            "description": "Snapshot no-store. Para não membro responder 404 genérico.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionView"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limite temporário. Respeitar Retry-After.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "description": "Segundos até nova tentativa."
+              }
+            }
+          },
+          "503": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{sessionId}/start": {
+      "parameters": [
+        {
+          "name": "sessionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "startBroadcast",
+        "tags": [
+          "Session"
+        ],
+        "summary": "Reservar publicação exclusiva e conexão STARTING.",
+        "description": "Somente dono. Fatos de captura declarados não confirmam LIVE; SFU precisa confirmar vídeo e áudio. Não publicar anúncio antecipado.",
+        "security": [
+          {
+            "csrfHeader": [],
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            },
+            "description": "Descriptor somente em memória, até expiração do contexto, máximo 8h; nova emissão reautoriza."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Conexão efêmera de publicação; criação remota confirmada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaConnection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limite temporário. Respeitar Retry-After.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "description": "Segundos até nova tentativa."
+              }
+            }
+          },
+          "503": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{sessionId}/join": {
+      "parameters": [
+        {
+          "name": "sessionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "joinAsViewer",
+        "tags": [
+          "Session"
+        ],
+        "summary": "Reservar vaga de espectador e obter conexão de assinatura.",
+        "description": "Só LIVE. Papel derivado no servidor. Limite de nove espectadores com reserva transacional de 30 segundos.",
+        "security": [
+          {
+            "csrfHeader": [],
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            },
+            "description": "Descriptor somente em memória, até expiração do contexto, máximo 8h; nova emissão reautoriza."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conexão efêmera somente de assinatura.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaConnection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limite temporário. Respeitar Retry-After.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "description": "Segundos até nova tentativa."
+              }
+            }
+          },
+          "503": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{sessionId}/reconnect": {
+      "parameters": [
+        {
+          "name": "sessionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "reconnectParticipant",
+        "tags": [
+          "Session"
+        ],
+        "summary": "Reautorizar lease existente e conectar à geração atual.",
+        "description": "Valida titular do lease e prazo; aceita geração antiga apenas para migração autorizada. Nunca reabre estado terminal.",
+        "security": [
+          {
+            "csrfHeader": [],
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            },
+            "description": "Descriptor somente em memória, até expiração do contexto, máximo 8h; nova emissão reautoriza."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Nova credencial da geração atual.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaConnection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limite temporário. Respeitar Retry-After.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "description": "Segundos até nova tentativa."
+              }
+            }
+          },
+          "503": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{sessionId}/heartbeat": {
+      "parameters": [
+        {
+          "name": "sessionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "heartbeat",
+        "tags": [
+          "Session"
+        ],
+        "summary": "Renovar liveness e obter instrução de reconexão/parada.",
+        "description": "A cada10s; contexto e associação válidos. Contexto antigo após reinício retorna401 e cliente para captura.",
+        "security": [
+          {
+            "csrfHeader": [],
+            "accessCookie": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estado e validade da autorização.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HeartbeatView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limite temporário. Respeitar Retry-After.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "description": "Segundos até nova tentativa."
+              }
+            }
+          },
+          "503": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{sessionId}/leave": {
+      "parameters": [
+        {
+          "name": "sessionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "leaveAsViewer",
+        "tags": [
+          "Session"
+        ],
+        "summary": "Sair e liberar lease do espectador.",
+        "description": "Idempotente para mesmo lease. Apresentador deve usar end. Na remoção de acesso, aplicar política de sala da spec 05.",
+        "security": [
+          {
+            "csrfHeader": [],
+            "accessCookie": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeaseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Saída registrada e remoção de mídia enfileirada."
+          },
+          "401": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{sessionId}/end": {
+      "parameters": [
+        {
+          "name": "sessionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "endSession",
+        "tags": [
+          "Session"
+        ],
+        "summary": "Encerrar pelo contexto OWNER; administração pelo comando Discord.",
+        "description": "ENDING antes de excluir sala; repetição retorna estado atual. Nenhuma transação ou registro de transmissão no banco.",
+        "security": [
+          {
+            "csrfHeader": [],
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 128
+            },
+            "description": "Descriptor somente em memória, até expiração do contexto, máximo 8h; nova emissão reautoriza."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado ENDING ou terminal; observar snapshot para conclusão.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limite temporário. Respeitar Retry-After.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "description": "Segundos até nova tentativa."
+              }
+            }
+          },
+          "503": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/integrations/discord/interactions": {
+      "post": {
+        "operationId": "receiveDiscordInteraction",
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Receber PING/comandos com assinatura Discord.",
+        "security": [
+          {
+            "discordSignature": [],
+            "discordTimestamp": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiscordInteraction"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ACK/PONG/defer inicial dentro do prazo externo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscordCallback"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Assinatura ou timestamp inválido."
+          },
+          "429": {
+            "description": "Limite temporário. Respeitar Retry-After.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "description": "Segundos até nova tentativa."
+              }
+            }
+          },
+          "503": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/integrations/livekit/webhook": {
+      "post": {
+        "operationId": "receiveLiveKitEvent",
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Receber evento LiveKit autenticado e idempotente.",
+        "security": [
+          {
+            "livekitWebhookSignature": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/webhook+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LiveKitWebhook"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LiveKitWebhook"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Evento aceito em memória ou duplicata; sem durabilidade após crash."
+          },
+          "401": {
+            "description": "Assinatura/hash inválidos."
+          },
+          "503": {
+            "description": "Erro padronizado; sem credenciais ou conteúdo privado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/live": {
+      "get": {
+        "operationId": "liveness",
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Liveness sem exposição de configuração.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Processo vivo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "readiness",
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Readiness, exposta somente em rede privada.",
+        "description": "Somente rede privada. Requer banco de vínculos e limpeza confirmada das salas antigas no boot; não recupera runtime do banco.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Pronto.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependência essencial indisponível.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/access/exchange": {
+      "post": {
+        "operationId": "exchangeAccessTicket",
+        "tags": [
+          "Access"
+        ],
+        "summary": "Consumir ticket privado emitido pelo bot; sem login de usuário.",
+        "description": "Uso único e não idempotente. Exige bootstrap CSRF, Origin e ticket TTL60s. Não aceita userId/guildId/role/redirect. Rotaciona cookie ACCESS_SESSION e cria contexto em memória.",
+        "security": [
+          {
+            "bootstrapCookie": [],
+            "csrfHeader": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessExchangeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ticket consumido; cookie HttpOnly rotacionado e destino interno fixo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessExchangeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ACCESS_INVALID: código expirado/usado/inexistente/boot anterior.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "CSRF/origem/associação/vínculo inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limite temporário; voltar ao bot se ticket vencer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Verificação externa indisponível; obter outro ticket se já consumido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/access/session": {
+      "get": {
+        "operationId": "getAccessContext",
+        "tags": [
+          "Access"
+        ],
+        "summary": "Obter contexto temporário do ticket, sem cadastro ou credenciais externas.",
+        "responses": {
+          "200": {
+            "description": "Contexto scoped em memória.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessContext"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "ACCESS_REQUIRED ou ACCESS_EXPIRED; retornar ao bot.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/access/revoke": {
+      "post": {
+        "operationId": "revokeAccessContext",
+        "tags": [
+          "Access"
+        ],
+        "summary": "Invalidar contexto e desconectar mídia; não é logout de conta.",
+        "description": "OWNER encerra a transmissão; VIEWER sai. Invalidar contexto e revogar mídia por remoção/rotação conforme spec05.",
+        "security": [
+          {
+            "accessCookie": [],
+            "csrfHeader": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Acesso invalidado e limpeza enfileirada em memória."
+          },
+          "401": {
+            "description": "Contexto ausente/expirado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "CSRF inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Mídia indisponível; contexto permanece revogado e limpeza pendente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "csrfHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-XSRF-TOKEN",
+        "description": "Token sincronizado obtido em GET /api/csrf."
+      },
+      "discordSignature": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Signature-Ed25519"
+      },
+      "discordTimestamp": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Signature-Timestamp"
+      },
+      "livekitWebhookSignature": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Assinatura do webhook LiveKit, validada nos bytes originais e hash do corpo; não é login do usuário."
+      },
+      "accessCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "ACCESS_SESSION",
+        "description": "Contexto web autorizado pelo ticket, somente em memória; cookie sozinho sem contexto não autoriza."
+      },
+      "bootstrapCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "ACCESS_SESSION",
+        "description": "Sessão de bootstrap CSRF ainda sem autorização; criada ao obter /api/csrf."
+      }
+    },
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string",
+            "description": "Mensagem acionável em português."
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "retryable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "requestId",
+          "retryable"
+        ]
+      },
+      "UserSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "discordUserId": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "discordUserId",
+          "displayName"
+        ]
+      },
+      "CsrfToken": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "headerName": {
+            "type": "string",
+            "const": "X-XSRF-TOKEN"
+          },
+          "parameterName": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "headerName",
+          "parameterName",
+          "token"
+        ]
+      },
+      "SessionStatus": {
+        "type": "string",
+        "enum": [
+          "CREATED",
+          "STARTING",
+          "LIVE",
+          "RECONNECTING",
+          "ENDING",
+          "ENDED",
+          "FAILED",
+          "EXPIRED"
+        ]
+      },
+      "Profile": {
+        "type": "string",
+        "enum": [
+          "720p30",
+          "1080p30"
+        ]
+      },
+      "SessionView": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "guildId": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "owner": {
+            "$ref": "#/components/schemas/UserSummary"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SessionStatus"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "OWNER",
+              "VIEWER"
+            ]
+          },
+          "viewerCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9
+          },
+          "maxViewers": {
+            "type": "integer",
+            "const": 9
+          },
+          "generation": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/Profile"
+          },
+          "actions": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "canStart": {
+                "type": "boolean"
+              },
+              "canJoin": {
+                "type": "boolean"
+              },
+              "canEnd": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "canStart",
+              "canJoin",
+              "canEnd"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "liveAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "endedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "botId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "id",
+          "guildId",
+          "title",
+          "owner",
+          "status",
+          "reason",
+          "role",
+          "viewerCount",
+          "maxViewers",
+          "generation",
+          "profile",
+          "actions",
+          "createdAt",
+          "liveAt",
+          "endedAt",
+          "version",
+          "botId"
+        ]
+      },
+      "StartRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sourceSurface": {
+            "type": "string",
+            "enum": [
+              "monitor",
+              "window",
+              "browser"
+            ]
+          },
+          "audioScope": {
+            "type": "string",
+            "enum": [
+              "system",
+              "window",
+              "tab"
+            ]
+          },
+          "profile": {
+            "$ref": "#/components/schemas/Profile"
+          }
+        },
+        "required": [
+          "sourceSurface",
+          "audioScope",
+          "profile"
+        ]
+      },
+      "MediaConnection": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "generation": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "roomName": {
+            "type": "string"
+          },
+          "identity": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "PUBLISHER",
+              "SUBSCRIBER"
+            ]
+          },
+          "serverUrl": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^wss://",
+            "description": "Em localhost de desenvolvimento pode haver configuração WS separada; produção exige WSS."
+          },
+          "token": {
+            "type": "string",
+            "description": "Bearer JWT efêmero; somente em memória, no-store, nunca logar."
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "leaseId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "sessionId",
+          "generation",
+          "roomName",
+          "identity",
+          "role",
+          "serverUrl",
+          "token",
+          "expiresAt",
+          "leaseId"
+        ]
+      },
+      "LeaseRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "leaseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "generation": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "leaseId",
+          "generation"
+        ]
+      },
+      "HeartbeatView": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/SessionStatus"
+          },
+          "generation": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "authorizedUntil": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "shouldReconnect": {
+            "type": "boolean"
+          },
+          "shouldStop": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "state",
+          "generation",
+          "authorizedUntil",
+          "shouldReconnect",
+          "shouldStop"
+        ]
+      },
+      "DiscordInteraction": {
+        "type": "object",
+        "description": "Payload nativo Discord validado após assinatura nos bytes brutos. PING exige apenas type; application commands seguem schema oficial versionado.",
+        "properties": {
+          "type": {
+            "type": "integer"
+          },
+          "id": {
+            "type": "string"
+          },
+          "application_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "additionalProperties": true
+      },
+      "DiscordCallback": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "additionalProperties": true
+      },
+      "LiveKitWebhook": {
+        "type": "object",
+        "description": "Evento nativo validado pelo SDK nos bytes brutos; campos variam conforme evento. Deduplicar ID oficial.",
+        "additionalProperties": true
+      },
+      "Health": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "UP",
+              "DOWN"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "AccessExchangeRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ticket": {
+            "type": "string",
+            "minLength": 43,
+            "maxLength": 43,
+            "pattern": "^[A-Za-z0-9_-]{43}$",
+            "description": "Código de uso único; nunca logar corpo desta requisição."
+          }
+        },
+        "required": [
+          "ticket"
+        ]
+      },
+      "AccessContext": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "botId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "guildId": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "discordUserId": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "OWNER",
+              "VIEWER"
+            ]
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "bootId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "sessionId",
+          "botId",
+          "guildId",
+          "discordUserId",
+          "displayName",
+          "role",
+          "expiresAt",
+          "bootId"
+        ]
+      },
+      "AccessExchangeResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "access": {
+            "$ref": "#/components/schemas/AccessContext"
+          },
+          "nextPath": {
+            "type": "string",
+            "pattern": "^/s/[0-9a-fA-F-]{36}(/transmitir)?$",
+            "description": "Destino interno derivado no servidor, não recebido do navegador."
+          }
+        },
+        "required": [
+          "access",
+          "nextPath"
+        ]
+      }
+    }
+  }
+}
