@@ -1,0 +1,34 @@
+<main>
+  <a routerLink="/">Voltar à saúde do backend</a>
+  <h1>T-02 — Ferramenta local de desenvolvimento LiveKit</h1>
+  <p class="notice">Prova técnica com vídeo de canvas e tom sintético de 440 Hz. Não captura tela,
+    câmera ou microfone. Não homologa áudio do Windows. Disponível somente no build de desenvolvimento;
+    exige o backend auxiliar e a SFU locais iniciados explicitamente.</p>
+  <p>A prova cria salas próprias, conecta apresentador e espectador, mede mídia recebida, tenta violar
+    os grants e o escopo da sala, exclui as salas e tenta reutilizar um token ainda válido.</p>
+  <div class="actions">
+    <button type="button" (click)="run()" [disabled]="proof.running()">Executar prova local</button>
+    <button type="button" (click)="proof.enableAudio()" [disabled]="!proof.running()">Ouvir áudio</button>
+    <button type="button" (click)="proof.cancel()" [disabled]="!proof.running()">Interromper e limpar</button>
+  </div>
+  <p role="status" aria-live="polite">{{ proof.status() }}</p>
+  <h2>Receptor real do espectador</h2>
+  <video #video autoplay playsinline muted aria-label="Vídeo sintético recebido da SFU"></video>
+  <audio #audio autoplay controls aria-label="Áudio sintético recebido da SFU"></audio>
+  <p>{{ proof.playback() }}</p>
+  <p>{{ proof.media() }}</p>
+  <p>{{ proof.transport() }}</p>
+  <details><summary>Ambiente do navegador desta prova</summary><p>{{ proof.environment }}</p></details>
+  <h2>Resultados</h2>
+  <ol>
+    @for (check of proof.checks(); track $index) {
+      <li [class.passed]="check.status === 'passed'" [class.failed]="check.status === 'failed'">
+        <strong>{{ check.status === 'passed' ? 'APROVADO' : check.status === 'failed' ? 'FALHOU' : 'EM EXECUÇÃO' }} — {{ check.label }}</strong>
+        <p>{{ check.detail }}</p>
+      </li>
+    }
+  </ol>
+  <p>Tokens existem apenas na memória desta execução. Nenhuma credencial aparece nesta página,
+    em armazenamento do navegador ou nos resultados. Em falha de limpeza, mantenha o backend auxiliar
+    ativo para remover somente as salas desta prova.</p>
+</main>

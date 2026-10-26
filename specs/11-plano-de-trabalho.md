@@ -1,5 +1,5 @@
 # 11 — Plano de implementação por entregas
-Todas as tarefas continuam NÃO INICIADAS. Revisão 1.2 substitui login OAuth/persistência operacional por acesso emitido pelo bot e memória.
+**T-01 e T-02 CONCLUÍDAS em 26/10/2026**, com [evidência de bootstrap](../tests/manual/T-01-bootstrap.md) e [integração LiveKit real](../tests/manual/T-02-livekit.md). T-03 a T-24 continuam **NÃO INICIADAS**. Revisão 1.2 substitui login OAuth/persistência operacional por acesso emitido pelo bot e memória.
 
 | ID | Entrega concreta | Depende de | Requisitos / evidência |
 |---|---|---|---|
@@ -27,6 +27,23 @@ Todas as tarefas continuam NÃO INICIADAS. Revisão 1.2 substitui login OAuth/pe
 | T-22 | Regressão + jornada real Discord -> acesso privado -> transmissão | T-15 a T-21 | AC-01 a AC-25; G3 |
 | T-23 | Duas horas, nove espectadores e custo dentro de R$200 | T-22 | RNFs; G4 |
 | T-24 | Runbooks: novo acesso pelo bot após reinício e limites do ticket bearer | T-23 | Definição de pronto |
+
+## Resultado da T-01
+- Backend Java 21/Spring Boot, Maven Wrapper, conexão JDBC por ambiente, liveness HTTP e readiness local do banco.
+- Angular standalone com lockfile, estruturas core/shared/features, proxy e consulta real à API com estados de carregamento, sucesso e erro recuperável.
+- Compose somente PostgreSQL de desenvolvimento, porta em loopback e volume Docker; `.env.example` fictício e importador PowerShell sem execução de conteúdo.
+- Builds backend/frontend aprovados; PostgreSQL autenticado sem tabelas; readiness DOWN/UP ao parar/recuperar banco; página disponível/indisponível/recuperada ao parar/reiniciar backend.
+- Documentação de operação e inventário atualizados. Nenhuma funcionalidade das próximas tarefas foi implementada; nenhum serviço externo foi contratado.
+
+Próxima tarefa após a T-01: **T-02 — validar SDK LiveKit JVM/browser, sala, grants e exclusão**, andamento abaixo. As POCs de mídia e a limpeza SFU antes de readiness permanecem pendentes nas suas etapas.
+
+## Resultado da T-02 — concluída
+- Implementados Compose LiveKit local, configuração tipada/gateway SDK JVM e ferramenta Angular com tracks sintéticas, sem captura de dispositivos.
+- Aprovados testes Java contra SFU real: criar/consultar/excluir, escopo do token, AddTrack de espectador negado pela SFU, desconexão e reuso negado antes do TTL. Assinatura/grants/TTL e erro sanitizado também verificados.
+- Auxiliar fora do artefato padrão e bloqueado nos profiles prod/production; origem, marcador e loopback verificados. Sem tabelas novas, tickets ou integrações Discord.
+- Prova Angular aprovada: duas identidades RTC, tracks sintéticas confirmadas na SFU, RTP crescente, quadros decodificados e RMS de áudio recebido; espectador negado pela SFU, isolamento entre salas, exclusão/desconexão e reuso negado antes do TTL.
+- Conexão usa parâmetros padrão do SDK; overrides locais de retry/timeouts foram retirados após falha inicial. Diagnósticos de transporte não foram mantidos como configuração de produção.
+- Próxima tarefa: **T-03 — captura real de vídeo e áudio de sistema entre duas máquinas**, não iniciada. Nove espectadores/TURN e limpeza de startup continuam nas suas etapas.
 
 ## Fatias de entrega
 1. T-01–04: provar mídia real antes do bot completo.

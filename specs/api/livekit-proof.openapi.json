@@ -1,0 +1,575 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "T-02 — auxiliar LOCAL LiveKit",
+    "version": "0.1.0",
+    "description": "Contrato separado do produto. Fontes auxiliares ausentes do JAR padrão; requer Maven/Spring profile livekit-proof, flag explícita, loopback e Host autorizado. Indisponível com profiles prod/production. Não oferece autorização definitiva ou tickets."
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:4200",
+      "description": "Somente proxy de desenvolvimento local"
+    }
+  ],
+  "paths": {
+    "/api/dev/livekit/rooms": {
+      "post": {
+        "operationId": "createLocalProofRoom",
+        "parameters": [
+          {
+            "name": "X-LiveKit-Proof",
+            "in": "header",
+            "required": true,
+            "description": "Marcador não secreto; não autentica usuários. Há validação adicional de profile, flag, loopback, Host e Origin.",
+            "schema": {
+              "type": "string",
+              "const": "local-development"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "const": "http://127.0.0.1:4200"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Sala com nome aleatório criado pelo backend.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Room"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Fora das restrições da prova local.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sala não criada por este processo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limite da ferramenta local atingido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Operação SFU ou limpeza não confirmada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "cleanupOwnLocalProofRooms",
+        "parameters": [
+          {
+            "name": "X-LiveKit-Proof",
+            "in": "header",
+            "required": true,
+            "description": "Marcador não secreto; não autentica usuários. Há validação adicional de profile, flag, loopback, Host e Origin.",
+            "schema": {
+              "type": "string",
+              "const": "local-development"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "const": "http://127.0.0.1:4200"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Todas as salas próprias confirmadas ausentes."
+          },
+          "403": {
+            "description": "Fora das restrições da prova local.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sala não criada por este processo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limite da ferramenta local atingido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Operação SFU ou limpeza não confirmada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dev/livekit/rooms/{name}": {
+      "get": {
+        "operationId": "inspectOwnLocalProofRoom",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^t02-[0-9a-f-]+$"
+            }
+          },
+          {
+            "name": "X-LiveKit-Proof",
+            "in": "header",
+            "required": true,
+            "description": "Marcador não secreto; não autentica usuários. Há validação adicional de profile, flag, loopback, Host e Origin.",
+            "schema": {
+              "type": "string",
+              "const": "local-development"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Consulta real SFU; exists=false após exclusão de sala própria.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Room"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Fora das restrições da prova local.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sala não criada por este processo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limite da ferramenta local atingido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Operação SFU ou limpeza não confirmada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteOwnLocalProofRoom",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^t02-[0-9a-f-]+$"
+            }
+          },
+          {
+            "name": "X-LiveKit-Proof",
+            "in": "header",
+            "required": true,
+            "description": "Marcador não secreto; não autentica usuários. Há validação adicional de profile, flag, loopback, Host e Origin.",
+            "schema": {
+              "type": "string",
+              "const": "local-development"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "const": "http://127.0.0.1:4200"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Exclusão confirmada na SFU; idempotente para nome próprio."
+          },
+          "403": {
+            "description": "Fora das restrições da prova local.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sala não criada por este processo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limite da ferramenta local atingido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Operação SFU ou limpeza não confirmada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dev/livekit/rooms/{name}/tokens": {
+      "post": {
+        "operationId": "issueBoundLocalProofToken",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^t02-[0-9a-f-]+$"
+            }
+          },
+          {
+            "name": "X-LiveKit-Proof",
+            "in": "header",
+            "required": true,
+            "description": "Marcador não secreto; não autentica usuários. Há validação adicional de profile, flag, loopback, Host e Origin.",
+            "schema": {
+              "type": "string",
+              "const": "local-development"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "const": "http://127.0.0.1:4200"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token limitado à sala existente e identidade aleatória do backend.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Papel ausente ou inválido."
+          },
+          "403": {
+            "description": "Fora das restrições da prova local.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sala não criada por este processo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Sala própria encerrada ou ausente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limite da ferramenta local atingido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Operação SFU ou limpeza não confirmada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Failure": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "Track": {
+        "type": "object",
+        "required": [
+          "sid",
+          "kind",
+          "source",
+          "muted"
+        ],
+        "properties": {
+          "sid": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "muted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Participant": {
+        "type": "object",
+        "required": [
+          "identity",
+          "sid",
+          "tracks"
+        ],
+        "properties": {
+          "identity": {
+            "type": "string"
+          },
+          "sid": {
+            "type": "string"
+          },
+          "tracks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Track"
+            }
+          }
+        }
+      },
+      "Room": {
+        "type": "object",
+        "required": [
+          "roomName",
+          "exists",
+          "maxParticipants",
+          "participants"
+        ],
+        "properties": {
+          "roomName": {
+            "type": "string"
+          },
+          "exists": {
+            "type": "boolean"
+          },
+          "maxParticipants": {
+            "type": "integer",
+            "const": 10
+          },
+          "participants": {
+            "type": "array",
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/Participant"
+            }
+          }
+        }
+      },
+      "TokenRequest": {
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "PRESENTER",
+              "VIEWER"
+            ]
+          }
+        }
+      },
+      "Token": {
+        "type": "object",
+        "required": [
+          "roomName",
+          "identity",
+          "role",
+          "serverUrl",
+          "token",
+          "expiresAt"
+        ],
+        "properties": {
+          "roomName": {
+            "type": "string"
+          },
+          "identity": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "PRESENTER",
+              "VIEWER"
+            ]
+          },
+          "serverUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "token": {
+            "type": "string",
+            "format": "password",
+            "description": "JWT de 120s; apenas memória. Nunca registrar, persistir ou colocar em URLs da aplicação."
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: compartilhamento-discord
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    hikari:
+      connection-timeout: 3000
+      validation-timeout: 1000
+
+# Bootstrap local. A infraestrutura de produção será tratada na T-20.
+server:
+  address: 127.0.0.1
+  port: 8080
+  error:
+    include-message: never
+    include-stacktrace: never
+
+management:
+  server:
+    address: 127.0.0.1
+    port: 8081
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      show-components: never
+      probes:
+        enabled: true
+      group:
+        ready:
+          include: readinessState,db
+
+# The integration has no public token endpoint. Local auxiliary sources require
+# a separate Maven profile, a Spring profile and explicit opt-in.
+livekit:
+  enabled: ${LIVEKIT_ENABLED:false}
+  api-url: ${LIVEKIT_INTERNAL_URL:http://127.0.0.1:7880}
+  browser-url: ${LIVEKIT_PUBLIC_URL:ws://127.0.0.1:7880}
+  api-key: ${LIVEKIT_API_KEY:}
+  api-secret: ${LIVEKIT_API_SECRET:}
+  request-timeout: 5s
+  proof:
+    enabled: ${LIVEKIT_PROOF_ENABLED:false}
+    origin: http://127.0.0.1:4200

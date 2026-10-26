@@ -1,0 +1,25 @@
+<main>
+  <h1>Compartilhamento Discord</h1>
+  <p>Ambiente de desenvolvimento — verificação da API.</p>
+
+  <section aria-live="polite" aria-atomic="true" [attr.aria-busy]="state() === 'loading'">
+    @switch (state()) {
+      @case ('loading') {
+        <p role="status">Consultando backend…</p>
+      }
+      @case ('available') {
+        <p role="status"><strong>Backend disponível.</strong> Resposta recebida: UP.</p>
+        <p>A API respondeu ao pedido de saúde. Esta consulta não verifica a disponibilidade do banco.</p>
+      }
+      @case ('unavailable') {
+        <p role="status"><strong>Backend indisponível.</strong></p>
+        <p>Confira se a API está em execução na porta 8080 e tente novamente.</p>
+      }
+    }
+  </section>
+
+  <p>Endpoint: <code>/api/health/live</code></p>
+  <button type="button" [disabled]="state() === 'loading'" (click)="checkHealth()">
+    {{ state() === 'unavailable' ? 'Tentar novamente' : 'Verificar novamente' }}
+  </button>
+</main>

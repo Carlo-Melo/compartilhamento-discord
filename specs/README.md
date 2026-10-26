@@ -1,7 +1,7 @@
 # Compartilhamento de tela + Discord — pacote de especificações
 Versão 1.2 • 26/10/2026 • idioma do produto: português do Brasil.
 
-**Estado:** especificações para implementar o piloto; nenhum site, bot, conta de hospedagem ou transmissão foi criado por este pacote. Decisões de produto abaixo foram respondidas pelo usuário. Metas técnicas são critérios de aceitação propostos, sujeitos à prova de conceito indicada.
+**Estado:** T-01 e T-02 concluídas: base local executável e integração SDKs/SFU com administração, grants e recepção sintética Angular validados. Bot, acesso definitivo e captura real não implementados; T-03 em diante pendentes. Nenhuma hospedagem ou conta externa foi criada. Decisões de produto abaixo foram respondidas pelo usuário. Metas técnicas são critérios de aceitação propostos, sujeitos à prova de conceito indicada.
 
 ## Escopo aprovado
 - Site no MVP, sem instalar aplicativo. Bot organiza a sessão no servidor.
@@ -39,6 +39,7 @@ Java 21 + Spring Boot no backend, Angular no frontend, PostgreSQL apenas para o 
 | [11 — Plano de trabalho](11-plano-de-trabalho.md) | Ordem, dependências e entregas |
 | [12 — Decisões](12-decisoes-e-riscos.md) | Aprovado, proposto e pendente |
 | [13 — Fontes](13-fontes.md) | Documentação externa consultada |
+| [14 — Inventário](14-bootstrap-inventario.md) | Versões fixadas, compatibilidade e dependências T-01/T-02 |
 
 ## Como desenvolver com estas specs
 1. Executar POC-01: captura real de vídeo e som de sistema no Windows, entre duas máquinas. Registrar versões e resultados.

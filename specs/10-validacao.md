@@ -1,5 +1,7 @@
 # 10 — Aceitação e estratégia de validação
-Estado desta entrega: **não executado**. A criação de pastas/documentos não comprova funcionamento do produto.
+Estado: bootstrap **T-01 validado localmente em 26/10/2026**; [evidência e limites](../tests/manual/T-01-bootstrap.md). Os critérios de produto abaixo e as POCs de mídia continuam **não executados**. Saúde e build não comprovam funcionamento da transmissão.
+
+T-02 concluída: cinco testes JUnit aprovados (três locais e dois contra SFU real) e dez verificações da ferramenta Angular aprovadas, com RTP de vídeo/áudio recebido e decodificado, grants, escopo e exclusão/reuso. G1 e G2 completos continuam pendentes: captura real, nove espectadores e TURN não foram executados. [Relatório detalhado](../tests/manual/T-02-livekit.md).
 
 ## Portões de avanço
 - G0: stack/escopo e contratos consistentes. Atual entrega prepara isso.
