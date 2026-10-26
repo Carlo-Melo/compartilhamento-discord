@@ -48,3 +48,11 @@ livekit:
   proof:
     enabled: ${LIVEKIT_PROOF_ENABLED:false}
     origin: http://127.0.0.1:4200
+
+# T-03 is a separate experimental artifact; no public token issuer in normal builds.
+capture:
+  proof:
+    enabled: ${CAPTURE_PROOF_ENABLED:false}
+    origin: ${CAPTURE_PROOF_ORIGIN:}
+    presenter-key: ${CAPTURE_PROOF_PRESENTER_KEY:}
+    viewer-key: ${CAPTURE_PROOF_VIEWER_KEY:}

@@ -86,3 +86,42 @@ Invoke-RestMethod -Method Delete -Uri http://127.0.0.1:8080/api/dev/livekit/room
 A limpeza tenta todos os nomes próprios; falhas retornam 503 para permitir nova tentativa. Depois use `Ctrl+C` no backend/Angular e encerre somente o Compose LiveKit descrito em infra. Não recompile um JAR em execução. Não há limpeza de startup/readiness nesta etapa (T-19).
 
 Para gerar o artefato normal: `.\backend\mvnw.cmd -f backend/pom.xml clean verify`. Sem `LIVEKIT_REAL_TEST_ENABLED=true`, os dois testes SFU são pulados explicitamente; os três testes locais de assinatura/grants/configuração continuam executados. O relatório [T-02](../tests/manual/T-02-livekit.md) distingue execução automatizada, prova no navegador e itens não homologados. O contrato auxiliar separado está em [OpenAPI local](../specs/api/livekit-proof.openapi.json); o contrato público do produto não oferece essa emissão.
+
+## T-03 — auxiliar restrito para captura real
+
+Implementado separadamente da T-02 em `src/capture-proof/java`, com testes em `src/capture-proof-test/java`. O artefato padrão não contém estas classes. O profile Maven **capture-proof** gera `target-capture-proof`; executar requer também profile Spring **capture-proof** e opt-in `CAPTURE_PROOF_ENABLED=true`. Os profiles `prod`, `production` ou `livekit-proof` desativam este auxiliar. T-03 permanece **pendente de homologação real**; builds e testes de lógica não comprovam áudio do Windows.
+
+Prepare a configuração separada e os certificados confiáveis conforme [infra](../infra/README.md). Quando as duas máquinas e a rede forem definidas pelo operador, com Java 21 no PATH:
+
+```powershell
+. .\scripts\Import-DevEnvironment.ps1
+. .\scripts\Import-CaptureEnvironment.ps1
+.\backend\mvnw.cmd -f backend/pom.xml -Pcapture-proof clean verify
+java -jar .\backend\target-capture-proof\backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=capture-proof --livekit.enabled=true --capture.proof.enabled=true
+```
+
+O backend continua em **127.0.0.1:8080**; a API administrativa SFU fica em loopback, em porta diferente da T-02. O proxy HTTPS mantém Host e Origin exatos da origem LAN. O backend rejeita configuração sem HTTPS/WSS na mesma origem, IP público ou bind público da API; somente IPv4 privado RFC1918 está preparado nesta prova. Rede externa/VPN/TURN depende da decisão e preparação de rede, sem abrir portas automaticamente.
+
+As chaves `CAPTURE_PROOF_PRESENTER_KEY` e `CAPTURE_PROOF_VIEWER_KEY` devem ser aleatórias, diferentes e conter 32 a 128 caracteres ASCII seguros. São capacidades experimentais por papel, inseridas apenas no campo de senha da página; não são login de produto ou tickets Discord. Não colocar em URL, bundle, log, screenshot ou armazenamento web. Não imprimir `.env.capture` nem valores de ambiente. A chave de espectador permite só obter sua credencial de assinatura e consultar estado; criar/excluir exige chave de apresentador. Todas as chamadas exigem também `X-Capture-Proof: restricted-development`, origem/Host exatos e transporte do proxy local. GET pode omitir Origin; mutações exigem Origin.
+
+O [contrato auxiliar T-03](../specs/api/capture-proof.openapi.json) define somente `/api/dev/capture/session` e `/viewer`, sem emissão por sala ou papel arbitrário. Uma sala ativa e duas identidades estáveis por sala limitam a prova a um apresentador e um espectador; nova aba do mesmo papel substitui a conexão anterior. Há limite de 32 salas por execução e nomes nunca reutilizados. JWT inicial dura 120s para entrada; expiração não desconecta cliente já conectado. `live=true` depende de consulta Java à SFU confirmando vídeo `SCREEN_SHARE` e áudio `SCREEN_SHARE_AUDIO` da identidade esperada, sem mute; silêncio não é ausência de track.
+
+O estado é apenas memória; nenhum usuário, ticket, transmissão ou chave é persistido no PostgreSQL. Criação/exclusão incertas preservam o nome próprio para repetir limpeza. Antes de parar o backend, encerre pela página ou execute sem imprimir os cabeçalhos:
+
+```powershell
+$captureOrigin = [Uri]$env:CAPTURE_PROOF_ORIGIN
+$captureHeaders = @{
+    Host = $captureOrigin.Authority
+    Origin = $env:CAPTURE_PROOF_ORIGIN
+    'X-Capture-Proof' = 'restricted-development'
+    'X-Capture-Key' = $env:CAPTURE_PROOF_PRESENTER_KEY
+}
+Invoke-RestMethod -Method Delete -Uri http://127.0.0.1:8080/api/dev/capture/session -Headers $captureHeaders
+Remove-Variable captureHeaders
+```
+
+Se receber 409, aguarde a operação corrente e repita. Em 503, mantenha backend/SFU ativos e repita; ausência da sala precisa ser confirmada. O shutdown tenta limpeza, mas encerramento abrupto não a garante. Depois da limpeza, encerre os processos e remova a composição SFU **T-03**; recrie essa SFU descartável antes de reiniciar a prova. Não reutilizar uma SFU com salas antigas após reinício do backend; limpeza de startup/readiness do produto continua na T-19.
+
+Validação automatizada do auxiliar: **13 testes, 0 falhas/erros, 2 pulados** (dois testes de SFU real opt-in não executados nesta rodada). Oito testes novos cobrem papéis, origem/Host/loopback/marcador, configuração separada, fontes obrigatórias, limpeza após falha, limite e concorrência sem lock durante rede; três testes existentes validam grants/assinatura/configuração. Builds padrão/T-02 também aprovados, cada um com três testes locais aprovados e dois SFU pulados. Inspeção dos JARs confirmou separação das classes dos dois auxiliares e ausência de ambos no JAR normal.
+
+Smoke HTTP real com processos Java temporários **somente em loopback** confirmou: JAR normal, auxiliar sem opt-in e profiles prod/production retornam 404; auxiliar habilitado sem chave retorna 403; consulta autenticada sem sala retorna 200; espectador não exclui (403); apresentador exclui estado vazio de forma idempotente (204); Origin externa é negada (403). Não houve mídia neste smoke. Docker Desktop não disponibilizou o daemon nesta rodada; não se repetiu a integração SFU real da T-02. Relatório e roteiro humano em [T-03](../tests/manual/T-03-captura-real.md).

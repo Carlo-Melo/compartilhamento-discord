@@ -95,6 +95,29 @@
   <!-- Auxiliary HTTP tooling is absent from the default artifact. -->
   <profiles>
     <profile>
+      <id>capture-proof</id>
+      <build>
+        <directory>${project.basedir}/target-capture-proof</directory>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>3.6.1</version>
+            <executions>
+              <execution>
+                <id>capture-proof-source</id><phase>generate-sources</phase><goals><goal>add-source</goal></goals>
+                <configuration><sources><source>src/capture-proof/java</source></sources></configuration>
+              </execution>
+              <execution>
+                <id>capture-proof-tests</id><phase>generate-test-sources</phase><goals><goal>add-test-source</goal></goals>
+                <configuration><sources><source>src/capture-proof-test/java</source></sources></configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <id>livekit-proof</id>
       <build>
         <directory>${project.basedir}/target-livekit-proof</directory>

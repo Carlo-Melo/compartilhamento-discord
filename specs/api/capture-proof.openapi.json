@@ -1,0 +1,93 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "T-03 — contrato experimental de captura real",
+    "version": "0.1.0",
+    "description": "Auxiliar separado da API definitiva, ausente do artefato padrão e desativado em produção. Exige build/profile capture-proof, opt-in, backend/API SFU em loopback, origem HTTPS exata em IPv4 privado e chaves experimentais por papel. Não implementa login nem tickets. Uma sala ativa e 32 salas por execução. Identidade estável por papel substitui a conexão anterior. Nenhuma sala arbitrária é aceita. JWTs e chaves apenas em memória; não registrar corpos, cabeçalhos ou URLs de sinalização."
+  },
+  "servers": [{ "url": "/api/dev/capture" }],
+  "security": [{ "RoleCapability": [] }],
+  "paths": {
+    "/session": {
+      "parameters": [{ "$ref": "#/components/parameters/Marker" }],
+      "post": {
+        "operationId": "createCaptureProof",
+        "description": "Somente apresentador; Origin exata obrigatória. Cria sala irrepetível e JWT restrito; cliente chama somente após validar captura local. Não confirma LIVE.",
+        "responses": {
+          "201": { "description": "Sala criada; mídia ainda não confirmada", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CaptureAccess" } } } },
+          "403": { "$ref": "#/components/responses/Rejected" },
+          "409": { "description": "Sala anterior existe ou operação em andamento" },
+          "429": { "description": "Limite de 32 salas por execução" },
+          "503": { "description": "SFU indisponível; DELETE deve limpar criação incerta" }
+        }
+      },
+      "get": {
+        "operationId": "captureProofStatus",
+        "description": "Ambos os papéis. Confirma LIVE somente consultando na SFU SCREEN_SHARE/VIDEO e SCREEN_SHARE_AUDIO/AUDIO da identidade esperada, sem mute. Não mede volume: silêncio com track viva é válido. GET pode omitir Origin; Origin divergente é sempre negada.",
+        "responses": {
+          "200": { "description": "Estado observado na SFU", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CaptureStatus" } } } },
+          "403": { "$ref": "#/components/responses/Rejected" },
+          "503": { "description": "Consulta SFU indisponível; não inferir LIVE" }
+        }
+      },
+      "delete": {
+        "operationId": "deleteCaptureProof",
+        "description": "Somente apresentador; Origin exata obrigatória. Exclui e confirma ausência da sala própria. Idempotente sem sala; falha preserva o nome para nova tentativa. Executar antes de encerrar backend/SFU.",
+        "responses": {
+          "204": { "description": "Ausência da sala confirmada" },
+          "403": { "$ref": "#/components/responses/Rejected" },
+          "409": { "description": "Operação em andamento; repetir encerramento" },
+          "503": { "description": "Exclusão não confirmada; manter backend ativo e repetir" }
+        }
+      }
+    },
+    "/session/viewer": {
+      "parameters": [{ "$ref": "#/components/parameters/Marker" }],
+      "post": {
+        "operationId": "joinCaptureProof",
+        "description": "Somente espectador; Origin exata obrigatória. JWT apenas de assinatura na sala atual, sem publicar/dados/admin. Cliente assina apenas presenterIdentity e fontes de tela/áudio de tela. Nova aba substitui a anterior.",
+        "responses": {
+          "200": { "description": "Credencial restrita de espectador", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CaptureAccess" } } } },
+          "403": { "$ref": "#/components/responses/Rejected" },
+          "409": { "description": "Captura não pronta ou encerrando" },
+          "503": { "description": "SFU indisponível" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "RoleCapability": { "type": "apiKey", "in": "header", "name": "X-Capture-Key", "description": "Chave aleatória distinta por papel, 32 a 128 caracteres ASCII seguros. Nunca URL/bundle/logs/armazenamento web." }
+    },
+    "parameters": {
+      "Marker": { "name": "X-Capture-Proof", "in": "header", "required": true, "schema": { "const": "restricted-development" }, "description": "Marcador não secreto; não substitui autorização." }
+    },
+    "responses": {
+      "Rejected": { "description": "Chave/papel/origem/Host/marcador/transporte inválido", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Failure" } } } }
+    },
+    "schemas": {
+      "CaptureAccess": {
+        "type": "object", "additionalProperties": false,
+        "required": ["roomName", "identity", "presenterIdentity", "role", "serverUrl", "token", "expiresAt"],
+        "properties": {
+          "roomName": { "type": "string", "pattern": "^t03-[a-f0-9-]+$" },
+          "identity": { "type": "string" }, "presenterIdentity": { "type": "string" },
+          "role": { "enum": ["PRESENTER", "VIEWER"] },
+          "serverUrl": { "type": "string", "format": "uri", "pattern": "^wss://" },
+          "token": { "type": "string", "description": "JWT só em memória; TTL inicial 120s não desconecta conexão estabelecida." },
+          "expiresAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CaptureStatus": {
+        "type": "object", "additionalProperties": false,
+        "required": ["exists", "live", "presenterIdentity", "viewerIdentity", "roomName"],
+        "properties": {
+          "exists": { "type": "boolean" }, "live": { "type": "boolean" },
+          "presenterIdentity": { "type": ["string", "null"] }, "viewerIdentity": { "type": ["string", "null"] },
+          "roomName": { "type": ["string", "null"] }
+        }
+      },
+      "Failure": { "type": "object", "required": ["code", "message"], "properties": { "code": { "type": "string" }, "message": { "type": "string" } } }
+    }
+  }
+}
