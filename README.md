@@ -1,7 +1,9 @@
 # Compartilhamento de tela integrado ao Discord
-T-01 implementada: backend Spring Boot e frontend Angular executáveis, PostgreSQL local por Docker Compose e página que consulta a saúde real da API. Funcionalidades de bot, acesso e mídia continuam nas próximas tarefas.
+T-01 implementada: backend Spring Boot e frontend Angular executáveis, PostgreSQL local por Docker Compose e página que consulta a saúde real da API. Bot e acesso definitivo continuam nas próximas tarefas.
 
-T-02 concluída: SDKs LiveKit JVM/browser e SFU local com administração, grants, vídeo/áudio sintéticos recebidos, isolamento de sala e exclusão/reuso de token validados contra servidor real. [Como executar a prova local](backend/README.md#t-02--sdk-oficial-e-prova-local-isolada) e [evidências e limites](tests/manual/T-02-livekit.md). Captura real e T-03 em diante permanecem pendentes.
+T-02 concluída: SDKs LiveKit JVM/browser e SFU local com administração, grants, vídeo/áudio sintéticos recebidos, isolamento de sala e exclusão/reuso de token validados contra servidor real. [Como executar a prova local](backend/README.md#t-02--sdk-oficial-e-prova-local-isolada) e [evidências e limites](tests/manual/T-02-livekit.md).
+
+**T-03 implementada, homologação pendente:** captura de tela com áudio obrigatório, publicação LiveKit e página separada de espectador em uma prova HTTPS restrita. [Como preparar e iniciar nas duas máquinas](infra/README.md#t-03--prova-restrita-em-duas-máquinas); [testes e decisões externas para resolver depois](tests/manual/T-03-captura-real.md). O som real do Windows e a matriz Chrome/Edge por 15 minutos ainda não foram homologados.
 
 ## Stack
 - Backend: Java 21 + Spring Boot; arquitetura em camadas.
@@ -94,7 +96,7 @@ docker compose --env-file .env -f infra/docker/compose.yaml down
 
 O volume é preservado. Não há inicialização automática de produção. Consulte os READMEs de [backend](backend/README.md), [frontend](frontend/README.md) e [infra](infra/README.md) para variáveis, ferramentas e comandos detalhados. Versões e fontes: [inventário](specs/14-bootstrap-inventario.md). Resultados reais: [validação T-01](tests/manual/T-01-bootstrap.md).
 
-Leia [specs/README.md](specs/README.md) e siga a ordem do [plano de trabalho](specs/11-plano-de-trabalho.md); a próxima tarefa é T-03, ainda não iniciada. Nenhum bot, serviço externo ou hospedagem foi registrado ou contratado.
+Leia [specs/README.md](specs/README.md) e siga a ordem do [plano de trabalho](specs/11-plano-de-trabalho.md); a T-03 aguarda homologação real antes de avançar seu portão G1. Nenhum bot, serviço externo ou hospedagem foi registrado ou contratado.
 
 ## Revisão de acesso e persistência
 Sem tabelas de usuários, sessões web, transmissões ou filas. Reinício mantém apenas o vínculo bot–servidor e encerra/invalida o restante; usuários retornam ao bot para novo acesso. Link privado é uma credencial bearer temporária, não comprovação automática da identidade no navegador.

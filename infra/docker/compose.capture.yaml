@@ -1,0 +1,20 @@
+name: compartilhamento-discord-capture-proof
+
+services:
+  livekit:
+    image: livekit/livekit-server:v1.13.10@sha256:89ca9ce0791e18d6e03bf6e2c49ceb27e1c754eae8bd50c989386c1a5963791a
+    command: ["--config", "/etc/livekit/livekit.capture.yaml"]
+    environment:
+      LIVEKIT_KEYS: "${LIVEKIT_API_KEY:?Importe .env.capture}: ${LIVEKIT_API_SECRET:?Importe .env.capture}"
+    ports:
+      - "127.0.0.1:7890:7880/tcp"
+      - "${CAPTURE_LAN_IP:?Defina o IPv4 privado da maquina SFU}:7891:7891/tcp"
+      - "${CAPTURE_LAN_IP:?Defina o IPv4 privado da maquina SFU}:7892:7892/udp"
+    volumes:
+      - ../livekit/livekit.capture.generated.yaml:/etc/livekit/livekit.capture.yaml:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:7880/"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s

@@ -40,6 +40,9 @@ O questionamento sobre duas telas simultâneas foi esclarecimento, não alteraç
 | P-04 | App auxiliar se web falhar no requisito | Só após evidência da POC |
 | P-05 | Disponibilidade/autorização de Activity no Brasil | Antes dessa evolução |
 | P-06 | Versões exatas de Windows/navegadores homologados | POC-01 |
+| P-07 | Segunda máquina/operadores, rede privada/IP SFU, certificado HTTPS confiável em ambas e eventuais regras de firewall restritas | T-03: usuário adiou para depois; [ações e roteiro](../tests/manual/T-03-captura-real.md) |
+
+T-03 entrega ferramenta experimental com acesso manual por chaves de papel e configuração HTTPS LAN opt-in. É scaffolding de desenvolvimento, sem alterar o acesso definitivo por tickets do bot. Não foi iniciada escuta LAN, instalada confiança de certificado ou alterado firewall. A homologação permanece pendente, sem decisão por aplicativo auxiliar ou redução de compatibilidade.
 
 ## Riscos e respostas
 | Risco | Resposta |

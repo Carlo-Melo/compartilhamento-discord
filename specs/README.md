@@ -1,7 +1,7 @@
 # Compartilhamento de tela + Discord — pacote de especificações
 Versão 1.2 • 26/10/2026 • idioma do produto: português do Brasil.
 
-**Estado:** T-01 e T-02 concluídas: base local executável e integração SDKs/SFU com administração, grants e recepção sintética Angular validados. Bot, acesso definitivo e captura real não implementados; T-03 em diante pendentes. Nenhuma hospedagem ou conta externa foi criada. Decisões de produto abaixo foram respondidas pelo usuário. Metas técnicas são critérios de aceitação propostos, sujeitos à prova de conceito indicada.
+**Estado:** T-01 e T-02 concluídas: base local executável e integração SDKs/SFU com administração, grants e recepção sintética Angular validados. T-03 implementada como prova restrita, com captura real solicitada ao navegador, publicação e player; **homologação entre duas máquinas Windows pendente**. Bot e acesso definitivo não implementados; T-04 em diante pendentes. Nenhuma hospedagem ou conta externa foi criada. Decisões de produto abaixo foram respondidas pelo usuário. Metas técnicas são critérios de aceitação propostos, sujeitos à prova de conceito indicada. [Implementação, testes e pendências T-03](../tests/manual/T-03-captura-real.md).
 
 ## Escopo aprovado
 - Site no MVP, sem instalar aplicativo. Bot organiza a sessão no servidor.

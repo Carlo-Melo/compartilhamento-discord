@@ -1,0 +1,42 @@
+<main>
+  <h1>T-03 — {{ presenter ? 'Compartilhar tela com áudio' : 'Assistir à transmissão' }}</h1>
+  <p>Prova restrita de desenvolvimento. Captura real do Windows ainda depende de homologação nas duas máquinas.</p>
+  <p>Contexto seguro do navegador: {{ secure ? 'sim' : 'não — configure HTTPS confiável' }}.</p>
+  @if (presenter) {
+    <p><strong>O áudio inteiro do computador pode incluir Discord e notificações.</strong> Use fones e um som de teste sem conversas privadas. Câmera e microfone não são solicitados.</p>
+    <p>No seletor do navegador, escolha <strong>Tela inteira</strong> e habilite <strong>compartilhar áudio do sistema</strong>. As opções disponíveis dependem do navegador. Silêncio com track viva é permitido.</p>
+  }
+  <label>Chave experimental de {{ presenter ? 'apresentador' : 'espectador' }}
+    <input type="password" autocomplete="off" spellcheck="false" [value]="key"
+      (input)="key = $any($event.target).value" [disabled]="active()" aria-label="Chave experimental do papel" />
+  </label>
+  @if (presenter) {
+    <label>Qualidade inicial
+      <select [value]="quality" (change)="quality = $any($event.target).value" [disabled]="active()">
+        <option value="720p">720p · 30 fps · alvo 2 Mbps</option>
+        <option value="1080p">1080p · 30 fps · teto 4 Mbps</option>
+      </select>
+    </label>
+  }
+  <div class="actions">
+    <button (click)="start()" [disabled]="active() || !key.trim()">{{ presenter ? 'Selecionar tela e iniciar' : 'Entrar como espectador' }}</button>
+    <button (click)="stop()" [disabled]="!active()">{{ presenter ? 'Parar transmissão' : 'Sair' }}</button>
+    @if (view().cleanupPending) { <button (click)="cleanup()">Repetir limpeza</button> }
+  </div>
+  <p role="status" aria-live="polite"><strong>Estado: {{ phases[view().phase] }}</strong>. {{ view().message }}</p>
+  <video #video autoplay muted playsinline [attr.aria-label]="presenter ? 'Prévia local silenciada' : 'Vídeo do apresentador'"></video>
+  <audio #audio autoplay></audio>
+  @if (presenter) {
+    <p>Prévia local silenciada. A publicação só é confirmada quando vídeo e áudio aparecem na consulta à SFU.</p>
+  } @else {
+    @if (audioBlocked()) { <p role="status">O navegador bloqueou a reprodução. Clique em Ouvir áudio.</p> }
+    <div class="actions">
+      <button (click)="enableAudio()" [disabled]="!active()">Ouvir áudio</button>
+      <button (click)="fullscreen()">Tela cheia</button>
+    </div>
+    <label>Volume local <input type="range" min="0" max="100" value="100" (input)="volume($any($event.target).value)" /></label>
+    <p>{{ reception() }}</p>
+  }
+  <p>Ao interromper durante a seleção, feche também o seletor nativo. Se o backend estiver indisponível, repita a limpeza antes de encerrar os serviços.</p>
+  <a [routerLink]="presenter ? '/dev/capture/watch' : '/dev/capture/broadcast'">{{ presenter ? 'Página do espectador' : 'Página do apresentador' }}</a>
+</main>
