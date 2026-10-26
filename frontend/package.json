@@ -10,7 +10,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build"
+    "build": "ng build",
+    "test:capture": "node tests/run-capture-tests.mjs"
   },
   "dependencies": {
     "@angular/common": "22.2.3",

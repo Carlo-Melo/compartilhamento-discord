@@ -55,7 +55,7 @@ Angular standalone com TypeScript, HttpClient e Router.
 - features/transmission/services: API da sessão e cliente de mídia.
 - features/transmission/models: estado de apresentação da sessão.
 
-As pastas de acesso, componentes compartilhados e transmissão continuam reservadas para suas tarefas; a T-01 não implementa esses fluxos.
+As pastas de acesso, componentes compartilhados e transmissão definitiva continuam reservadas para suas tarefas; a prova T-03 usa a feature experimental `dev-capture`.
 
 ## T-02 — Prova local LiveKit
 
@@ -99,3 +99,33 @@ Nenhum teste unitário que simule sucesso de mídia foi adicionado. A evidência
 API por /api na mesma origem. Tokens Discord nunca passam pelo Angular. Token de mídia somente em memória. Sem SSR necessário no MVP.
 getDisplayMedia exige clique na página; não abrir seletor automaticamente ao abrir pelo ticket. O navegador decide fontes de áudio disponíveis.
 O fragmento /acesso#ticket=... é removido imediatamente e trocado por POST com CSRF. Ticket, contexto e token de mídia não vão para localStorage. Reinício/expiração exige novo acesso pelo bot.
+
+## T-03 — captura real experimental
+
+**Implementada; homologação Windows entre duas máquinas pendente.** Configuração Angular **capture-proof** separada da `development` usada pela T-02. Nenhuma dependência npm foi adicionada. O build `production` exclui as duas ferramentas e o SDK de mídia.
+
+Depois de preparar SFU, backend auxiliar, rede e HTTPS confiável conforme [infra](../infra/README.md#t-03--prova-restrita-em-duas-máquinas), inicie o frontend **na máquina da SFU**, a partir da raiz:
+
+```powershell
+.\scripts\Start-CaptureProofFrontend.ps1 -CertificatePath 'C:\certificados\capture-cert.pem' -PrivateKeyPath 'C:\certificados\capture-key.pem'
+```
+
+O apresentador abre `https://<IPv4-privado>:4443/dev/capture/broadcast`; o outro computador abre `/dev/capture/watch` na mesma origem. Cada pessoa informa apenas a chave experimental do seu papel no campo protegido. Chaves vêm do arquivo local privado gerado pelo operador, nunca de URL, bundle ou armazenamento web; API key/secret SFU não entram no navegador.
+
+No apresentador, o clique **Selecionar tela e iniciar** chama `getDisplayMedia` enquanto o gesto ainda está ativo. O usuário escolhe **Tela inteira** e habilita áudio do sistema no seletor nativo. A prévia fica silenciada. Ausência de vídeo/áudio vivos recusa a tentativa e libera todas as tracks; cancelamento não cria sala. O áudio inteiro pode incluir Discord e notificações; não se pede microfone/câmera. Qualidade inicial 720p/30 fps/2 Mbps ou 1080p/30 fps/4 Mbps, VP8 sem simulcast e Opus até 128 kbps; são alvos de captura/negociação.
+
+O estado de transmissão só aparece depois da publicação das duas tracks e consulta SFU no backend. O som audível no receptor continua sendo verificação humana. No espectador, use **Ouvir áudio** se autoplay bloquear; há volume local, tela cheia e **Sair**. Assinatura exige identidade do apresentador e fontes autorizadas. Não há captura no espectador.
+
+**Parar transmissão**, o controle nativo ou término de uma track obrigatória liberam captura/conexão e pedem exclusão da sala. Reconexão mantém captura por até 30s e exige nova confirmação SFU; falha encerra. Falha de limpeza fica visível com **Repetir limpeza**, bloqueando nova prova até confirmar exclusão. Fechar abruptamente a página não garante HTTP; siga a limpeza do [backend](../backend/README.md#t-03--auxiliar-restrito-para-captura-real). Recrie a SFU T-03 após reinício abrupto do backend.
+
+Verificações independentes, dentro de `frontend`, com Node24:
+
+```powershell
+npm.cmd run test:capture
+node --test proxy.capture.test.cjs
+npm.cmd run build -- --configuration capture-proof
+npm.cmd run build -- --configuration development
+npm.cmd run build
+```
+
+Os testes de ciclo de vida usam doubles, e os testes do proxy usam upstream local falso; nenhum autoriza captura ou comprova áudio Windows. A matriz Chrome/Edge, preparo e pendências estão em [tests/manual/T-03-captura-real.md](../tests/manual/T-03-captura-real.md). O [contrato T-03](../specs/api/capture-proof.openapi.json) continua separado da API definitiva.

@@ -36,6 +36,14 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "capture-proof": {
+              "fileReplacements": [
+                { "replace": "src/app/app.routes.ts", "with": "src/app/app.routes.capture.ts" }
+              ],
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": false
             }
           },
           "defaultConfiguration": "production"
@@ -49,7 +57,8 @@
           },
           "configurations": {
             "production": { "buildTarget": "compartilhamento-discord:build:production" },
-            "development": { "buildTarget": "compartilhamento-discord:build:development" }
+            "development": { "buildTarget": "compartilhamento-discord:build:development" },
+            "capture-proof": { "buildTarget": "compartilhamento-discord:build:capture-proof" }
           },
           "defaultConfiguration": "development"
         }
