@@ -106,3 +106,78 @@ docker compose --env-file .env.livekit -f infra/docker/compose.livekit.yaml down
 Não há reinício automático ou infraestrutura de produção. A prova elimina somente as próprias salas; a limpeza de namespace no startup/readiness de produção fica na T-19. TURN, TLS, proxy público e deploy continuam nas tarefas futuras. Não encaminhar áudio/vídeo WebRTC através do Spring Boot.
 
 Referências oficiais consultadas em 26/10/2026: [release v1.13.10](https://github.com/livekit/livekit/releases/tag/v1.13.10), [opções da versão fixada](https://github.com/livekit/livekit/blob/v1.13.10/config-sample.yaml), [carregamento de `LIVEKIT_KEYS`](https://github.com/livekit/livekit/blob/v1.13.10/cmd/server/main.go), [portas e transportes](https://docs.livekit.io/transport/self-hosting/ports-firewall/). Operação futura em [specs/09-infra-e-operacao.md](../specs/09-infra-e-operacao.md).
+
+## T-03 — prova restrita em duas máquinas
+
+Preparação implementada, **homologação pendente**. O usuário adiou as decisões externas; nenhum listener LAN, regra de firewall, confiança de certificado ou serviço externo foi criado nesta entrega. A [matriz manual T-03](../tests/manual/T-03-captura-real.md) registra o que ainda exige duas máquinas e consentimento humano.
+
+A prova usa [compose.capture.yaml](docker/compose.capture.yaml), projeto separado `compartilhamento-discord-capture-proof`, e a mesma imagem/digest LiveKit da T-02. O IP ICE é configurado explicitamente; trocar `localhost` pela URL da máquina não configura mídia nem torna HTTP um contexto seguro. O backend e a API administrativa SFU continuam no loopback. O Angular de desenvolvimento termina HTTPS e encaminha somente a API auxiliar T-03 e os caminhos de sinalização LiveKit v0/v1; `/twirp/**`, a API T-02 e a gestão Spring não são encaminhadas. Esse servidor é uma ferramenta de teste numa LAN privada controlada, sem configuração de produção ou publicação na internet.
+
+| Endereço na máquina que hospeda SFU/backend | Uso | Acesso necessário |
+|---|---|---|
+| `<IPv4-privado>:4443/tcp` | HTTPS Angular + WebSocket seguro | As duas máquinas do teste |
+| `<IPv4-privado>:7891/tcp` | ICE/TCP | As duas máquinas do teste |
+| `<IPv4-privado>:7892/udp` | ICE/UDP mux | As duas máquinas do teste |
+| `127.0.0.1:7890/tcp` | Administração SFU + sinalização interna | Backend e proxy locais |
+| `127.0.0.1:8080/tcp`, `8081/tcp` | API backend e gestão | Somente host; não abrir na LAN |
+
+O navegador troca mídia por ICE diretamente nas portas 7891/7892; HTTPS/WSS na 4443 sozinho não prova conectividade WebRTC. Não há TURN nesta configuração. Duas redes sem rota privada exigem decisão e preparação adicionais; NAT, rede de convidados, isolamento entre clientes Wi-Fi, VPN e firewall podem impedir ICE. Não criar redirecionamento no roteador ou liberar firewall como correção automática. O fallback TURN e suas evidências permanecem na T-04. [Portas oficiais LiveKit](https://docs.livekit.io/transport/self-hosting/ports-firewall/).
+
+Antes de executar, o operador precisa:
+
+1. Escolher a máquina SFU e um IPv4 RFC1918 estável dessa interface (10/8, 172.16/12 ou 192.168/16), confirmar a segunda máquina Windows e a rota entre ambas. Esta implementação só aceita IP privado explícito; não escolhe fornecedor, domínio ou rede externa.
+2. Providenciar certificado de servidor PEM e chave PEM locais, com SAN **IP** exatamente igual ao IPv4 escolhido, validade e uso de servidor corretos. A cadeia emissora precisa ser confiável no Windows/Chrome/Edge **das duas máquinas**. Uma autoridade local já administrada pode emitir esse certificado; a escolha e instalação da confiança ficam com o operador. Não usar aviso ignorado, flags de navegador inseguras, `--unsafely-treat-insecure-origin-as-secure`, ou HTTP no IP como evidência. Se o endereço mudar, emitir certificado correspondente e regenerar a configuração conscientemente. A chave privada TLS permanece apenas no host, fora do Git; não compartilhar a chave ou `.env.capture` com o espectador.
+3. Decidir eventuais regras de firewall restritas às máquinas do teste e às três portas da tabela. Conferir Docker Desktop/Linux e o encaminhamento das portas no Windows. Nada disso é alterado pelos scripts.
+4. Disponibilizar Chrome e Edge e reservar 15 minutos por combinação, som de teste sem conversa privada e uma pessoa para selecionar **tela inteira + compartilhar áudio do sistema**. Captura não pode ser autorizada pela automação.
+
+Na raiz, depois dessas decisões (o IP abaixo é **exemplo**, substitua pela interface real):
+
+```powershell
+# Gera uma vez, sem substituir .env.livekit nem abrir qualquer porta:
+.\scripts\Initialize-CaptureProof.ps1 -LanIp '192.168.1.50'
+. .\scripts\Import-CaptureEnvironment.ps1
+docker compose --env-file .env.capture -f infra/docker/compose.capture.yaml config --quiet
+# Iniciar apenas quando rede/firewall e TLS estiverem preparados:
+docker compose --env-file .env.capture -f infra/docker/compose.capture.yaml up -d --wait
+docker compose --env-file .env.capture -f infra/docker/compose.capture.yaml ps
+
+# Banco local existente; importa apenas variáveis necessárias:
+. .\scripts\Import-DevEnvironment.ps1
+.\backend\mvnw.cmd -f backend/pom.xml -Pcapture-proof clean verify
+java -jar .\backend\target-capture-proof\backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=capture-proof --livekit.enabled=true --capture.proof.enabled=true
+```
+
+Em outro terminal, Node 24 no PATH e dependências `frontend/npm ci` já instaladas:
+
+```powershell
+.\scripts\Start-CaptureProofFrontend.ps1 -CertificatePath 'C:\certificados\capture-cert.pem' -PrivateKeyPath 'C:\certificados\capture-key.pem'
+```
+
+Abrir `https://<IPv4-privado>:4443/dev/capture/broadcast` no apresentador e `/dev/capture/watch` na outra máquina. Conferir que não há alerta TLS e que o apresentador informa contexto seguro. O operador consulta `.env.capture` localmente no seu editor e informa apenas a chave do respectivo papel no campo protegido da página. Entregar **somente** a chave de espectador à pessoa da segunda máquina por meio privado já disponível; nunca via URL, Git, log, screenshot ou conversa com o agente. As chaves experimentais não são tickets de produto; ficam em memória no navegador e autorizam somente esta prova. API key/secret SFU jamais vão para a página. Não ativar logs verbosos nem copiar as URLs internas de sinalização do SDK, que podem conter JWT.
+
+O proxy [proxy.capture.cjs](../frontend/proxy.capture.cjs) preserva Host/Origin para validação no backend, rejeita destino/origem divergentes e limita caminhos a `/api/dev/capture/session`, `/api/dev/capture/session/viewer`, `/rtc`, `/rtc/validate`, `/rtc/v1`, `/rtc/v1/validate`. Trata erros antes do logger Vite para retirar a query da URL interna. Rotas administrativas não chegam à SFU. A configuração local da T-02 e o build normal de produção permanecem separados. O uso do proxy vem do [dev-server oficial Angular](https://angular.dev/tools/cli/serve#proxying-to-a-backend-server); o comportamento de configuração e erro foi conferido nas dependências fixadas do repositório.
+
+Antes de encerrar, usar **Parar** no apresentador e conferir confirmação de exclusão. Se a página foi fechada ou a exclusão falhou, repetir a limpeza no host, sem exibir as chaves:
+
+```powershell
+. .\scripts\Import-CaptureEnvironment.ps1
+$captureOrigin = [Uri]$env:CAPTURE_PROOF_ORIGIN
+$captureHeaders = @{
+    Host = $captureOrigin.Authority
+    Origin = $env:CAPTURE_PROOF_ORIGIN
+    'X-Capture-Proof' = 'restricted-development'
+    'X-Capture-Key' = $env:CAPTURE_PROOF_PRESENTER_KEY
+}
+Invoke-RestMethod -Method Delete -Uri 'http://127.0.0.1:8080/api/dev/capture/session' -Headers $captureHeaders
+Remove-Variable captureHeaders
+```
+
+Repetir se a SFU não confirmar a exclusão; manter o backend ativo para essa tentativa. Em seguida `Ctrl+C` no frontend/backend e:
+
+```powershell
+docker compose --env-file .env.capture -f infra/docker/compose.capture.yaml down
+```
+
+Isso encerra só a SFU T-03, sem tocar na T-02 ou no volume PostgreSQL. Reinício abrupto do backend não implementa a limpeza de startup do produto (T-19); após falha, encerrar **esta** composição SFU antes de reiniciar a prova, eliminando suas salas voláteis. Não reutilizar acesso/sala da execução antiga. Para mudar IP ou chaves, encerrar a prova e preservar/remover conscientemente os dois arquivos gerados locais antes de executar o inicializador novamente; ele nunca os sobrescreve.
+
+Verificações independentes executadas em 26/10/2026: parser Compose com `.env.capture.example` e `config --quiet` aprovado; 13 verificações PowerShell de setup/importação/restauração e 7 testes Node do proxy aprovados, incluindo Vite real em loopback com upstream falso. Nenhum desses resultados comprova TLS confiável, abertura das portas, RTP entre máquinas ou áudio real do Windows.
