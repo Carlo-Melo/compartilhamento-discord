@@ -14,7 +14,7 @@ Java **21** é a versão da linguagem/runtime; Spring Boot é o framework, com n
 | Maven | Wrapper 3.9.x | Proposto |
 | LiveKit | Servidor e SDKs com versões fixadas na POC | Proposto; não usar latest em deploy |
 
-Não há dependências instaladas nesta entrega. Bootstrap deve fixar versões de patch compatíveis, Maven Wrapper e lockfile npm, confirmar suporte e gerar inventário. Se a equipe preferir outra linha de Spring/Angular, registrar ADR antes de gerar código. Não confundir escolha de linha de referência com homologação.
+T-01 fixa patches compatíveis nessas linhas, Maven Wrapper e lockfile npm. Versões exatas e fontes estão no [inventário do bootstrap](14-bootstrap-inventario.md). Se a equipe preferir outra linha de Spring/Angular, registrar ADR antes de gerar código. Não confundir escolha de linha de referência com homologação.
 
 ## Componentes e caminho dos dados
 ~~~mermaid

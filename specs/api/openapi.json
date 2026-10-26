@@ -1132,6 +1132,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Processo sem liveness.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
           }
         }
       }

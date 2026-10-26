@@ -1,5 +1,5 @@
 # 03 — Captura e distribuição de mídia
-Status: especificação de comportamento. LiveKit self-hosted é a solução técnica proposta; não homologada.
+Status: especificação de comportamento. T-02 valida administração/grants e transporte sintético no Angular contra SFU real local. Captura real, áudio do Windows e capacidade não homologados.
 
 ## Contrato de captura
 - Captura somente no Windows em Chrome/Edge homologados. Registrar versões exatas na POC; não inferir suporte pelo user-agent.
