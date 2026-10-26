@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.livekit.example
 .envrc
 .envrc.*
 *.pem
@@ -15,6 +16,7 @@ id_ed25519
 secrets/
 # Java
 **/target/
+**/target-livekit-proof/
 *.class
 *.log
 # Angular/Node

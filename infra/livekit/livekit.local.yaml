@@ -1,0 +1,25 @@
+# T-02: somente clientes no mesmo host Windows com Docker Desktop.
+# O processo escuta na rede interna do container; o Compose publica só no loopback.
+port: 7880
+bind_addresses:
+  - 0.0.0.0
+rtc:
+  tcp_port: 7881
+  udp_port: 7882
+  use_external_ip: false
+  node_ip: 127.0.0.1
+  enable_loopback_candidate: true
+  stun_servers: []
+room:
+  auto_create: false
+  max_participants: 10
+  empty_timeout: 300
+  departure_timeout: 20
+  enabled_codecs:
+    - mime: audio/opus
+    - mime: video/vp8
+turn:
+  enabled: false
+logging:
+  level: warn
+  pion_level: error
