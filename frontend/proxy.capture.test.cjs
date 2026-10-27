@@ -18,7 +18,7 @@ test('T-03 proxy only forwards the bounded capture API and LiveKit signalling en
   const config = load('https://192.168.1.50:4443');
   const matches = (url) => Object.keys(config).some((pattern) => new RegExp(pattern).test(url));
   for (const path of ['/rtc', '/rtc?access_token=redacted', '/rtc/validate', '/rtc/v1', '/rtc/v1/validate',
-    '/api/dev/capture/session', '/api/dev/capture/session/viewer']) assert.equal(matches(path), true, path);
+    '/api/dev/capture/session', '/api/dev/capture/session/viewer', '/api/dev/capture/session/access']) assert.equal(matches(path), true, path);
   for (const path of ['/twirp/livekit.RoomService/CreateRoom', '/rtc/twirp', '/rtc/v1/twirp',
     '/api/dev/livekit/rooms', '/api/dev/capture/session/tokens', '/api/health/live', '/health/ready']) {
     assert.equal(matches(path), false, path);
@@ -48,6 +48,25 @@ test('T-03 proxy sanitizes failed signalling requests before Vite logging', () =
   proxy.emit('error', error, request, response);
 });
 
+test('T-03 HTTP/2 authority is checked strictly and normalized for the HTTP/1 backend', () => {
+  const rule = Object.values(load('https://192.168.1.50:4443'))[0];
+  const request = { get method() { return this.headers[':method']; }, get url() { return this.headers[':path']; },
+    headers: { ':authority': '192.168.1.50:4443',
+    ':method': 'GET', ':path': '/api/dev/capture/session/access', ':scheme': 'https' } };
+  assert.equal(rule.bypass(request), undefined);
+  assert.equal(request.headers.host, '192.168.1.50:4443');
+  assert.equal(Object.keys(request.headers).some(name => name.startsWith(':')), false);
+  assert.equal(request.url, '/api/dev/capture/session/access');
+  assert.equal(request.method, 'GET');
+  for (const headers of [{ ':authority': 'evil.example' },
+    { host: 'evil.example', ':authority': '192.168.1.50:4443' },
+    { host: '192.168.1.50:4443', ':authority': 'evil.example' },
+    { ':authority': '192.168.1.50:4443', origin: 'https://evil.example' }]) {
+    assert.equal(rule.bypass({ method: 'GET', headers }), false);
+  }
+  assert.equal(rule.bypass({ method: 'POST', headers: { ':authority': '192.168.1.50:4443' } }), false);
+});
+
 test('T-03 proxy refuses loopback, public, non-HTTPS and non-canonical origins', () => {
   for (const origin of ['http://192.168.1.50:4443', 'https://127.0.0.1:4443', 'https://8.8.8.8:4443',
     'https://192.168.1.50:4443/', 'https://192.168.1.50:4443/path', 'https://192.168.1.50:4443?token=x',
@@ -56,9 +75,9 @@ test('T-03 proxy refuses loopback, public, non-HTTPS and non-canonical origins',
   }
 });
 
-function httpRequest(port, path, headers = {}, upgrade = false) {
+function httpRequest(port, path, headers = {}, upgrade = false, method = 'GET') {
   return new Promise((resolve, reject) => {
-    const request = http.request({ host: '127.0.0.1', port, path, agent: false,
+    const request = http.request({ host: '127.0.0.1', port, path, agent: false, method,
       headers: { host: '192.168.1.50:4443', ...headers }, timeout: 5_000 }, (response) => {
       let body = '';
       response.on('data', (chunk) => { body += chunk; });
@@ -74,8 +93,10 @@ function httpRequest(port, path, headers = {}, upgrade = false) {
 async function loopbackFixture(run) {
   const { createServer } = await import('vite');
   const upstreamPaths = [];
+  const upstreamRequests = [];
   const upstream = http.createServer((request, response) => {
     upstreamPaths.push(request.url);
+    upstreamRequests.push({ method: request.method, headers: request.headers });
     response.writeHead(200, { 'content-type': 'text/plain' }).end('fake-upstream');
   });
   await new Promise((resolve) => upstream.listen(0, '127.0.0.1', resolve));
@@ -90,7 +111,7 @@ async function loopbackFixture(run) {
     server: { host: '127.0.0.1', port: 0, strictPort: true, proxy: config } });
   try {
     await dev.listen();
-    await run({ port: dev.httpServer.address().port, upstream, upstreamPaths, logs });
+    await run({ port: dev.httpServer.address().port, upstream, upstreamPaths, upstreamRequests, logs });
   } finally {
     await dev.close();
     await new Promise((resolve) => upstream.close(resolve));
@@ -102,10 +123,11 @@ test('T-03 real Vite loopback proxy forwards signalling but never administrative
   await loopbackFixture(async ({ port, upstreamPaths }) => {
     assert.equal((await httpRequest(port, '/rtc/v1/validate?access_token=fake-sensitive-value')).status, 200);
     assert.equal((await httpRequest(port, '/api/dev/capture/session')).status, 200);
-    assert.equal(upstreamPaths.length, 2);
+    assert.equal((await httpRequest(port, '/api/dev/capture/session/access')).status, 200);
+    assert.equal(upstreamPaths.length, 3);
     for (const path of ['/twirp/livekit.RoomService/ListRooms', '/rtc/twirp', '/rtc/%2e%2e/twirp',
       '/api/dev/livekit/rooms', '/health/ready']) await httpRequest(port, path);
-    assert.equal(upstreamPaths.length, 2);
+    assert.equal(upstreamPaths.length, 3);
   });
 });
 
@@ -116,6 +138,22 @@ test('T-03 real Vite loopback proxy rejects foreign Host and Origin before upstr
     assert.ok([403, 404].includes((await httpRequest(port, '/rtc/v1', { host: 'other.example' })).status));
     assert.equal((await httpRequest(port, '/rtc/v1', { origin: 'https://other.example' })).status, 404);
     assert.equal(upstreamPaths.length, 0);
+  });
+});
+
+test('T-04 viewer leave keeps exact Origin and volatile nonce when forwarded without exposing administration', async () => {
+  await loopbackFixture(async ({ port, upstreamRequests }) => {
+    const nonce = '12345678-1234-4123-8123-123456789abc';
+    assert.equal((await httpRequest(port, '/api/dev/capture/session/viewer', {
+      origin: 'https://192.168.1.50:4443', 'x-capture-viewer': nonce,
+      'x-capture-key': 'fictitious-test-key', 'x-capture-proof': 'restricted-development',
+    }, false, 'DELETE')).status, 200);
+    assert.equal(upstreamRequests.length, 1);
+    assert.equal(upstreamRequests[0].method, 'DELETE');
+    assert.equal(upstreamRequests[0].headers.origin, 'https://192.168.1.50:4443');
+    assert.equal(upstreamRequests[0].headers['x-capture-viewer'], nonce);
+    assert.equal((await httpRequest(port, '/api/dev/capture/session/viewer', {}, false, 'DELETE')).status, 404);
+    assert.equal(upstreamRequests.length, 1);
   });
 });
 

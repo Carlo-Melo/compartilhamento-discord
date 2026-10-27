@@ -1,42 +1,153 @@
-<main>
-  <h1>T-03 — {{ presenter ? 'Compartilhar tela com áudio' : 'Assistir à transmissão' }}</h1>
-  <p>Prova restrita de desenvolvimento. Captura real do Windows ainda depende de homologação nas duas máquinas.</p>
-  <p>Contexto seguro do navegador: {{ secure ? 'sim' : 'não — configure HTTPS confiável' }}.</p>
-  @if (presenter) {
-    <p><strong>O áudio inteiro do computador pode incluir Discord e notificações.</strong> Use fones e um som de teste sem conversas privadas. Câmera e microfone não são solicitados.</p>
-    <p>No seletor do navegador, escolha <strong>Tela inteira</strong> e habilite <strong>compartilhar áudio do sistema</strong>. As opções disponíveis dependem do navegador. Silêncio com track viva é permitido.</p>
-  }
-  <label>Chave experimental de {{ presenter ? 'apresentador' : 'espectador' }}
-    <input type="password" autocomplete="off" spellcheck="false" [value]="key"
-      (input)="key = $any($event.target).value" [disabled]="active()" aria-label="Chave experimental do papel" />
-  </label>
-  @if (presenter) {
-    <label>Qualidade inicial
-      <select [value]="quality" (change)="quality = $any($event.target).value" [disabled]="active()">
-        <option value="720p">720p · 30 fps · alvo 2 Mbps</option>
-        <option value="1080p">1080p · 30 fps · teto 4 Mbps</option>
-      </select>
-    </label>
-  }
-  <div class="actions">
-    <button (click)="start()" [disabled]="active() || !key.trim()">{{ presenter ? 'Selecionar tela e iniciar' : 'Entrar como espectador' }}</button>
-    <button (click)="stop()" [disabled]="!active()">{{ presenter ? 'Parar transmissão' : 'Sair' }}</button>
-    @if (view().cleanupPending) { <button (click)="cleanup()">Repetir limpeza</button> }
-  </div>
-  <p role="status" aria-live="polite"><strong>Estado: {{ phases[view().phase] }}</strong>. {{ view().message }}</p>
-  <video #video autoplay muted playsinline [attr.aria-label]="presenter ? 'Prévia local silenciada' : 'Vídeo do apresentador'"></video>
-  <audio #audio autoplay></audio>
-  @if (presenter) {
-    <p>Prévia local silenciada. A publicação só é confirmada quando vídeo e áudio aparecem na consulta à SFU.</p>
-  } @else {
-    @if (audioBlocked()) { <p role="status">O navegador bloqueou a reprodução. Clique em Ouvir áudio.</p> }
-    <div class="actions">
-      <button (click)="enableAudio()" [disabled]="!active()">Ouvir áudio</button>
-      <button (click)="fullscreen()">Tela cheia</button>
+<main id="main-content" tabindex="-1">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">T-03 / T-04 · Captura experimental</p>
+      <h1>@if (presenter) { Compartilhar <span class="accent-text">tela com áudio</span> } @else { Assistir à <span class="accent-text">transmissão</span> }</h1>
+      <p class="page-intro">{{ presenter ? 'Valide seu acesso. Escolha a tela. Compartilhe com consentimento.' : 'Receba o vídeo e o áudio do apresentador com seu acesso validado.' }}</p>
     </div>
-    <label>Volume local <input type="range" min="0" max="100" value="100" (input)="volume($any($event.target).value)" /></label>
-    <p>{{ reception() }}</p>
+    <span class="badge" [class.success]="secure" [class.warning]="!secure">
+      <app-icon name="shield" /> {{ secure ? 'Contexto seguro' : 'HTTPS necessário' }}
+    </span>
+  </header>
+
+  @if (!secure) {
+    <p class="notice notice-warning" role="alert">Contexto seguro do navegador: não. Configure HTTPS confiável para continuar a prova de captura.</p>
   }
-  <p>Ao interromper durante a seleção, feche também o seletor nativo. Se o backend estiver indisponível, repita a limpeza antes de encerrar os serviços.</p>
-  <a [routerLink]="presenter ? '/dev/capture/watch' : '/dev/capture/broadcast'">{{ presenter ? 'Página do espectador' : 'Página do apresentador' }}</a>
+  @if (presenter && !displayAvailable) {
+    <p class="notice notice-danger" role="alert">Este navegador não disponibiliza captura de tela nesta página. Abra no Chrome ou Edge do Windows com HTTPS confiável.</p>
+  }
+  @if (presenter) {
+    <div class="notice notice-warning">
+      <strong><app-icon name="headphones" /> O áudio inteiro do computador pode incluir Discord e notificações.</strong>
+      <p>Use fones e um som de teste sem conversas privadas. Câmera e microfone não são solicitados.</p>
+    </div>
+  }
+
+  <div class="capture-workspace">
+    <section class="panel capture-media" aria-labelledby="media-title">
+      <div class="panel-header">
+        <div>
+          <h2 id="media-title" class="panel-title">{{ presenter ? 'Prévia local' : 'Vídeo do apresentador' }}</h2>
+        </div>
+        <span class="badge" [class.success]="view().phase === 'live'" [class.danger]="view().phase === 'error'">
+          <span class="status-dot" aria-hidden="true"></span>{{ phases[view().phase] }}
+        </span>
+      </div>
+      <div class="media-frame">
+        @if (presenter ? !previewVisible() : !active()) {
+          <div class="media-placeholder">
+            <span class="media-symbol"><app-icon name="screen" /></span>
+            <strong>{{ presenter ? 'Sua tela aparece aqui' : 'Aguardando a transmissão' }}</strong>
+            <p>{{ presenter ? 'A prévia aparecerá depois que você autorizar uma tela com áudio.' : 'Valide a chave e entre como espectador para receber a mídia.' }}</p>
+          </div>
+        }
+        <video #video autoplay muted playsinline [hidden]="presenter ? !previewVisible() : !active()" [attr.aria-label]="presenter ? 'Prévia local silenciada' : 'Vídeo do apresentador'"></video>
+      </div>
+      <audio #audio autoplay></audio>
+      <div class="panel-body">
+        @if (presenter) {
+          <p class="media-caption"><app-icon name="volume" /> Prévia local silenciada. A publicação só é confirmada quando vídeo e áudio aparecem na consulta à SFU.</p>
+          <p class="helper">No seletor do navegador, escolha <strong>Tela inteira</strong> e habilite <strong>compartilhar áudio do sistema</strong>. As opções disponíveis dependem do navegador. Silêncio com track viva é permitido.</p>
+        } @else {
+          @if (audioBlocked()) {
+            <p class="notice notice-warning" role="status">O navegador bloqueou a reprodução. Clique em Ouvir áudio.</p>
+          }
+          <div class="media-toolbar">
+            <div class="actions">
+              <button type="button" class="button button-secondary" (click)="enableAudio()" [disabled]="!active()"><app-icon name="volume" /> Ouvir áudio</button>
+              <button type="button" class="button button-secondary" (click)="fullscreen()"><app-icon name="expand" /> Tela cheia</button>
+            </div>
+            <label class="field"><span class="field-label">Volume local</span>
+              <input type="range" min="0" max="100" value="100" (input)="volume($any($event.target).value)" />
+            </label>
+          </div>
+          <p class="media-caption" role="status" aria-live="polite">{{ reception() }}</p>
+        }
+        <div class="notice notice-info" [class.notice-danger]="view().phase === 'error'" [class.notice-success]="view().phase === 'live'" role="status" aria-live="polite" aria-atomic="true">
+          <strong>@if (view().busy) { <span class="spinner" aria-hidden="true"></span> }Estado: {{ phases[view().phase] }}</strong>
+          <p>{{ view().message }}</p>
+          @if (view().errorCode) { <p class="technical">Diagnóstico: {{ view().errorCode }}</p> }
+          @if (view().requestId) { <p class="technical">Código da requisição: {{ view().requestId }}</p> }
+        </div>
+        @if (view().cleanupMessage) { <p class="notice notice-danger" role="alert">{{ view().cleanupMessage }}</p> }
+      </div>
+    </section>
+
+    <section class="panel capture-controls" aria-labelledby="access-title">
+      <div class="panel-header">
+        <div>
+          <p class="section-label">{{ presenter ? 'Apresentador' : 'Espectador' }}</p>
+          <h2 id="access-title" class="panel-title">Seu acesso</h2>
+        </div>
+        <app-icon name="key" />
+      </div>
+      <div class="panel-body">
+        <label class="field" for="capture-key">
+          <span class="field-label">Chave experimental de {{ presenter ? 'apresentador' : 'espectador' }}</span>
+          <input id="capture-key" type="password" autocomplete="off" spellcheck="false" placeholder="Cole a chave do seu papel" [value]="key"
+            (input)="keyChanged($any($event.target).value)" [disabled]="active()" aria-describedby="credential-status credential-help"
+            [attr.aria-invalid]="credentialView().status === 'invalid' || credentialView().status === 'wrong-role' ? 'true' : null" />
+        </label>
+        <div id="credential-status" class="notice notice-info field-message" [class.notice-success]="credentialView().status === 'valid'" [class.notice-danger]="credentialError()" role="status" aria-live="polite" aria-atomic="true">
+          @if (credentialView().status === 'checking') { <span class="spinner" aria-hidden="true"></span> }
+          {{ credentialView().message }}
+          @if (credentialView().requestId) { <p class="technical">Código da requisição: {{ credentialView().requestId }}</p> }
+        </div>
+        <button type="button" class="button button-quiet" [class.is-loading]="credentialView().status === 'checking'" [attr.aria-busy]="credentialView().status === 'checking'" (click)="validateKey()" [disabled]="active() || !key.trim() || credentialView().status === 'checking'">
+          {{ credentialView().status === 'checking' ? 'Validando chave…' : 'Validar chave novamente' }}
+        </button>
+        <p id="credential-help" class="helper">A validação confirma somente o papel da chave. Ela não inicia captura, não cria sala e não confirma que uma transmissão está ativa.</p>
+        <label class="field" for="capture-ice"><span class="field-label">Conectividade da prova</span>
+          <select id="capture-ice" [value]="icePolicy" (change)="icePolicy = $any($event.target).value" [disabled]="active()" aria-describedby="capture-ice-help">
+            <option value="all">Padrão SDK/SFU · conexão direta ou relay</option>
+            <option value="relay">Exigir relay · TURN precisa estar configurado</option>
+          </select>
+        </label>
+        <p id="capture-ice-help" class="helper">Os servidores ICE vêm somente da SFU. Confira o par selecionado no diagnóstico; conectar não comprova TURN.</p>
+        @if (!presenter) {
+          <p class="helper">Uma identidade experimental por página, até nove por geração. Sair remove a conexão; a vaga fica reservada para reentrar nesta página até o apresentador encerrar. Navegar, recarregar ou fechar perde essa identidade. Não comprova identidade Discord.</p>
+        }
+        @if (presenter) {
+          <label class="field" for="capture-quality"><span class="field-label">Qualidade inicial</span>
+            <select id="capture-quality" [value]="quality" (change)="quality = $any($event.target).value" [disabled]="active()">
+              <option value="720p">720p · 30 fps · alvo 2 Mbps</option>
+              <option value="1080p">1080p · 30 fps · teto 4 Mbps</option>
+            </select>
+          </label>
+        }
+        <div class="actions">
+          <button type="button" class="button button-primary" [class.is-loading]="view().busy" [attr.aria-busy]="view().busy" (click)="start()" [disabled]="active() || !ready() || (presenter && (!secure || !displayAvailable))">@if (view().busy) { <span class="spinner" aria-hidden="true"></span> } @else { <app-icon [name]="presenter ? 'screen' : 'play'" /> }{{ presenter ? 'Selecionar tela e iniciar' : 'Entrar como espectador' }}</button>
+          <button type="button" class="button button-danger" (click)="stop()" [disabled]="!active()"><app-icon name="stop" />{{ presenter ? 'Parar transmissão' : 'Sair' }}</button>
+          @if (view().cleanupPending) { <button type="button" class="button button-secondary" (click)="cleanup()">Repetir limpeza</button> }
+        </div>
+        <p class="helper">{{ presenter ? 'A seleção só começa com seu clique. Vídeo e áudio são obrigatórios para transmitir.' : 'O espectador recebe a mídia sem solicitar câmera, microfone ou captura.' }}</p>
+      </div>
+    </section>
+  </div>
+
+  <aside class="compatibility-note" aria-label="Compatibilidade desta prova">
+    <app-icon name="shield" />
+    <p><strong>Prova restrita de desenvolvimento.</strong> Captura real do Windows ainda depende de homologação nas duas máquinas. Para validar o teste, use Chrome ou Edge no Windows. Outros navegadores, incluindo Opera e navegadores integrados, ainda não foram homologados.</p>
+  </aside>
+
+  <details class="panel diagnostics-panel" open>
+    <summary>Histórico e diagnóstico</summary>
+    <div class="panel-body">
+      <div class="diagnostics-toolbar">
+        <p class="helper">Últimos 40 avisos, somente em memória. Não contém chaves, tokens, imagem ou áudio.</p>
+        <button type="button" class="button button-secondary" (click)="copyDiagnostics()" [disabled]="events().length === 0"><app-icon name="copy" /> Copiar diagnóstico</button>
+      </div>
+      <p class="field-message" role="status" aria-live="polite">{{ copyStatus() }}</p>
+      <p class="technical" role="status" aria-live="polite">{{ transport() }}</p>
+      @if (view().viewerCount !== undefined) {
+        <p class="helper">Espectadores confirmados na SFU: {{ view().viewerCount }} de 9. Vagas reservadas nesta geração: {{ view().viewerSlotsUsed }} de 9.</p>
+      }
+      <ol class="diagnostics" tabindex="0" aria-label="Histórico local de diagnóstico">
+        @for (event of events(); track $index) { <li>{{ event }}</li> }
+        @empty { <li class="muted">Aguardando a validação da chave.</li> }
+      </ol>
+    </div>
+  </details>
+  <p class="helper">Ao interromper durante a seleção, feche também o seletor nativo. Se o backend estiver indisponível, repita a limpeza antes de encerrar os serviços.</p>
+  <a class="button button-quiet" [routerLink]="presenter ? '/dev/capture/watch' : '/dev/capture/broadcast'">{{ presenter ? 'Página do espectador' : 'Página do apresentador' }} <app-icon name="arrow-right" /></a>
 </main>

@@ -18,19 +18,20 @@ const deferred = () => {
 const flush = async () => { for (let i = 0; i < 30; i++) await Promise.resolve(); };
 const presenterAccess = { roomName: 'test-room', identity: 'presenter', presenterIdentity: 'presenter', role: 'PRESENTER',
   serverUrl: 'wss://test.invalid', token: 'not-a-real-token', expiresAt: '2099-01-01T00:00:00Z' };
-const live = { exists: true, live: true, roomName: 'test-room', presenterIdentity: 'presenter', viewerIdentity: 'viewer' };
+const live = { exists: true, live: true, roomName: 'test-room', presenterIdentity: 'presenter', viewerCount: 1, viewerSlotsUsed: 1, maxViewers: 9 };
 
 function setup(overrides = {}) {
-  const calls = { select: 0, captureStop: 0, create: 0, viewer: 0, status: 0, delete: 0, connect: 0, publish: 0, disconnect: 0 };
+  const calls = { select: 0, captureStop: 0, create: 0, viewer: 0, leave: 0, status: 0, delete: 0, connect: 0, publish: 0, disconnect: 0 };
   const views = [], previews = [], events = [], endedCallbacks = [];
   const tracks = [{ kind: 'video', readyState: 'live' }, { kind: 'audio', readyState: 'live' }];
   const stream = { getVideoTracks: () => tracks.filter((t) => t.kind === 'video'),
     getAudioTracks: () => tracks.filter((t) => t.kind === 'audio') };
   const api = {
     create: async () => { calls.create++; return overrides.create ? overrides.create() : presenterAccess; },
-    viewer: async () => { calls.viewer++; return { ...presenterAccess, identity: 'viewer', role: 'VIEWER' }; },
+    viewer: async () => { calls.viewer++; return overrides.viewer ? overrides.viewer() : { ...presenterAccess, identity: 'viewer', role: 'VIEWER' }; },
     status: async () => { calls.status++; return overrides.status ? overrides.status() : live; },
     delete: async () => { calls.delete++; if (overrides.delete) await overrides.delete(); },
+    leave: async () => { calls.leave++; if (overrides.leave) await overrides.leave(); },
   };
   const capture = {
     select: (_quality, ended) => {
@@ -91,6 +92,20 @@ test('SFU sem confirmação de ambas as tracks nunca anuncia sucesso e libera re
   assert.equal(h.latest().busy, false);
   assert.equal(h.calls.delete, 1);
   assert.ok(h.tracks.every((t) => t.readyState === 'ended'));
+  assert.match(h.latest().message, /SFU não confirmou/);
+});
+
+test('erro HTTP exibe orientação e UUID; falha de limpeza não apaga o erro original', async () => {
+  const requestId = '12345678-1234-4321-abcd-123456789abc';
+  const h = setup({ create: async () => { throw new CaptureApiFailure(503, 'SFU_UNAVAILABLE', requestId); },
+    delete: async () => { throw new Error('private-provider-body'); } });
+  await h.session.start('PRESENTER');
+  assert.equal(h.latest().requestId, requestId);
+  assert.equal(h.latest().errorCode, 'SFU_UNAVAILABLE');
+  assert.match(h.latest().message, /LiveKit no Docker/);
+  assert.equal(h.latest().cleanupPending, true);
+  assert.match(h.latest().cleanupMessage, /Repetir limpeza/);
+  assert.doesNotMatch(JSON.stringify(h.views), /private-provider-body/);
 });
 
 test('seleção recusada não cria sala e preserva erro de captura acionável', async () => {
@@ -302,7 +317,55 @@ test('espectador espera confirmação e sai sem capturar ou excluir sala', async
   assert.equal(h.calls.viewer, 1);
   await h.session.stop();
   assert.equal(h.calls.delete, 0);
+  assert.equal(h.calls.leave, 1);
   assert.ok(h.calls.disconnect >= 1);
+});
+
+test('falha de conexão de espectador remove participante sem excluir a sala', async () => {
+  const h = setup({ connect: async () => { throw new Error('private-provider-failure'); } });
+  await h.session.start('VIEWER');
+  assert.equal(h.calls.leave, 1);
+  assert.equal(h.calls.delete, 0);
+  assert.equal(h.latest().cleanupPending, false);
+  assert.equal(h.latest().phase, 'error');
+});
+
+test('entrada incerta do espectador limpa por nonce e recusa de capacidade não tenta remover outro', async () => {
+  for (const [error, leaves] of [[new CaptureApiFailure(503), 1], [new CaptureApiFailure(409, 'CAPTURE_VIEWERS_FULL'), 0]]) {
+    const h = setup({ viewer: async () => { throw error; } });
+    await h.session.start('VIEWER');
+    assert.equal(h.calls.leave, leaves);
+    assert.equal(h.calls.delete, 0);
+    if (leaves === 0) assert.match(h.latest().message, /nove vagas/);
+  }
+});
+
+test('saída incerta bloqueia nova tentativa e repetir limpeza confirma somente remoção do espectador', async () => {
+  let fail = true;
+  const h = setup({ leave: async () => { if (fail) throw new Error('private-provider-failure'); } });
+  await h.session.start('VIEWER');
+  await h.session.stop();
+  assert.equal(h.latest().cleanupPending, true);
+  assert.match(h.latest().cleanupMessage, /vaga permanece reservada/);
+  await h.session.start('VIEWER');
+  assert.equal(h.calls.viewer, 1);
+  fail = false;
+  await h.session.retryCleanup();
+  assert.equal(h.latest().cleanupPending, false);
+  assert.equal(h.calls.leave, 2);
+  assert.equal(h.calls.delete, 0);
+});
+
+test('encerramento durante entrada tardia remove o espectador sem conectar', async () => {
+  const joining = deferred();
+  const h = setup({ viewer: () => joining.promise });
+  const start = h.session.start('VIEWER');
+  await flush();
+  const stop = h.session.stop();
+  joining.resolve({ ...presenterAccess, role: 'VIEWER', identity: 'viewer' });
+  await Promise.all([start, stop]);
+  assert.equal(h.calls.connect, 0);
+  assert.equal(h.calls.leave, 1);
 });
 
 test('ended de fonte obrigatória encerra publicação e apaga sala', async () => {
