@@ -16,9 +16,25 @@ if (!privateIpv4 || expected.protocol !== 'https:' || expected.port !== '4443'
 function restrictedRequest(req, _res, options) {
   // The dev server may accept arbitrary Hosts under HTTPS. Enforce the exact
   // address for every forwarded request; never trust forwarded headers.
-  if (req.headers.host !== expected.host) return false;
+  // Browsers negotiate HTTP/2 on this HTTPS dev server. HTTP/2 sends :authority,
+  // not Host; rejecting it produced a silent 404 before the backend saw the request.
+  // Validate both when present, then normalize only for the HTTP/1 upstream.
+  const host = req.headers.host;
+  const authority = req.headers[':authority'];
+  if ((!host && !authority) || (host && host !== expected.host)
+      || (authority && authority !== expected.host)) return false;
   const mutation = req.method !== 'GET' && req.method !== 'HEAD';
   if (req.headers.origin ? req.headers.origin !== origin : mutation) return false;
+  const requestUrl = req.url ?? req.headers[':path'];
+  const requestMethod = req.method ?? req.headers[':method'];
+  req.headers.host = expected.host;
+  if (authority) {
+    // Http2ServerRequest.url/method are getters backed by these pseudoheaders.
+    // Preserve their values before removing headers forbidden by the HTTP/1 client.
+    Object.defineProperty(req, 'url', { value: requestUrl, writable: true, configurable: true });
+    Object.defineProperty(req, 'method', { value: requestMethod, writable: true, configurable: true });
+    for (const name of Object.keys(req.headers)) if (name.startsWith(':')) delete req.headers[name];
+  }
   return undefined;
 }
 
@@ -40,7 +56,7 @@ function sanitizeErrors(proxy) {
 }
 
 module.exports = {
-  '^/api/dev/capture/session(?:/viewer)?(?:\\?.*)?$': {
+  '^/api/dev/capture/session(?:/viewer|/access)?(?:\\?.*)?$': {
     target: 'http://127.0.0.1:8080',
     changeOrigin: false,
     bypass: restrictedRequest,

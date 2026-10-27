@@ -1,5 +1,6 @@
 package br.com.compartilhamentodiscord.security;
 
+import br.com.compartilhamentodiscord.exception.ApiErrors;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,10 +28,8 @@ public final class LiveKitProofAccessFilter extends OncePerRequestFilter {
         boolean expectedOrigin = origin == null ? !mutation : allowedOrigin.equals(origin);
         if (!local || !expectedHost || !expectedOrigin
                 || !"local-development".equals(request.getHeader("X-LiveKit-Proof"))) {
-            response.setStatus(403);
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write("{\"code\":\"LOCAL_PROOF_ONLY\",\"message\":\"Ferramenta restrita ao desenvolvimento local.\"}");
+            ApiErrors.write(request, response, 403, "LOCAL_PROOF_ONLY",
+                    "Ferramenta restrita ao desenvolvimento local.", false);
             return;
         }
         chain.doFilter(request, response);

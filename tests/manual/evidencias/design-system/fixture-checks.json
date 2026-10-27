@@ -1,0 +1,603 @@
+[
+  {
+    "route": "broadcast",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "empty",
+    "status": [
+      "Estado: ProntoPronto para iniciar.",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "broadcast",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Validando a chave no backend…",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "checking",
+    "status": [
+      "Estado: ProntoPronto para iniciar.",
+      "Validando a chave no backend…",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "broadcast",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Chave de apresentador válida. Prévia visual com dados fictícios; início permanece bloqueado.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "valid",
+    "status": [
+      "Estado: ProntoPronto para iniciar.",
+      "Chave de apresentador válida. Prévia visual com dados fictícios; início permanece bloqueado.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "broadcast",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "A chave é válida para o outro papel. Troque a chave ou abra a página correta.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "wrong-role",
+    "status": [
+      "Estado: ProntoPronto para iniciar.",
+      "A chave é válida para o outro papel. Troque a chave ou abra a página correta.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "broadcast",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Chave não aceita. Confira o valor no arquivo local e o endereço desta página. Código da requisição: 00000000-0000-4000-8000-000000000015",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "refused",
+    "status": [
+      "Estado: ProntoPronto para iniciar.",
+      "Chave não aceita. Confira o valor no arquivo local e o endereço desta página. Código da requisição: 00000000-0000-4000-8000-000000000015",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "broadcast",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "O backend não respondeu em 8 segundos. Confira os serviços e valide a chave novamente. Código da requisição: 00000000-0000-4000-8000-000000000015",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "unavailable",
+    "status": [
+      "Estado: ProntoPronto para iniciar.",
+      "O backend não respondeu em 8 segundos. Confira os serviços e valide a chave novamente. Código da requisição: 00000000-0000-4000-8000-000000000015",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "broadcast",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "connecting",
+    "status": [
+      "Estado: ConectandoConectando à sala autorizada. Aguarde a confirmação da conexão.",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "broadcast",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "waiting",
+    "status": [
+      "Estado: Aguardando mídiaConexão preparada. Aguardando vídeo e áudio do apresentador.",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "broadcast",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "reconnecting",
+    "status": [
+      "Estado: ReconectandoConexão interrompida. Tentando restabelecer a transmissão por até 30 segundos.",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "broadcast",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "live",
+    "status": [
+      "Estado: TransmitindoExemplo visual de publicação confirmada. Nenhuma transmissão real está em execução.",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "broadcast",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "error",
+    "status": [
+      "Estado: ErroO serviço de mídia está indisponível. Confira os serviços e tente novamente após a limpeza.Diagnóstico: SFU_UNAVAILABLECódigo da requisição: 00000000-0000-4000-8000-000000000015",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "broadcast",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "ended",
+    "status": [
+      "Estado: EncerradoTransmissão encerrada. As tracks e conexões foram liberadas neste exemplo fictício.",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "broadcast",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "cleanup",
+    "status": [
+      "Estado: ErroA tentativa falhou. A limpeza remota ainda não foi confirmada; repita a limpeza antes de iniciar outra prova.Diagnóstico: SFU_UNAVAILABLECódigo da requisição: 00000000-0000-4000-8000-000000000015",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "watch",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "empty",
+    "status": [
+      "Prévia fictícia: aguardando vídeo e áudio do apresentador. Nenhuma mídia foi recebida.",
+      "Estado: ProntoPronto para iniciar.",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "watch",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Validando a chave no backend…",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "checking",
+    "status": [
+      "Prévia fictícia: aguardando vídeo e áudio do apresentador. Nenhuma mídia foi recebida.",
+      "Estado: ProntoPronto para iniciar.",
+      "Validando a chave no backend…",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "watch",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Chave de espectador válida. Prévia visual com dados fictícios; início permanece bloqueado.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "valid",
+    "status": [
+      "Prévia fictícia: aguardando vídeo e áudio do apresentador. Nenhuma mídia foi recebida.",
+      "Estado: ProntoPronto para iniciar.",
+      "Chave de espectador válida. Prévia visual com dados fictícios; início permanece bloqueado.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "watch",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "A chave é válida para o outro papel. Troque a chave ou abra a página correta.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "wrong-role",
+    "status": [
+      "Prévia fictícia: aguardando vídeo e áudio do apresentador. Nenhuma mídia foi recebida.",
+      "Estado: ProntoPronto para iniciar.",
+      "A chave é válida para o outro papel. Troque a chave ou abra a página correta.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "watch",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Chave não aceita. Confira o valor no arquivo local e o endereço desta página. Código da requisição: 00000000-0000-4000-8000-000000000015",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "refused",
+    "status": [
+      "Prévia fictícia: aguardando vídeo e áudio do apresentador. Nenhuma mídia foi recebida.",
+      "Estado: ProntoPronto para iniciar.",
+      "Chave não aceita. Confira o valor no arquivo local e o endereço desta página. Código da requisição: 00000000-0000-4000-8000-000000000015",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "watch",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "O backend não respondeu em 8 segundos. Confira os serviços e valide a chave novamente. Código da requisição: 00000000-0000-4000-8000-000000000015",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "unavailable",
+    "status": [
+      "Prévia fictícia: aguardando vídeo e áudio do apresentador. Nenhuma mídia foi recebida.",
+      "Estado: ProntoPronto para iniciar.",
+      "O backend não respondeu em 8 segundos. Confira os serviços e valide a chave novamente. Código da requisição: 00000000-0000-4000-8000-000000000015",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "watch",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "connecting",
+    "status": [
+      "Prévia fictícia: aguardando vídeo e áudio do apresentador. Nenhuma mídia foi recebida.",
+      "Estado: ConectandoConectando à sala autorizada. Aguarde a confirmação da conexão.",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "watch",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "waiting",
+    "status": [
+      "O navegador bloqueou a reprodução. Clique em Ouvir áudio.",
+      "Prévia fictícia: aguardando vídeo e áudio do apresentador. Nenhuma mídia foi recebida.",
+      "Estado: Aguardando mídiaConexão preparada. Aguardando vídeo e áudio do apresentador.",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "watch",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "reconnecting",
+    "status": [
+      "Prévia fictícia: aguardando vídeo e áudio do apresentador. Nenhuma mídia foi recebida.",
+      "Estado: ReconectandoConexão interrompida. Tentando restabelecer a transmissão por até 30 segundos.",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "watch",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "live",
+    "status": [
+      "Prévia fictícia: aguardando vídeo e áudio do apresentador. Nenhuma mídia foi recebida.",
+      "Estado: TransmitindoExemplo visual de publicação confirmada. Nenhuma transmissão real está em execução.",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "watch",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "error",
+    "status": [
+      "Prévia fictícia: aguardando vídeo e áudio do apresentador. Nenhuma mídia foi recebida.",
+      "Estado: ErroO serviço de mídia está indisponível. Confira os serviços e tente novamente após a limpeza.Diagnóstico: SFU_UNAVAILABLECódigo da requisição: 00000000-0000-4000-8000-000000000015",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "watch",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "ended",
+    "status": [
+      "Prévia fictícia: aguardando vídeo e áudio do apresentador. Nenhuma mídia foi recebida.",
+      "Estado: EncerradoTransmissão encerrada. As tracks e conexões foram liberadas neste exemplo fictício.",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "watch",
+    "audioCount": 1,
+    "client": 375,
+    "credential": "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "cleanup",
+    "status": [
+      "Prévia fictícia: aguardando vídeo e áudio do apresentador. Nenhuma mídia foi recebida.",
+      "Estado: ErroA tentativa falhou. A limpeza remota ainda não foi confirmada; repita a limpeza antes de iniciar outra prova.Diagnóstico: SFU_UNAVAILABLECódigo da requisição: 00000000-0000-4000-8000-000000000015",
+      "Cole a chave do seu papel. A validação é automática e não inicia a captura.",
+      ""
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "livekit",
+    "audioCount": 1,
+    "client": 375,
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "empty",
+    "status": [
+      "Sem mídia real nesta prévia visual.",
+      "Pronto para executar a prova local."
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "livekit",
+    "audioCount": 1,
+    "client": 375,
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "connecting",
+    "status": [
+      "Sem mídia real nesta prévia visual.",
+      "Prévia fictícia: verificações em execução. Nenhuma operação real iniciada."
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "livekit",
+    "audioCount": 1,
+    "client": 375,
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "error",
+    "status": [
+      "Sem mídia real nesta prévia visual.",
+      "Prévia fictícia: prova não concluída. Confira o serviço de mídia. Requisição 00000000-0000-4000-8000-000000000015."
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "livekit",
+    "audioCount": 1,
+    "client": 375,
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "ended",
+    "status": [
+      "Sem mídia real nesta prévia visual.",
+      "Prévia fictícia: resultados de exemplo. Não constituem prova de transmissão."
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "livekit",
+    "audioCount": 1,
+    "client": 375,
+    "inert": true,
+    "references": "Referências de vídeo/áudio preservadas.",
+    "scroll": 375,
+    "state": "cleanup",
+    "status": [
+      "Sem mídia real nesta prévia visual.",
+      "Prévia fictícia: limpeza não confirmada. Mantenha o backend auxiliar ativo."
+    ],
+    "uuidOverflow": false,
+    "videoCount": 1,
+    "width": 390
+  },
+  {
+    "route": "health",
+    "audioCount": 0,
+    "client": 375,
+    "inert": true,
+    "references": "Página de saúde: sem elementos de vídeo/áudio.",
+    "scroll": 375,
+    "state": "checking",
+    "status": [],
+    "uuidOverflow": false,
+    "videoCount": 0,
+    "width": 390
+  },
+  {
+    "route": "health",
+    "audioCount": 0,
+    "client": 375,
+    "inert": true,
+    "references": "Página de saúde: sem elementos de vídeo/áudio.",
+    "scroll": 375,
+    "state": "valid",
+    "status": [],
+    "uuidOverflow": false,
+    "videoCount": 0,
+    "width": 390
+  },
+  {
+    "route": "health",
+    "audioCount": 0,
+    "client": 375,
+    "inert": true,
+    "references": "Página de saúde: sem elementos de vídeo/áudio.",
+    "scroll": 375,
+    "state": "unavailable",
+    "status": [],
+    "uuidOverflow": false,
+    "videoCount": 0,
+    "width": 390
+  }
+]

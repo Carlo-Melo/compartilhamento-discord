@@ -155,7 +155,7 @@ Em outro terminal, Node 24 no PATH e dependências `frontend/npm ci` já instala
 
 Abrir `https://<IPv4-privado>:4443/dev/capture/broadcast` no apresentador e `/dev/capture/watch` na outra máquina. Conferir que não há alerta TLS e que o apresentador informa contexto seguro. O operador consulta `.env.capture` localmente no seu editor e informa apenas a chave do respectivo papel no campo protegido da página. Entregar **somente** a chave de espectador à pessoa da segunda máquina por meio privado já disponível; nunca via URL, Git, log, screenshot ou conversa com o agente. As chaves experimentais não são tickets de produto; ficam em memória no navegador e autorizam somente esta prova. API key/secret SFU jamais vão para a página. Não ativar logs verbosos nem copiar as URLs internas de sinalização do SDK, que podem conter JWT.
 
-O proxy [proxy.capture.cjs](../frontend/proxy.capture.cjs) preserva Host/Origin para validação no backend, rejeita destino/origem divergentes e limita caminhos a `/api/dev/capture/session`, `/api/dev/capture/session/viewer`, `/rtc`, `/rtc/validate`, `/rtc/v1`, `/rtc/v1/validate`. Trata erros antes do logger Vite para retirar a query da URL interna. Rotas administrativas não chegam à SFU. A configuração local da T-02 e o build normal de produção permanecem separados. O uso do proxy vem do [dev-server oficial Angular](https://angular.dev/tools/cli/serve#proxying-to-a-backend-server); o comportamento de configuração e erro foi conferido nas dependências fixadas do repositório.
+O proxy [proxy.capture.cjs](../frontend/proxy.capture.cjs) preserva Host/Origin para validação no backend, rejeita destino/origem divergentes e limita caminhos a `/api/dev/capture/session`, `/api/dev/capture/session/viewer`, `/api/dev/capture/session/access`, `/rtc`, `/rtc/validate`, `/rtc/v1`, `/rtc/v1/validate`. Em HTTP/2 valida `:authority` e eventual Host antes de normalizar para o upstream HTTP/1, preservando método e caminho; ambos divergentes são negados. Isso evita 404 no navegador enquanto clientes HTTP/1 funcionavam. Trata erros antes do logger Vite para retirar a query da URL interna. Rotas administrativas não chegam à SFU. A configuração local da T-02 e o build normal de produção permanecem separados. O uso do proxy vem do [dev-server oficial Angular](https://angular.dev/tools/cli/serve#proxying-to-a-backend-server); o comportamento de configuração e erro foi conferido nas dependências fixadas do repositório.
 
 Antes de encerrar, usar **Parar** no apresentador e conferir confirmação de exclusão. Se a página foi fechada ou a exclusão falhou, repetir a limpeza no host, sem exibir as chaves:
 
@@ -181,3 +181,63 @@ docker compose --env-file .env.capture -f infra/docker/compose.capture.yaml down
 Isso encerra só a SFU T-03, sem tocar na T-02 ou no volume PostgreSQL. Reinício abrupto do backend não implementa a limpeza de startup do produto (T-19); após falha, encerrar **esta** composição SFU antes de reiniciar a prova, eliminando suas salas voláteis. Não reutilizar acesso/sala da execução antiga. Para mudar IP ou chaves, encerrar a prova e preservar/remover conscientemente os dois arquivos gerados locais antes de executar o inicializador novamente; ele nunca os sobrescreve.
 
 Verificações independentes executadas em 26/10/2026: parser Compose com `.env.capture.example` e `config --quiet` aprovado; 13 verificações PowerShell de setup/importação/restauração e 7 testes Node do proxy aprovados, incluindo Vite real em loopback com upstream falso. Nenhum desses resultados comprova TLS confiável, abertura das portas, RTP entre máquinas ou áudio real do Windows.
+
+## T-04 — TURN TLS opt-in
+
+A prova T-04 amplia a ferramenta experimental T-03 e prepara TURN **embedded** da mesma SFU **v1.13.10**, sem novo serviço/dependência. O cenário T-03 sem TURN permanece em `compose.capture.yaml` e `livekit.capture.template.yaml`. O [overlay](docker/compose.capture-turn.yaml) troca somente o YAML montado da SFU e acrescenta os listeners TURN; imagem/digest, limite de dez participantes, `auto_create=false`, origem privada HTTPS e administração `127.0.0.1:7890` são preservados. Não deve ser iniciado nesta preparação sem as decisões de rede/TLS do operador.
+
+O SDK browser **2.22.3** usa os ICE servers retornados pela SFU somente se `rtcConfig.iceServers` não estiver definido. Um array vazio é verdadeiro nessa condição JavaScript e suprime esses servidores. A conexão experimental remove esse override e permite somente política `all` ou `relay`; visitantes não fornecem URLs nem credenciais ICE. No modo relay, `iceTransportPolicy=relay` exige alocação TURN para conectar. O modo direto usa o cenário sem TURN. Nenhum dos modos, isoladamente, comprova recepção de mídia.
+
+| Porta/endereço na máquina SFU | Uso |
+|---|---|
+| `<IPv4-privado>:4443/tcp` | HTTPS/WSS Angular, igual à T-03 |
+| `<IPv4-privado>:7891/tcp`, `7892/udp` | ICE direto, igual à T-03 |
+| `<IPv4-privado>:443/tcp` | TURN/TLS, com certificado DNS e TLS terminado na SFU; porta anunciada pelo TURN embedded na versão fixada |
+| `<IPv4-privado>:30000–30099/udp` | Intervalo limitado de alocações relay, com mapeamento idêntico no Docker; fluxo SFU/relay, sem exigir UDP do navegador no ensaio TLS |
+| `127.0.0.1:7890/tcp` | Administração e sinalização interna; não encaminhar para outra rede |
+
+O TURN/UDP está desativado no overlay para permitir um ensaio inequívoco do caminho TLS quando o UDP do cliente está bloqueado. O servidor gera credenciais temporárias TURN na sinalização autenticada; nenhuma credencial estática é fornecida ao visitante ou colocada no template. TTL de alocação inicial 300s, quota quatro alocações por credencial e intervalo de cem portas limitam o auxiliar. Isso não substitui capacidade medida. A política de peers privados da versão fixada nega RFC1918 por padrão: o template permite somente o IPv4 da própria SFU `/32`; a política embedded também restringe o destino às portas de mídia da SFU. Não usar uma liberação geral de rede privada.
+
+O código `iceServersForParticipant` da **v1.13.10** anuncia `turns:<domain>:443?transport=tcp` para TURN embedded, mesmo que `turn.tls_port` tenha outro valor. Por isso este auxiliar exige listener e publicação **443:443**. A porta 5349 aparece como padrão interno na documentação geral, mas não funciona como alternativa externa direta neste cenário; se 443 não estiver disponível, registrar a restrição e decidir uma topologia compatível antes de executar. HTTPS Angular permanece na4443 e não colide.
+
+Entradas necessárias antes de executar:
+
+1. Ambiente T-03 já preparado, máquina SFU e IPv4 RFC1918 estável, Docker Linux funcional e clientes Windows disponíveis. A preparação continua restrita a LAN/rota privada; para redes distintas, o operador precisa definir uma rota privada/VPN existente que alcance esse endereço. Acesso público, NAT/roteador, fornecedor e domínio público ainda exigem decisão e autorização próprias.
+2. Nome DNS dedicado TURN, resolvendo para esse IP em todos os clientes, e certificado PEM com SAN DNS correspondente, cadeia completa e chave PEM local. A cadeia precisa ser aceita pelo navegador também na conexão TURN; certificado da página com SAN **IP** continua separado. O script confere formato/nome/período do certificado; confiança da cadeia, SAN e correspondência com a chave precisam ser confirmadas no ambiente real. Nenhuma CA, certificado confiável, DNS ou arquivo hosts é instalado automaticamente. Não ignorar erros TLS.
+3. Decisão do operador sobre regras de rede necessárias e limitadas aos clientes do ensaio. Para o teste com UDP bloqueado, preservar HTTPS/WSS e TURN/TLS TCP443, bloquear UDP **na saída do cliente testado** e confirmar por diagnóstico que o relay foi selecionado. O proxy Angular não encaminha TURN; é um listener TLS próprio. Não usar o proxy HTTP para TCP TURN.
+
+Preparar uma única vez, usando nome e caminhos fictícios substituídos localmente:
+
+```powershell
+.\scripts\Initialize-CaptureTurn.ps1 -TurnDomain 'turn.example.test' -CertificatePath 'C:\certificados\turn-cert.pem' -PrivateKeyPath 'C:\certificados\turn-key.pem'
+. .\scripts\Import-CaptureEnvironment.ps1
+. .\scripts\Import-CaptureTurnEnvironment.ps1
+# Encerre a prova/sala e sua composicao antes de mudar entre sem TURN e com TURN.
+docker compose --env-file .env.capture -f infra/docker/compose.capture.yaml down
+docker compose --env-file .env.capture --env-file .env.capture.turn -f infra/docker/compose.capture.yaml -f infra/docker/compose.capture-turn.yaml config --quiet
+docker compose --env-file .env.capture --env-file .env.capture.turn -f infra/docker/compose.capture.yaml -f infra/docker/compose.capture-turn.yaml up -d --wait
+docker compose --env-file .env.capture --env-file .env.capture.turn -f infra/docker/compose.capture.yaml -f infra/docker/compose.capture-turn.yaml ps
+```
+
+Não publicar `docker compose config` sem `--quiet`: a interpolação inclui segredos SFU. Backend e frontend iniciam pelos mesmos comandos T-03; nenhuma mudança em Host/Origin, chaves por papel, CSRF ou loopback administrativo é necessária. Parâmetros TURN vêm exclusivamente da preparação do operador e da SFU. Se o Docker Desktop/NAT não encaminhar os relays corretamente, registrar a falha antes de decidir uma topologia diferente; não ampliar exposição ou alterar regras automaticamente.
+
+O ensaio deve separar três resultados:
+
+1. **Direto:** usar somente `compose.capture.yaml`, conexão normal e par selecionado sem candidato `relay`; conferir RTP de vídeo/áudio recebido, quadros decodificados, reprodução e áudio audível.
+2. **Relay exigido:** usar overlay TLS e política relay na conexão experimental. Conferir no relatório de transporte o **par efetivamente selecionado**, com candidato local `relay`. `protocol=udp` descreve o transporte do candidato relayed e pode aparecer mesmo sobre TURN/TLS; `relayProtocol=tls` identifica o transporte navegador→TURN. Se o navegador omitir `relayProtocol`, registrar a limitação e obter evidência equivalente da configuração efetiva/ensaio UDP bloqueado, sem inferir TLS só de `protocol`. Contadores precisam crescer após o par estar selecionado.
+3. **Redes distintas/UDP bloqueado:** registrar redes/rota de modo genérico, versões e qual cliente teve UDP bloqueado; repetir com relay exigido, áudio/vídeo recebidos e transporte TLS comprovado. TCP direto ou sinalização bem-sucedida não aprovam TURN. Não exportar SDP, endereços, URLs com JWT, senhas ICE ou `webrtc-internals` bruto. [Roteiro e resultados T-04](../tests/manual/T-04-multiespectador-turn.md).
+
+Limpeza: usar **Sair** nos espectadores e **Parar** no apresentador, confirmar exclusão da sala ou repetir o DELETE administrativo T-03. Só depois parar frontend/backend e remover exclusivamente a composição experimental:
+
+```powershell
+docker compose --env-file .env.capture --env-file .env.capture.turn -f infra/docker/compose.capture.yaml -f infra/docker/compose.capture-turn.yaml down
+# Opcional, depois de conferir os arquivos: remove somente a configuracao gerada.
+Remove-Item -LiteralPath '.env.capture.turn', 'work/capture-turn/livekit.capture-turn.generated.yaml'
+Remove-Item -LiteralPath 'work/capture-turn'
+```
+
+Não usar `--volumes`, excluir `.env.capture` ou apagar certificados/chaves compartilhados com outros testes. Restaurar somente as regras de rede criadas conscientemente pelo operador. Para retornar ao cenário direto, subir somente o Compose T-03. Reinício da SFU experimental elimina suas salas; limpeza automática do produto antes de readiness continua na T-19.
+
+Verificação local de **27/10/2026**: **23 checks TURN** aprovados (incluindo parse/merge Compose real e preservação de imagem/digest, mount único read-only e administração loopback) e **13 checks T-03** aprovados. Certificado efêmero utilizado só em arquivo temporário, sem instalação de confiança. Nenhum listener LAN/TURN foi iniciado por esses testes. Alocação TURN, TLS aceito pelo navegador e par ICE relay real continuam pendentes de homologação; o sucesso dos scripts não os comprova.
+
+Fontes oficiais compatíveis consultadas em 27/10/2026: [configuração v1.13.10](https://github.com/livekit/livekit/blob/v1.13.10/config-sample.yaml), [TURN embedded e autenticação v1.13.10](https://github.com/livekit/livekit/blob/v1.13.10/pkg/service/turn.go), [anúncio de ICE/TURN v1.13.10](https://github.com/livekit/livekit/blob/v1.13.10/pkg/service/roommanager.go), [ICE do SDK 2.22.3](https://github.com/livekit/client-sdk-js/blob/v2.22.3/src/room/RTCEngine.ts), [portas e firewall](https://docs.livekit.io/transport/self-hosting/ports-firewall/). Os fontes fixados são a referência para opções; a documentação corrente de portas pode evoluir.

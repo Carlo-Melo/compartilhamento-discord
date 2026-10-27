@@ -15,6 +15,9 @@ Não executar PostgreSQL a partir da pasta OneDrive como volume de dados; usar v
 - room.auto_create=false, limite 10 participantes e exclusão de nomes antigos verificados na POC.
 - TLS válido e renovação automática. PostgreSQL sem acesso público.
 
+## Preparação experimental T-04
+Preparação experimental T-04: overlay separado para o TURN/TLS integrado da imagem LiveKit fixada, mantendo o Compose T-03 sem TURN. A prova segue IPv4 privado com rota já preparada pelo operador; não autoriza exposição pública nem implementa o deploy acima. TLS TURN usa domínio próprio e certificado confiável; TLS HTTPS da origem privada continua obrigatório. Política ICE `relay` exige candidato relay, e o relatório registra o par selecionado e transporte sem IPs, SDP ou credenciais. [Configuração e portas](../infra/README.md), [roteiro e limites G2](../tests/manual/T-04-multiespectador-turn.md). Nenhuma regra de firewall, DNS ou confiança TLS é alterada automaticamente.
+
 ## Orçamento aprovado e cenário de cálculo
 Teto inicial R$200/mês de infraestrutura para um grupo. Referência de uso: 60h/mês, uma fonte e nove espectadores.
 Saída aproximada de vídeo em GB decimais = Mbps × espectadores × horas × 0,45.

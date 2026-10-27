@@ -1,4 +1,5 @@
 # Frontend — Angular
+Padrão normativo em [specs/15-design-system.md](../specs/15-design-system.md). A [validação UI-01](../tests/manual/UI-01-design-system.md) reúne imagens e limites. A [prévia isolada de estados](tests/visual/README.md) usa dados fictícios e ações inertes, sem executar captura ou transmissão.
 Aplicação standalone executável da T-01. A página inicial consulta a API real e mostra carregamento, resposta `UP` ou indisponibilidade, com nova tentativa manual e timeout de 8 segundos. O endpoint de liveness indica que o processo backend responde; não comprova conexão com PostgreSQL ou prontidão das integrações futuras.
 
 ## Pré-requisitos e versões
@@ -39,6 +40,8 @@ O pedido HTTP deve retornar `status: UP`; no navegador, a página deve exibir **
 
 O build fica em `dist/compartilhamento-discord/browser`. O proxy pertence ao servidor de desenvolvimento; o build estático precisa de roteamento de mesma origem para `/api` no ambiente em que for servido. Nenhuma hospedagem é configurada nesta etapa.
 
+A base T-05 do backend mantém essa consulta pública e o uso de proxy, sem CORS externo. `GET /api/csrf` já fornece bootstrap técnico, mas as páginas/fluxo de acesso definitivo continuam na T-07/T-11. As provas T-02/T-03 continuam usando seus contratos e headers específicos, sem cookies como autorização; seus erros agora incluem também `requestId` e `retryable`, preservando `code`/`message`. Cabeçalhos da API não protegem este documento Angular: o servidor/proxy que entrega o HTML deve aplicar CSP restrita à aplicação/SFU e Permissions-Policy `display-capture=(self), camera=(), microphone=()` sem bloquear captura, WSS e blobs de mídia necessários às provas autorizadas. Política final do documento em produção permanece na T-20.
+
 Encerre `npm.cmd start` com **Ctrl+C** no terminal correspondente. O build termina sozinho. Não há teste unitário artificial do endpoint; a evidência de integração é o pedido real através do proxy e a renderização no navegador.
 
 ## Organização preservada
@@ -48,14 +51,22 @@ Angular standalone com TypeScript, HttpClient e Router.
 - features/health: página funcional desta etapa.
 - core/auth: estado da autorização temporária recebida por ticket; guards e interceptors para experiência HTTP/CSRF.
 - core/models: contratos compartilhados; não duplicar regras de autorização.
-- shared/components: componentes mínimos realmente reutilizados.
+- shared/components: `AppShell` (estrutura, skip link e rodapé), `AppIcon` (ícones vetoriais locais) e `AmbientOrb` (decoração CSS sem estado ou interação), reutilizados nas páginas existentes.
 - features/auth/pages: troca de ticket, acesso inválido e retorno ao bot; sem formulário de login.
 - features/transmission/pages/broadcast: seletor nativo, prévia, iniciar/parar.
 - features/transmission/pages/watch: reprodução, volume, tela cheia e estado.
 - features/transmission/services: API da sessão e cliente de mídia.
 - features/transmission/models: estado de apresentação da sessão.
 
-As pastas de acesso, componentes compartilhados e transmissão definitiva continuam reservadas para suas tarefas; a prova T-03 usa a feature experimental `dev-capture`.
+As pastas de acesso e transmissão definitiva continuam reservadas para suas tarefas; a prova T-03 usa a feature experimental `dev-capture`. `shared/components` reúne a estrutura visual comum e os ícones locais efetivamente reutilizados.
+
+## Padrão visual do frontend
+
+A [spec 15 — Design system](../specs/15-design-system.md) é a fonte normativa para novas páginas e alterações de interface. A evolução visual foi autorizada em 27/10/2026 e combina a linguagem preta/roxa das três imagens com o respiro, as formas orgânicas luminosas e a composição da [referência interativa fornecida](https://cut-mule-87308980.figma.site). A adaptação usa títulos maiores, cabeçalho e botões em pílula, superfícies discretas e uma forma ambiente local em CSS, sem fontes remotas, biblioteca visual, WebGL ou serviços adicionais. A mídia continua neutra e os avisos operacionais permanecem visíveis.
+
+`src/styles.css` centraliza os tokens semânticos e as classes de botões, campos, painéis, avisos, mídia e diagnóstico; `src/app/shared/components/app-shell.ts` e `app-shell.css` implementam a estrutura comum, `app-icon.ts` fornece ícones locais, e `ambient-orb.ts`/`ambient-orb.css` encapsulam a decoração. A forma não indica acesso, captura ou conexão e é removida em movimento reduzido e cores forçadas. Reutilizar essas definições e preservar a organização `core/shared/features`. Estados de espera, recusa, erro e encerramento também seguem o padrão. Ícones complementam texto; informações e ações precisam continuar legíveis por teclado e sem animação. A spec registra o cálculo sRGB dos pares de tokens opacos; isso não substitui conferir os pares e estados realmente renderizados.
+
+Para verificar uma alteração visual, executar os três builds e os testes de captura/feedback e proxy descritos abaixo, conferir a exclusão das provas no bundle de produção e inspecionar as páginas em 390, 768 e 1440 px. Registrar evidências com dados fictícios e indicar quais estados foram simulados. Verificação de layout não homologa captura ou áudio Windows; não selecionar uma tela, alterar certificados ou abrir serviços/rede para obter uma imagem de teste.
 
 ## T-02 — Prova local LiveKit
 
@@ -102,6 +113,10 @@ O fragmento /acesso#ticket=... é removido imediatamente e trocado por POST com 
 
 ## T-03 — captura real experimental
 
+Avisos para testes manuais: ao colar a chave, aguarde a validação automática (500 ms de pausa; timeout HTTP de 8 s). O aviso distingue formato inválido, validação em andamento, chave válida para esta página, chave de outro papel, recusa e indisponibilidade. A validação não captura nem cria sala; o botão de início só fica habilitado após papel confirmado e ainda exige um novo clique. Ao iniciar, o campo é limpo; para nova tentativa cole a chave novamente. Cada operação continua validando o acesso no backend.
+
+O histórico local mostra até 40 avisos por página e pode ser copiado pelo botão **Copiar diagnóstico**, sem chaves, JWTs ou mídia. Erros HTTP mostram o UUID de requisição, quando recebido, para buscar nos logs técnicos do backend. O histórico só existe em memória; não habilitar logs verbosos do SDK/proxy. Falhas de limpeza têm aviso separado e preservam a causa original. Outros navegadores, como Opera e navegadores integrados, continuam sem homologação.
+
 **Implementada; homologação Windows entre duas máquinas pendente.** Configuração Angular **capture-proof** separada da `development` usada pela T-02. Nenhuma dependência npm foi adicionada. O build `production` exclui as duas ferramentas e o SDK de mídia.
 
 Depois de preparar SFU, backend auxiliar, rede e HTTPS confiável conforme [infra](../infra/README.md#t-03--prova-restrita-em-duas-máquinas), inicie o frontend **na máquina da SFU**, a partir da raiz:
@@ -129,3 +144,15 @@ npm.cmd run build
 ```
 
 Os testes de ciclo de vida usam doubles, e os testes do proxy usam upstream local falso; nenhum autoriza captura ou comprova áudio Windows. A matriz Chrome/Edge, preparo e pendências estão em [tests/manual/T-03-captura-real.md](../tests/manual/T-03-captura-real.md). O [contrato T-03](../specs/api/capture-proof.openapi.json) continua separado da API definitiva.
+
+## T-04 — nove identidades e diagnóstico ICE
+
+A prova `capture-proof` foi estendida, preservando as páginas e o design system. Cada aba de espectador gera um UUID v4 volátil (`X-Capture-Viewer`), que o backend associa a uma identidade de mídia aleatória própria. Novas tentativas na mesma página e reconexão reutilizam a reserva; o navegador não escolhe sala, identidade SFU ou papel. Até nove reservas por geração, além do apresentador; a décima é recusada. O diagnóstico diferencia espectadores confirmados pela SFU de vagas reservadas, sem confundir reserva com recepção.
+
+**Sair** desconecta e solicita `DELETE /session/viewer`. A reserva continua vinculada à mesma instância da página até o fim da geração, pois um JWT inicial/renovado ainda válido não pode ganhar acesso a uma vaga reatribuída. Reentre sem navegar ou recarregar para reconectar. Navegar, recarregar ou fechar a página perde o nonce; outra página/aba reserva outra vaga. Para substituir o grupo ou recuperar vagas perdidas, o apresentador precisa encerrar e criar uma geração nova. A geração experimental expira em uma hora; limpeza remota não confirmada continua bloqueando novas tentativas. Isso não implementa identidade Discord, tickets ou `/join` do produto.
+
+O seletor **Conectividade da prova** oferece padrão SDK/SFU e **Exigir relay**, sem campo para ICE URLs/credenciais. O override `iceServers: []` foi removido: o [código oficial do SDK2.22.3](https://github.com/livekit/client-sdk-js/blob/v2.22.3/src/room/RTCEngine.ts) só aplica servidores ICE recebidos da SFU quando esse campo está ausente. O modo relay altera somente `iceTransportPolicy`. TURN precisa ser preparado pelo operador conforme o [README de infra](../infra/README.md); o seletor sozinho não configura nem comprova TURN.
+
+O diagnóstico consulta `transport.selectedCandidatePairId`, com fallback somente para `candidate-pair.selected`, e exige estado `succeeded`. Mostra tipos dos candidatos, protocolos e `relayProtocol`, sem endereço, porta, SDP, URL, nonce ou credencial. `protocol: udp` no candidato pode coexistir com `relayProtocol: tls`, que identifica o transporte cliente–TURN. Contadores de vídeo/áudio continuam separados; par ICE ou sinalização não comprovam recepção nem som audível. Logs do SDK permanecem desativados; cópia limitada aos últimos40 avisos em memória.
+
+O [harness T-04 separado](tests/t04/README.md) prepara ensaio opt-in com canvas/tom, nove clientes distintos, concorrência/capacidade, RTP/quadros/RMS, ICE direto/relay selecionado e isolamento de tokens inicial/renovado real observado. Não entra nos entrypoints Angular nem nos bundles padrão. Executá-lo exige SFU/backend experimentais e HTTPS já preparados pelo operador; sua implementação e seus builds não comprovam execução SFU real. [Relatório e limites T-04](../tests/manual/T-04-multiespectador-turn.md).

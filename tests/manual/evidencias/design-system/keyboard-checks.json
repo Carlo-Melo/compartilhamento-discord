@@ -1,0 +1,28 @@
+{
+  "skipLink": {
+    "focus": "main-content",
+    "pathPreserved": true,
+    "outline": "2px rgb(196,181,253)"
+  },
+  "volumeMin": {
+    "focus": "INPUT",
+    "outline": "rgb(196, 181, 253) solid 2px",
+    "value": "0"
+  },
+  "volumeMax": {
+    "value": "100"
+  },
+  "detailsClosed": null,
+  "detailsOpen": "",
+  "nextFocus": {
+    "id": "",
+    "outline": "rgb(196, 181, 253) solid 2px",
+    "tag": "SUMMARY"
+  },
+  "diagnostics": {
+    "copied": true,
+    "containsFakeKey": false,
+    "containsJWT": false,
+    "requestIdRetained": true
+  }
+}

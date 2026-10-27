@@ -40,8 +40,14 @@ Verificados em 26/10/2026, sem atualizar as versões base da T-01.
 | Build Helper | 3.6.1 | Somente profile Maven `livekit-proof`, para compilar as fontes auxiliares em diretório separado |
 | JUnit Jupiter | Gerenciado pelo BOM Spring Boot | Dependência somente de teste para assinatura/grants e integração SFU opt-in |
 
-Imagem fixada também pelo digest `sha256:89ca9ce0791e18d6e03bf6e2c49ceb27e1c754eae8bd50c989386c1a5963791a`. Configuração local: auto_create=false, max_participants=10, VP8/Opus, sem TURN/egress/gravação. Portas TCP 7880/7881 e UDP 7882 publicadas somente no loopback; nenhum volume adicional. API administrativa acessível somente localmente nesta prova.
+Imagem fixada também pelo digest `sha256:89ca9ce0791e18d6e03bf6e2c49ceb27e1c754eae8bd50c989386c1a5963791a`. Configuração local T-02: auto_create=false, max_participants=10, VP8/Opus, sem TURN/egress/gravação. Portas TCP 7880/7881 e UDP 7882 publicadas somente no loopback; nenhum volume adicional. API administrativa acessível somente localmente nesta prova. T-04 acrescenta overlay TURN/TLS opt-in à composição restrita T-03, com a mesma imagem/digest e sem novas dependências; baseline sem TURN permanece. [Portas e preparo](../infra/README.md), [validação parcial](../tests/manual/T-04-multiespectador-turn.md).
 
 SDK JVM compilado para Java 17 é consumível pelo JDK 21; o código da aplicação permanece Java. A árvore final alinha Retrofit 3.0.0, OkHttp 5.3.2, Jackson 2.22.2 e as dependências gerenciadas pelo Boot. O artefato `okhttp:5.3.2` contém metadados; as classes JVM ficam somente em `okhttp-jvm:5.3.2`. Não há OkHttp 4.12 concorrente.
 
 Artefato normal em `backend/target`; auxiliar em `backend/target-livekit-proof`, ignorado pelo Git. Frontend de produção não inclui a rota ou o SDK da ferramenta. Os testes JUnit e a recepção de vídeo/áudio sintéticos no Angular contra SFU real passaram. A configuração final usa os parâmetros padrão de conexão do SDK (retry/timeouts); os overrides locais mais curtos foram removidos. Isso não homologa captura ou áudio do Windows. [Resultados e limites T-02](../tests/manual/T-02-livekit.md).
+
+## Acréscimos da T-05
+
+Spring Security **7.1.2**, Jakarta Validation **3.1.1** e Hibernate Validator **9.1.5.Final** usam os starters e as versões gerenciadas pelo BOM Spring Boot **4.1.2**, sem atualizar a stack nem introduzir OAuth2 Client ou Spring Session JDBC. Suporte Spring de teste verifica a configuração HTTP real e o tratamento MVC. Sem dependência de runtime externo ou novo serviço de persistência.
+
+O bootstrap CSRF usa HttpSession somente em memória; o SecurityContext não é persistido. Nenhum requisito de persistência do produto muda. Os três diretórios de build continuam separados: `target`, `target-livekit-proof` e `target-capture-proof`. [Política e resultados T-05](../tests/manual/T-05-seguranca-backend.md).

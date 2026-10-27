@@ -1,11 +1,13 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HealthService } from '../../core/services/health-service';
+import { AppIcon } from '../../shared/components/app-icon';
 
 type HealthState = 'loading' | 'available' | 'unavailable';
 
 @Component({
   selector: 'app-health-page',
+  imports: [AppIcon],
   templateUrl: './health-page.html',
 })
 export class HealthPage implements OnInit {

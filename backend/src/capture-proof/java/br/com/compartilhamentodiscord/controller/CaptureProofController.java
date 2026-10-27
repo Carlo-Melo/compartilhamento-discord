@@ -2,6 +2,7 @@ package br.com.compartilhamentodiscord.controller;
 
 import br.com.compartilhamentodiscord.dto.response.CaptureAccessResponse;
 import br.com.compartilhamentodiscord.dto.response.CaptureStatusResponse;
+import br.com.compartilhamentodiscord.dto.response.CaptureValidationResponse;
 import br.com.compartilhamentodiscord.service.CaptureProofService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
@@ -21,10 +22,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class CaptureProofController {
     private final CaptureProofService service;
     public CaptureProofController(CaptureProofService service) { this.service = service; }
+    @GetMapping("/access")
+    public CaptureValidationResponse validateAccess(@RequestHeader("X-Capture-Key") String key) {
+        return service.validateAccess(key);
+    }
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
     public CaptureAccessResponse create(@RequestHeader("X-Capture-Key") String key) { return service.create(key); }
     @PostMapping("/viewer")
-    public CaptureAccessResponse viewer(@RequestHeader("X-Capture-Key") String key) { return service.viewer(key); }
+    public CaptureAccessResponse viewer(@RequestHeader("X-Capture-Key") String key,
+            @RequestHeader(value = "X-Capture-Viewer", required = false) String viewer) {
+        return service.viewer(key, viewer);
+    }
+    @DeleteMapping("/viewer") @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void leave(@RequestHeader("X-Capture-Key") String key,
+            @RequestHeader(value = "X-Capture-Viewer", required = false) String viewer) {
+        service.leave(key, viewer);
+    }
     @GetMapping
     public CaptureStatusResponse status(@RequestHeader("X-Capture-Key") String key) { return service.status(key); }
     @DeleteMapping @ResponseStatus(HttpStatus.NO_CONTENT)

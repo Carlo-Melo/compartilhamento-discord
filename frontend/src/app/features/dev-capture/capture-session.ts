@@ -2,10 +2,33 @@ import { CaptureFailure, CaptureQuality, DisplayCapture } from './display-captur
 
 /** Carries only an HTTP status; provider bodies and credentials are never exposed. */
 export class CaptureApiFailure extends Error {
-  constructor(readonly status: number) {
+  readonly requestId?: string;
+  readonly code: string;
+  constructor(readonly status: number, code = 'HTTP_ERROR', requestId?: string) {
     super('A API recusou ou não concluiu a operação de captura.');
     this.name = 'CaptureApiFailure';
+    this.code = ['HTTP_ERROR', 'REQUEST_TIMEOUT', 'NETWORK_ERROR', 'INVALID_RESPONSE',
+      'CAPTURE_PROOF_REJECTED', 'SFU_UNAVAILABLE', 'MEDIA_UNAVAILABLE', 'INTERNAL_ERROR',
+      'CAPTURE_VIEWERS_FULL', 'CAPTURE_PROOF_CAPACITY', 'CAPTURE_PROOF_EXPIRED', 'CAPTURE_PROOF_VIEWER_INVALID',
+      'NOT_FOUND', 'INVALID_REQUEST', 'FORBIDDEN', 'ORIGIN_INVALID', 'CSRF_INVALID'].includes(code) ? code : 'HTTP_ERROR';
+    this.requestId = requestId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)
+      ? requestId : undefined;
   }
+}
+
+export function captureApiMessage(error: CaptureApiFailure, viewer = false): string {
+  if (viewer && ['CAPTURE_VIEWERS_FULL', 'CAPTURE_PROOF_CAPACITY'].includes(error.code)) return 'As nove vagas desta geração já foram reservadas. Reentre sem recarregar esta página para reconectar; para um novo grupo, o apresentador precisa encerrar e iniciar outra prova.';
+  if (error.code === 'REQUEST_TIMEOUT') return 'O backend não respondeu em 8 segundos. Confira os serviços e valide a chave novamente.';
+  if (error.status === 0) return 'Não foi possível alcançar o backend. Confira a conexão HTTPS e se o servidor está rodando.';
+  if (error.status === 401 || error.status === 403) return 'Acesso recusado. Confira a chave do papel, o endereço desta página e valide novamente.';
+  if (error.status === 404) return 'API de captura não encontrada. Confirme que o backend está no modo capture-proof e reinicie o frontend se necessário.';
+  if (error.status === 409) return viewer
+    ? 'Ainda não há transmissão disponível. Peça ao apresentador para iniciar e tente entrar novamente.'
+    : 'Já existe uma sala ou operação pendente. Encerre a tentativa anterior antes de iniciar outra.';
+  if (error.status === 429) return 'Limite de tentativas desta execução atingido. Encerre a prova e reinicie o backend.';
+  if (error.status === 503) return 'O backend respondeu, mas o serviço de mídia está indisponível. Confira o LiveKit no Docker.';
+  if (error.code === 'INVALID_RESPONSE') return 'O servidor retornou uma resposta inesperada. Confira se o proxy aponta para o backend da captura.';
+  return 'O backend não concluiu a operação. Confira os serviços e use o código de diagnóstico para investigar.';
 }
 
 export interface CaptureAccess {
@@ -14,13 +37,14 @@ export interface CaptureAccess {
 }
 export interface CaptureStatus {
   exists: boolean; live: boolean; roomName: string | null;
-  presenterIdentity: string | null; viewerIdentity: string | null;
+  presenterIdentity: string | null; viewerCount: number; viewerSlotsUsed: number; maxViewers: number;
 }
 export interface CaptureApi {
   create(): Promise<CaptureAccess>;
   viewer(): Promise<CaptureAccess>;
   status(): Promise<CaptureStatus>;
   delete(): Promise<void>;
+  leave(): Promise<void>;
 }
 export interface CaptureConnection {
   connect(access: CaptureAccess): Promise<void>;
@@ -32,6 +56,8 @@ export type CapturePhase = 'idle' | 'selecting' | 'connecting' | 'publishing' | 
   | 'live' | 'reconnecting' | 'ended' | 'error';
 export interface CaptureView {
   phase: CapturePhase; message: string; busy: boolean; cleanupPending: boolean;
+  errorCode?: string; requestId?: string; cleanupMessage?: string;
+  viewerCount?: number; viewerSlotsUsed?: number;
 }
 export interface ConnectionEvents {
   disconnected(): void; reconnecting(): void; reconnected(): void;
@@ -43,6 +69,7 @@ export class CaptureSession {
   private pending?: Promise<void>;
   private connection?: CaptureConnection;
   private ownsRoom = false;
+  private viewerReserved = false;
   private cleaning?: Promise<void>;
   private closingOperations = 0;
   private monitor?: ReturnType<typeof setTimeout>;
@@ -61,9 +88,10 @@ export class CaptureSession {
   ) {}
 
   async start(role: 'PRESENTER' | 'VIEWER', quality: CaptureQuality = '720p'): Promise<void> {
-    if (this.view.busy || this.connection || this.ownsRoom || this.cleaning) return;
+    if (this.view.busy || this.connection || this.ownsRoom || this.viewerReserved || this.cleaning) return;
     const id = ++this.generation;
     this.update({ busy: true, phase: role === 'PRESENTER' ? 'selecting' : 'connecting',
+      errorCode: undefined, requestId: undefined, cleanupMessage: undefined,
       message: role === 'PRESENTER' ? 'Selecione a tela e habilite o compartilhamento de áudio no navegador.' : 'Conectando como espectador...' });
     // execute() invokes getDisplayMedia synchronously, still inside the click gesture.
     const task = this.execute(id, role, quality);
@@ -71,8 +99,18 @@ export class CaptureSession {
     try {
       await task;
     } catch (error: unknown) {
-      if (this.current(id)) this.release('error', error instanceof CaptureFailure ? error.message
-        : 'Não foi possível confirmar a transmissão. Confira a chave do papel, backend, SFU e conectividade de mídia; tente novamente.');
+      if (this.current(id)) {
+        const phase = this.view.phase;
+        const message = error instanceof CaptureFailure ? error.message
+          : error instanceof CaptureApiFailure ? captureApiMessage(error, role === 'VIEWER')
+          : phase === 'connecting' ? 'A conexão WebRTC não foi concluída. Confira a sinalização HTTPS/WSS e a conectividade de mídia do LiveKit.'
+          : phase === 'publishing' ? 'A conexão abriu, mas não foi possível publicar vídeo e áudio. Verifique se a fonte continua compartilhada.'
+          : 'A SFU não confirmou vídeo e áudio publicados. A tentativa foi encerrada; confira o LiveKit e tente novamente.';
+        this.release('error', message);
+        this.update({ errorCode: error instanceof CaptureFailure ? `CAPTURE_${error.code.replace(/-/g, '_').toUpperCase()}`
+          : error instanceof CaptureApiFailure ? error.code : `MEDIA_${phase.toUpperCase()}_FAILED`,
+          requestId: error instanceof CaptureApiFailure ? error.requestId : undefined });
+      }
     } finally {
       if (this.pending === task) this.pending = undefined;
       if (!this.current(id)) await this.cleanup();
@@ -129,7 +167,12 @@ export class CaptureSession {
         throw error;
       }
     } else {
-      this.access = await this.api.viewer();
+      this.viewerReserved = true; // Also remove a participant after an uncertain HTTP result.
+      try { this.access = await this.api.viewer(); }
+      catch (error: unknown) {
+        if (error instanceof CaptureApiFailure && error.status >= 400 && error.status < 500) this.viewerReserved = false;
+        throw error;
+      }
     }
     this.ensure(id);
     const connection = this.connectionFactory({
@@ -165,6 +208,7 @@ export class CaptureSession {
       // A status requested before transport loss must never clear Reconectando
       // or overwrite facts from a later connection with a stale HTTP response.
       if (transport !== this.transportRevision) return false;
+      this.update({ viewerCount: status.viewerCount, viewerSlotsUsed: status.viewerSlotsUsed });
       if (!status.exists || status.roomName !== this.access?.roomName) throw new Error('Room closed');
       if (status.live) {
         this.update({ phase: 'live', message: 'Vídeo e áudio publicados, confirmados pela SFU. Verifique o som audível no computador receptor.' });
@@ -236,10 +280,19 @@ export class CaptureSession {
         try {
           await this.api.delete();
           this.ownsRoom = false;
-          this.update({ cleanupPending: false });
+          this.update({ cleanupPending: false, cleanupMessage: undefined });
         } catch {
           this.update({ cleanupPending: true,
-            message: 'Recursos locais liberados; exclusão da sala ainda não confirmada. Mantenha o backend ativo e clique em Repetir limpeza.' });
+            cleanupMessage: 'Recursos locais liberados; exclusão da sala ainda não confirmada. Mantenha o backend ativo e clique em Repetir limpeza.' });
+        }
+      } else if (this.viewerReserved) {
+        try {
+          await this.api.leave();
+          this.viewerReserved = false;
+          this.update({ cleanupPending: false, cleanupMessage: undefined });
+        } catch {
+          this.update({ cleanupPending: true,
+            cleanupMessage: 'Recursos locais liberados; saída da SFU ainda não confirmada. Mantenha o backend ativo e clique em Repetir limpeza. A vaga permanece reservada para esta aba até o fim da geração.' });
         }
       }
     };

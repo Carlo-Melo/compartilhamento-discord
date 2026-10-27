@@ -4,6 +4,7 @@ import {
 } from 'livekit-client';
 import { CaptureAccess, CaptureConnection, ConnectionEvents } from './capture-session';
 import { CaptureQuality } from './display-capture';
+import { ProofIcePolicy, icePairMessage, proofConnectOptions, selectedIcePair } from './ice-diagnostics';
 
 export class LiveKitCaptureConnection implements CaptureConnection {
   private readonly room: Room;
@@ -19,6 +20,8 @@ export class LiveKitCaptureConnection implements CaptureConnection {
     private readonly events: ConnectionEvents,
     private readonly playbackBlocked: (blocked: boolean) => void,
     private readonly reception: (message: string) => void,
+    private readonly icePolicy: ProofIcePolicy = 'all',
+    private readonly transport: (message: string) => void = () => {},
   ) {
     setLogLevel(LogLevel.silent);
     this.room = new Room({ adaptiveStream: false, dynacast: false,
@@ -37,12 +40,13 @@ export class LiveKitCaptureConnection implements CaptureConnection {
 
   async connect(access: CaptureAccess): Promise<void> {
     this.access = access;
-    await this.room.connect(access.serverUrl, access.token, { autoSubscribe: false, rtcConfig: { iceServers: [] } });
+    await this.room.connect(access.serverUrl, access.token, proofConnectOptions(this.icePolicy));
+    this.stats = setInterval(() => { void this.sampleDiagnostics(); }, 3_000);
+    void this.sampleDiagnostics();
     if (access.role === 'VIEWER') {
       for (const participant of this.room.remoteParticipants.values()) {
         for (const publication of participant.trackPublications.values()) this.subscribe(publication, participant);
       }
-      this.stats = setInterval(() => { void this.sampleReception(); }, 3_000);
     }
   }
 
@@ -114,5 +118,17 @@ export class LiveKitCaptureConnection implements CaptureConnection {
       if (!this.access) return;
       this.reception(`Recebidos: vídeo ${video?.bytesReceived ?? 0} bytes, ${video?.framesDecoded ?? 0} quadros; áudio ${audio?.bytesReceived ?? 0} bytes. Confirme o som audível localmente.`);
     } catch { /* Optional counters are not evidence of audible Windows audio. */ }
+  }
+
+  private async sampleDiagnostics(): Promise<void> {
+    try {
+      const manager = this.room.engine.pcManager;
+      const [publisher, subscriber] = await Promise.all([manager?.publisher.getStats(), manager?.subscriber?.getStats()]);
+      if (!this.access) return;
+      const direction = this.access.role === 'PRESENTER' ? 'envio' : 'recepção';
+      const pair = selectedIcePair(this.access.role === 'PRESENTER' ? publisher : subscriber ?? publisher);
+      this.transport(pair ? icePairMessage(direction, pair) : 'Par ICE selecionado ainda indisponível. Sinalização não comprova relay.');
+      if (this.access.role === 'VIEWER') await this.sampleReception();
+    } catch { /* Optional stats failure never fabricates transport evidence. */ }
   }
 }

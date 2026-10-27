@@ -62,4 +62,12 @@ Transações JPA curtas somente para bot/vínculo. Serviços de runtime encapsul
 - ADR-09: Sem microserviços, arquitetura hexagonal, abstrações genéricas de CRUD ou event sourcing. Reavaliar somente com problema concreto.
 
 ## Testes previstos
+O auxiliar T-04 evolui o source set `capture-proof`, em vez de duplicar o player e sua cadeia de proteção. Um mapa limitado a nove correlações por geração, prazo absoluto e limpeza com confirmação SFU mantêm o estado volátil limitado. Não há repository ou entidades para esse estado. TURN integrado permanece componente LiveKit opt-in, sem serviço de negócio Node ou novas dependências.
+
 JUnit/Spring Boot Test para tickets/autorização e concorrência em memória; Testcontainers PostgreSQL para as duas tabelas de bot/vínculo; teste arquitetural ArchUnit proposto para impedir controller -> repository; Angular usa o runner da linha selecionada; Playwright para E2E e captura sintética, complementada por teste manual real de áudio.
+
+## Base implementada na T-05
+
+Spring Security e Jakarta Bean Validation são gerenciados pelo BOM já fixado. `security`/`config` concentram política por método, bootstrap CSRF em memória, origem e cabeçalhos; `exception` padroniza erros de MVC e da cadeia de segurança. Controllers permanecem finos, com DTOs explícitos; o corpo de emissão auxiliar T-02 valida estruturalmente o papel antes do service. Integração LiveKit permanece encapsulada. Não há repository, entidade ou tabela artificial para preencher camadas.
+
+A autorização do produto falha fechada enquanto o contexto real não existe. A T-07 deverá substituir a negação pelo mecanismo de contexto validado e manter a autorização de escopo/papel nos services/security. A sessão técnica de CSRF não é contexto de usuário. Fontes auxiliares continuam fora do artefato normal; suas proteções participam das cadeias específicas sem permitir prefixos amplos. [Detalhamento e validação](../tests/manual/T-05-seguranca-backend.md).

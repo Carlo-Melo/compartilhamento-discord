@@ -1,25 +1,58 @@
-<main>
-  <h1>Compartilhamento Discord</h1>
-  <p>Ambiente de desenvolvimento — verificação da API.</p>
+<main id="main-content" class="health-page" tabindex="-1">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow"><span class="eyebrow-line" aria-hidden="true"></span>CONEXÃO COM A API</p>
+      <h1>Verificação do <span class="accent-text">ambiente.</span></h1>
+      <p class="page-intro">Confira a comunicação com o backend antes de continuar os testes locais.</p>
+    </div>
+    <span class="badge info"><app-icon name="activity" />Saúde da API</span>
+  </header>
 
-  <section aria-live="polite" aria-atomic="true" [attr.aria-busy]="state() === 'loading'">
-    @switch (state()) {
-      @case ('loading') {
-        <p role="status">Consultando backend…</p>
-      }
-      @case ('available') {
-        <p role="status"><strong>Backend disponível.</strong> Resposta recebida: UP.</p>
-        <p>A API respondeu ao pedido de saúde. Esta consulta não verifica a disponibilidade do banco.</p>
-      }
-      @case ('unavailable') {
-        <p role="status"><strong>Backend indisponível.</strong></p>
-        <p>Confira se a API está em execução na porta 8080 e tente novamente.</p>
-      }
-    }
-  </section>
+  <div class="health-workspace">
+    <section class="panel health-status" aria-labelledby="connection-title">
+      <div class="panel-header">
+        <h2 id="connection-title" class="panel-title">Estado da conexão</h2>
+        <span class="technical helper">HTTP / GET</span>
+      </div>
+      <div class="panel-body">
+        <div class="health-feedback" aria-live="polite" aria-atomic="true" [attr.aria-busy]="state() === 'loading'">
+          @switch (state()) {
+            @case ('loading') {
+              <span class="health-symbol info" aria-hidden="true"><span class="spinner"></span></span>
+              <p class="section-label">VERIFICANDO CONEXÃO</p>
+              <h3>Consultando backend…</h3>
+              <p class="muted">Aguardando a resposta da API. A consulta termina em até 8 segundos.</p>
+            }
+            @case ('available') {
+              <span class="health-symbol success"><app-icon name="check" /></span>
+              <p class="section-label">RESPOSTA RECEBIDA: UP</p>
+              <h3>Backend disponível.</h3>
+              <p class="muted">A API respondeu ao pedido de saúde. Esta consulta não verifica a disponibilidade do banco.</p>
+            }
+            @case ('unavailable') {
+              <span class="health-symbol danger"><app-icon name="link" /></span>
+              <p class="section-label">CONEXÃO NÃO CONFIRMADA</p>
+              <h3>Backend indisponível.</h3>
+              <p class="muted">Confira se a API está em execução na porta 8080 e tente novamente.</p>
+            }
+          }
+        </div>
+        <button class="button button-primary" type="button" [disabled]="state() === 'loading'" [attr.aria-busy]="state() === 'loading'" (click)="checkHealth()">
+          @if (state() === 'loading') { <span class="spinner" aria-hidden="true"></span> } @else { <app-icon name="arrow-right" /> }
+          {{ state() === 'loading' ? 'Verificando…' : state() === 'unavailable' ? 'Tentar novamente' : 'Verificar novamente' }}
+        </button>
+      </div>
+      <div class="endpoint-row"><span class="helper">Endpoint de saúde</span><code>/api/health/live</code></div>
+    </section>
 
-  <p>Endpoint: <code>/api/health/live</code></p>
-  <button type="button" [disabled]="state() === 'loading'" (click)="checkHealth()">
-    {{ state() === 'unavailable' ? 'Tentar novamente' : 'Verificar novamente' }}
-  </button>
+    <aside class="panel health-about" aria-labelledby="about-check-title">
+      <div class="panel-header"><h2 id="about-check-title" class="panel-title">Sobre esta verificação</h2><app-icon name="shield" /></div>
+      <div class="panel-body stack">
+        <div><p class="section-label">O QUE É VERIFICADO</p><p>Uma chamada real ao processo do backend, pela mesma origem da aplicação.</p></div>
+        <div class="divider"></div>
+        <div><p class="section-label">PRÓXIMAS VALIDAÇÕES</p><p class="muted">Banco de dados, integrações e transmissão de mídia precisam de suas próprias verificações.</p></div>
+        <div class="notice notice-info"><app-icon name="signal" /><p>Esta página verifica somente a API. A captura e o áudio real entre máquinas continuam sujeitos à homologação.</p></div>
+      </div>
+    </aside>
+  </div>
 </main>

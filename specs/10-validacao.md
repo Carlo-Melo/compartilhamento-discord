@@ -5,6 +5,8 @@ T-02 concluída: cinco testes JUnit aprovados (três locais e dois contra SFU re
 
 T-03 implementada em prova restrita, com testes automatizados de validação/liberação de tracks, publicação parcial, cancelamento concorrente, confirmação SFU e encerramento. Os testes usam doubles para falhas; não comprovam captura Windows nem som audível. **G1 permanece pendente**: decisões externas e participação nas duas máquinas foram adiadas pelo usuário. [Resultados e matriz a executar](../tests/manual/T-03-captura-real.md).
 
+T-04 implementa a extensão experimental de nove identidades, limite concorrente, saída/repetição, TURN/TLS opt-in e diagnóstico ICE. **Validação parcial; G2 não homologado.** Homologação adiada pelo usuário em 27/10/2026. [Comandos, resultados desta execução e matriz pendente](../tests/manual/T-04-multiespectador-turn.md). Resultados históricos da T-02 e relatos manuais sem matriz/duração/som audível não são atribuídos à T-04.
+
 ## Portões de avanço
 - G0: stack/escopo e contratos consistentes. Atual entrega prepara isso.
 - G1 / POC-01: duas máquinas Windows, Chrome e Edge, tela inteira + áudio de sistema real. 15min por combinação; som de teste audível no receptor, sem microfone; cancelamento e encerramento funcionando.
@@ -65,6 +67,14 @@ Som de sistema: testar com Discord desktop aberto, avisar duplicação de voz, u
 
 ## Evidência de entrega futura
 Relatório em tests/manual ou tests/performance com resultados e limitações, sem segredos. Checklists de deploy/restore e custo real. Documentar testes não executados separadamente dos aprovados.
+
+## Regressão da base de segurança T-05
+
+Evidência e limitações em [T-05 — segurança do backend](../tests/manual/T-05-seguranca-backend.md). Testes com servidores Spring reais em loopback verificam liveness pública, gestão separada, negação sem contexto, ausência de login/Basic, bootstrap CSRF ligado à sessão, Origin exata, ausência de CORS externo, envelope dos erros e requestId próprio. Cabeçalhos recebidos de identidade/papel e cookies arbitrários não podem produzir autorização.
+
+Executar os três builds Java e verificar ausência das classes auxiliares no JAR normal. Nos artefatos experimentais, testar opt-in ausente, profiles prod/production, rotas/métodos extras e as barreiras existentes; T-03 deve continuar negando administração ao espectador. JSON malformado/entrada inválida e falha SFU devem retornar erros sanitizados. Nenhum endpoint de diagnóstico/autorização fictícia pode ser incluído no artefato.
+
+CSRF técnico e negação sem contexto são verificáveis antes de tickets. Troca/rotação/expiração do acesso e associação Discord permanecem AC-03/25 nas tarefas próprias; esses resultados não podem ser inferidos da T-05. Cabeçalhos da API também não comprovam proteção da página Angular ou HTTPS de produção. G1/POC-01 e G2 continuam pendentes.
 
 ## Verificações adicionais desta revisão
 AC-24 inspeciona schema e SQL emitido: somente discord_bot/bot_guild_binding para produto e flyway_schema_history técnico. Nenhum INSERT/UPDATE de usuários, transmissão, contexto, ticket ou fila. Backup contém apenas esses vínculos.

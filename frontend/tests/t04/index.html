@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>T-04 · recepção sintética</title></head>
+<body>
+  <main id="main-content" tabindex="-1" class="panel-body">
+    <header class="page-header"><div><p class="eyebrow">T-04 · Auxiliar opt-in</p><h1>Nove espectadores <span class="accent-text">sintéticos</span></h1></div></header>
+    <p class="notice notice-warning">Este ensaio cria e exclui gerações da prova experimental. Execute com a SFU dedicada e sem captura em andamento. Canvas e tom sintéticos não homologam captura nem áudio audível do Windows. Nenhuma tela, câmera ou microfone é solicitado.</p>
+    <section class="panel"><div class="panel-body">
+      <label class="field" for="presenter"><span class="field-label">Chave experimental do apresentador</span><input id="presenter" type="password" autocomplete="off" spellcheck="false"></label>
+      <label class="field" for="viewer"><span class="field-label">Chave experimental do espectador</span><input id="viewer" type="password" autocomplete="off" spellcheck="false"></label>
+      <label class="field" for="policy"><span class="field-label">Ensaio de transporte</span><select id="policy"><option value="all">Direto · exigir par sem relay, ICE da SFU</option><option value="relay">TURN · exigir par relay, ICE da SFU</option></select></label>
+      <div class="actions"><button id="run" class="button button-primary">Executar prova sintética</button><button id="stop" class="button button-danger" disabled>Interromper e limpar</button><button id="cleanup" class="button button-secondary" disabled>Repetir limpeza</button><button id="copy" class="button button-secondary" disabled>Copiar resultados sanitizados</button></div>
+      <p id="status" class="notice notice-info" role="status" aria-live="polite">Aguardando clique. Este auxiliar está fora dos bundles da aplicação.</p>
+    </div></section>
+    <section class="panel"><div class="panel-body"><h2>Resultados efetivos desta execução</h2><ol id="results" class="diagnostics" tabindex="0"></ol></div></section>
+    <section class="panel"><div class="panel-body"><h2>Recepção sintética</h2><p class="helper">Cada vídeo corresponde a uma identidade diferente emitida pelo backend. O tom é medido por analisador local; não comprova som audível no sistema.</p><div id="videos" class="capture-workspace"></div></div></section>
+  </main>
+  <script type="module" src="/main.ts"></script>
+</body></html>

@@ -5,19 +5,27 @@ import br.com.compartilhamentodiscord.integration.livekit.LiveKitGateway;
 import br.com.compartilhamentodiscord.integration.livekit.LiveKitProperties;
 import br.com.compartilhamentodiscord.security.CaptureProofAccessFilter;
 import br.com.compartilhamentodiscord.security.CaptureProofAccessPolicy;
+import br.com.compartilhamentodiscord.security.SecuritySupport;
 import br.com.compartilhamentodiscord.service.CaptureProofService;
 import java.net.URI;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.server.autoconfigure.ServerProperties;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration(proxyBeanMethods = false)
 @Profile("capture-proof & !prod & !production & !livekit-proof")
 @ConditionalOnProperty(name = "capture.proof.enabled", havingValue = "true")
+@EnableScheduling
 public class CaptureProofConfiguration {
     @Bean
     CaptureProofAccessPolicy captureProofPolicy(Environment environment) {
@@ -34,13 +42,25 @@ public class CaptureProofConfiguration {
     }
 
     @Bean
-    FilterRegistrationBean<CaptureProofAccessFilter> captureProofFilter(Environment environment,
-                                                                       CaptureProofAccessPolicy policy) {
-        var registration = new FilterRegistrationBean<>(new CaptureProofAccessFilter(
-                environment.getRequiredProperty("capture.proof.origin"), policy));
-        registration.addUrlPatterns("/api/dev/capture/*");
-        registration.setOrder(-100);
-        return registration;
+    @Order(10)
+    SecurityFilterChain captureProofSecurity(HttpSecurity http, Environment environment,
+                                             CaptureProofAccessPolicy policy) throws Exception {
+        var paths = PathPatternRequestMatcher.withDefaults();
+        var routes = new OrRequestMatcher(
+                paths.matcher(org.springframework.http.HttpMethod.GET, "/api/dev/capture/session/access"),
+                paths.matcher(org.springframework.http.HttpMethod.GET, "/api/dev/capture/session"),
+                paths.matcher(org.springframework.http.HttpMethod.POST, "/api/dev/capture/session"),
+                paths.matcher(org.springframework.http.HttpMethod.DELETE, "/api/dev/capture/session"),
+                paths.matcher(org.springframework.http.HttpMethod.POST, "/api/dev/capture/session/viewer"),
+                paths.matcher(org.springframework.http.HttpMethod.DELETE, "/api/dev/capture/session/viewer"));
+        SecuritySupport.configure(http);
+        // These exact experimental routes authenticate a header capability, never a browser cookie.
+        // Their mandatory custom marker, secret role key and exact mutation Origin remain effective.
+        http.securityMatcher(routes).csrf(csrf -> csrf.ignoringRequestMatchers(routes))
+                .addFilterBefore(new CaptureProofAccessFilter(
+                        environment.getRequiredProperty("capture.proof.origin"), policy), AuthorizationFilter.class)
+                .authorizeHttpRequests(access -> access.anyRequest().permitAll());
+        return http.build();
     }
 
     public static void validate(ServerProperties server, LiveKitProperties properties, String value) {

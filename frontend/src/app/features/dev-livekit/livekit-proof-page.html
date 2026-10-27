@@ -1,34 +1,135 @@
-<main>
-  <a routerLink="/">Voltar à saúde do backend</a>
-  <h1>T-02 — Ferramenta local de desenvolvimento LiveKit</h1>
-  <p class="notice">Prova técnica com vídeo de canvas e tom sintético de 440 Hz. Não captura tela,
-    câmera ou microfone. Não homologa áudio do Windows. Disponível somente no build de desenvolvimento;
-    exige o backend auxiliar e a SFU locais iniciados explicitamente.</p>
-  <p>A prova cria salas próprias, conecta apresentador e espectador, mede mídia recebida, tenta violar
-    os grants e o escopo da sala, exclui as salas e tenta reutilizar um token ainda válido.</p>
-  <div class="actions">
-    <button type="button" (click)="run()" [disabled]="proof.running()">Executar prova local</button>
-    <button type="button" (click)="proof.enableAudio()" [disabled]="!proof.running()">Ouvir áudio</button>
-    <button type="button" (click)="proof.cancel()" [disabled]="!proof.running()">Interromper e limpar</button>
+<main id="main-content" tabindex="-1">
+  <header class="page-header">
+    <div>
+      <a class="button button-quiet back-link" routerLink="/">
+        <app-icon name="arrow-left" /> Saúde da API
+      </a>
+      <p class="eyebrow">T-02 · Laboratório de mídia</p>
+      <h1>Prova de mídia <span class="accent-text">sintética</span></h1>
+      <p class="page-intro">Vídeo, áudio, permissões e limpeza de salas em uma prova local.</p>
+    </div>
+    <span class="badge info"><app-icon name="signal" /> Somente desenvolvimento</span>
+  </header>
+
+  <aside class="notice notice-warning" aria-label="Limites desta prova">
+    <app-icon name="alert" />
+    <div>
+      <strong>Conteúdo sintético. A captura real continua pendente de homologação.</strong>
+      <p>Esta ferramenta usa vídeo de canvas e um tom baixo de 440 Hz. Não captura tela, câmera ou microfone
+        e não homologa áudio do Windows. Exige o backend auxiliar e a SFU locais iniciados explicitamente.</p>
+    </div>
+  </aside>
+
+  <div class="proof-workspace">
+    <section class="panel" aria-labelledby="proof-receiver-title">
+      <div class="panel-header">
+        <div>
+          <h2 id="proof-receiver-title" class="panel-title">Receptor do espectador</h2>
+        </div>
+        <span class="badge" [class.info]="proof.running()">
+          @if (proof.running()) { <span class="spinner" aria-hidden="true"></span> }
+          {{ proof.running() ? 'Em execução' : 'Execução local' }}
+        </span>
+      </div>
+      <div class="media-frame">
+        <video #video autoplay playsinline muted aria-label="Vídeo sintético recebido da SFU"></video>
+        @if (!proof.running() && proof.checks().length === 0) {
+          <div class="media-placeholder">
+            <span class="media-symbol"><app-icon name="screen" /></span>
+            <strong>Aguardando a prova local</strong>
+            <p>O vídeo recebido aparecerá nesta área.</p>
+          </div>
+        }
+      </div>
+      <div class="panel-body">
+        <audio #audio autoplay controls aria-label="Áudio sintético recebido da SFU"></audio>
+        <p class="media-caption" role="status" aria-live="polite">{{ proof.playback() }}</p>
+        <div class="actions">
+          <button class="button button-primary" type="button" (click)="run()" [disabled]="proof.running()" [attr.aria-busy]="proof.running()">
+            @if (proof.running()) { <span class="spinner" aria-hidden="true"></span> }
+            @else { <app-icon name="play" /> }
+            {{ proof.running() ? 'Executando prova…' : 'Executar prova local' }}
+          </button>
+          <button class="button button-secondary" type="button" (click)="proof.enableAudio()" [disabled]="!proof.running()">
+            <app-icon name="volume" /> Ouvir áudio
+          </button>
+          <button class="button button-danger" type="button" (click)="proof.cancel()" [disabled]="!proof.running()">
+            <app-icon name="stop" /> Interromper e limpar
+          </button>
+        </div>
+        <p class="notice notice-info" [class.notice-danger]="outcome() === 'failed'" role="status" aria-live="polite" aria-atomic="true">
+          @if (proof.running()) { <span class="spinner" aria-hidden="true"></span> }
+          @else { <app-icon name="activity" /> }
+          <span>{{ proof.status() }}</span>
+        </p>
+      </div>
+    </section>
+
+    <section class="panel proof-results" aria-labelledby="proof-results-title">
+      <div class="panel-header">
+        <div>
+          <h2 id="proof-results-title" class="panel-title">Resultados</h2>
+        </div>
+        <span class="badge" [class.success]="outcome() === 'passed'" [class.danger]="outcome() === 'failed'" [class.info]="outcome() === 'running'">
+          @switch (outcome()) {
+            @case ('passed') { <app-icon name="check" /> Verificações aprovadas }
+            @case ('failed') { <app-icon name="alert" /> Verificação falhou }
+            @case ('running') { <span class="spinner" aria-hidden="true"></span> Em execução }
+            @default { <app-icon name="shield" /> Aguardando execução }
+          }
+        </span>
+      </div>
+      <div class="panel-body">
+        <p class="helper">A prova cria salas próprias, conecta os dois papéis, mede a mídia, testa grants e
+          isolamento, exclui as salas e tenta reutilizar um token ainda válido.</p>
+        <ol class="check-list">
+          @for (check of proof.checks(); track $index) {
+            <li class="check-item" [class.passed]="check.status === 'passed'" [class.failed]="check.status === 'failed'">
+              <span class="badge" [class.success]="check.status === 'passed'" [class.danger]="check.status === 'failed'" [class.info]="check.status === 'running'">
+                @if (check.status === 'running') { <span class="spinner" aria-hidden="true"></span> }
+                @else { <app-icon [name]="check.status === 'passed' ? 'check' : 'alert'" /> }
+                {{ check.status === 'passed' ? 'Aprovado' : check.status === 'failed' ? 'Falhou' : 'Em execução' }}
+              </span>
+              <strong>{{ check.label }}</strong>
+              <p>{{ check.detail }}</p>
+            </li>
+          } @empty {
+            <li class="empty-state">
+              <app-icon name="shield" />
+              <strong>Nenhuma verificação executada</strong>
+              <p>Os resultados aparecem aqui ao executar a prova local.</p>
+            </li>
+          }
+        </ol>
+      </div>
+    </section>
   </div>
-  <p role="status" aria-live="polite">{{ proof.status() }}</p>
-  <h2>Receptor real do espectador</h2>
-  <video #video autoplay playsinline muted aria-label="Vídeo sintético recebido da SFU"></video>
-  <audio #audio autoplay controls aria-label="Áudio sintético recebido da SFU"></audio>
-  <p>{{ proof.playback() }}</p>
-  <p>{{ proof.media() }}</p>
-  <p>{{ proof.transport() }}</p>
-  <details><summary>Ambiente do navegador desta prova</summary><p>{{ proof.environment }}</p></details>
-  <h2>Resultados</h2>
-  <ol>
-    @for (check of proof.checks(); track $index) {
-      <li [class.passed]="check.status === 'passed'" [class.failed]="check.status === 'failed'">
-        <strong>{{ check.status === 'passed' ? 'APROVADO' : check.status === 'failed' ? 'FALHOU' : 'EM EXECUÇÃO' }} — {{ check.label }}</strong>
-        <p>{{ check.detail }}</p>
-      </li>
-    }
-  </ol>
-  <p>Tokens existem apenas na memória desta execução. Nenhuma credencial aparece nesta página,
-    em armazenamento do navegador ou nos resultados. Em falha de limpeza, mantenha o backend auxiliar
-    ativo para remover somente as salas desta prova.</p>
+
+  <section class="panel" aria-labelledby="proof-diagnostics-title">
+    <div class="panel-header">
+      <div>
+        <h2 id="proof-diagnostics-title" class="panel-title">Diagnóstico da recepção</h2>
+      </div>
+      <app-icon name="activity" />
+    </div>
+    <div class="panel-body">
+      <div class="diagnostic-grid">
+        <div>
+          <h3 class="section-label">Mídia recebida</h3>
+          <p class="technical">{{ proof.media() }}</p>
+        </div>
+        <div>
+          <h3 class="section-label">Transporte RTC</h3>
+          <p class="technical">{{ proof.transport() }}</p>
+        </div>
+      </div>
+      <details>
+        <summary>Ambiente do navegador desta prova</summary>
+        <p class="technical">{{ proof.environment }}</p>
+      </details>
+      <p class="helper">Tokens existem apenas na memória desta execução. Nenhuma credencial aparece nesta página,
+        no armazenamento do navegador ou nos resultados. Se a limpeza falhar, mantenha o backend auxiliar
+        ativo e execute novamente para remover somente as salas desta prova.</p>
+    </div>
+  </section>
 </main>

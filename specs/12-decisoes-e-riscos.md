@@ -41,8 +41,11 @@ O questionamento sobre duas telas simultâneas foi esclarecimento, não alteraç
 | P-05 | Disponibilidade/autorização de Activity no Brasil | Antes dessa evolução |
 | P-06 | Versões exatas de Windows/navegadores homologados | POC-01 |
 | P-07 | Segunda máquina/operadores, rede privada/IP SFU, certificado HTTPS confiável em ambas e eventuais regras de firewall restritas | T-03: usuário adiou para depois; [ações e roteiro](../tests/manual/T-03-captura-real.md) |
+| P-08 | Nove clientes distintos, rota privada entre redes, domínio/certificado TURN/TLS e bloqueio UDP controlado | T-04: usuário adiou homologação em 27/10/2026; [roteiro G2](../tests/manual/T-04-multiespectador-turn.md) |
 
 T-03 entrega ferramenta experimental com acesso manual por chaves de papel e configuração HTTPS LAN opt-in. É scaffolding de desenvolvimento, sem alterar o acesso definitivo por tickets do bot. Não foi iniciada escuta LAN, instalada confiança de certificado ou alterado firewall. A homologação permanece pendente, sem decisão por aplicativo auxiliar ou redução de compatibilidade.
+
+T-05 avança independentemente dessa homologação: política de negação por padrão, bootstrap CSRF técnico em memória, Origin, cabeçalhos e erros sanitizados. Não há contexto autorizado provisório. Exceções CSRF específicas das provas preservam a proteção alternativa por headers customizados, origem exata e capacidade de papel, sem estender liberação a futuras integrações sem assinatura. Os erros auxiliares ganham explicitamente `requestId` e `retryable`; a página Angular ainda depende dos cabeçalhos do componente que serve seu HTML. [Escopo e evidência T-05](../tests/manual/T-05-seguranca-backend.md).
 
 ## Riscos e respostas
 | Risco | Resposta |

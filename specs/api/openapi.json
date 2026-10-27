@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Compartilhamento Discord — API MVP",
-    "version": "0.2.0-spec",
-    "description": "Contrato de especificação Java 21/Spring Boot e Angular. Acesso temporário emitido pelo bot, sem login de usuários. PostgreSQL apenas para bot e vínculo com guild; contexto operacional em memória."
+    "version": "0.3.0-spec",
+    "description": "Contrato Java 21/Spring Boot e Angular. T-05 implementa saúde, bootstrap CSRF e negação por padrão; os demais casos de uso continuam prospectivos e negados sem contexto definitivo. Acesso temporário futuro emitido pelo bot, sem login de usuários. PostgreSQL apenas para bot e vínculo com guild; contexto operacional em memória."
   },
   "servers": [
     {
@@ -38,14 +38,25 @@
           "Access"
         ],
         "summary": "Obter bootstrap e token CSRF, inclusive antes de consumir ticket.",
+        "description": "Implementado na T-05. Cria somente sessão técnica CSRF em memória, cookie ACCESS_SESSION HttpOnly/SameSite=Lax e XSRF-TOKEN legível. Não concede contexto de usuário. Cookie de sessão é Secure em HTTPS, sem Domain; T-07 rotaciona o identificador após troca real. CORS fechado; usar mesma origem via proxy.",
         "security": [],
         "responses": {
           "200": {
-            "description": "Emite cookie legível XSRF-TOKEN e token sincronizado.",
+            "description": "Emite cookie legível XSRF-TOKEN, sessão de bootstrap e token sincronizado. Resposta no-store.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CsrfToken"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "ORIGIN_INVALID: Origin externa, nula explícita, duplicada ou indicação cross-site. Não concede CORS.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
                 }
               }
             }
@@ -1121,6 +1132,7 @@
           "Operations"
         ],
         "summary": "Liveness sem exposição de configuração.",
+        "description": "Público sem contexto; sondas sem Origin mantêm o contrato de status. Uma Origin externa explícita ou indicação cross-site é rejeitada com 403 ORIGIN_INVALID.",
         "security": [],
         "responses": {
           "200": {
@@ -1142,6 +1154,16 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "ORIGIN_INVALID: origem da requisição não permitida.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
           }
         }
       }
@@ -1153,7 +1175,7 @@
           "Operations"
         ],
         "summary": "Readiness, exposta somente em rede privada.",
-        "description": "Somente rede privada. Requer banco de vínculos e limpeza confirmada das salas antigas no boot; não recupera runtime do banco.",
+        "description": "Somente GET na porta de gestão em loopback (desenvolvimento 127.0.0.1:8081), fora do proxy Angular; negado na API. T-05 verifica aplicação e JDBC, sem detalhes. Limpeza confirmada das salas antigas no boot será incorporada na T-19; não recupera runtime do banco. Demais caminhos/métodos de gestão são negados.",
         "security": [],
         "responses": {
           "200": {
@@ -1390,10 +1412,13 @@
             "description": "Mensagem acionável em português."
           },
           "requestId": {
-            "type": "string"
+            "type": "string",
+            "format": "uuid",
+            "description": "Gerado pelo backend por requisição; também enviado em X-Request-Id. Header recebido do cliente não é refletido."
           },
           "retryable": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Indica se a operação pode ser tentada novamente; não implica retry automático. Rejeições de segurança/validação são false."
           }
         },
         "required": [

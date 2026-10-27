@@ -1,0 +1,179 @@
+[
+  {
+    "name": "health",
+    "audioCount": 0,
+    "clientWidth": 375,
+    "overflows": [],
+    "scrollWidth": 375,
+    "title": "Verificação do ambiente.",
+    "videoCount": 0,
+    "videoFrame": [],
+    "width": 390
+  },
+  {
+    "name": "broadcast",
+    "audioCount": 1,
+    "clientWidth": 375,
+    "overflows": [],
+    "scrollWidth": 375,
+    "title": "Compartilhar tela com áudio",
+    "videoCount": 1,
+    "videoFrame": [
+      {
+        "height": 191.8125,
+        "width": 341
+      }
+    ],
+    "width": 390
+  },
+  {
+    "name": "watch",
+    "audioCount": 1,
+    "clientWidth": 375,
+    "overflows": [],
+    "scrollWidth": 375,
+    "title": "Assistir à transmissão",
+    "videoCount": 1,
+    "videoFrame": [
+      {
+        "height": 191.8125,
+        "width": 341
+      }
+    ],
+    "width": 390
+  },
+  {
+    "name": "livekit",
+    "audioCount": 1,
+    "clientWidth": 375,
+    "overflows": [],
+    "scrollWidth": 375,
+    "title": "Prova de mídia sintética",
+    "videoCount": 1,
+    "videoFrame": [
+      {
+        "height": 191.8125,
+        "width": 341
+      }
+    ],
+    "width": 390
+  },
+  {
+    "name": "health",
+    "audioCount": 0,
+    "clientWidth": 753,
+    "overflows": [],
+    "scrollWidth": 753,
+    "title": "Verificação do ambiente.",
+    "videoCount": 0,
+    "videoFrame": [],
+    "width": 768
+  },
+  {
+    "name": "broadcast",
+    "audioCount": 1,
+    "clientWidth": 753,
+    "overflows": [],
+    "scrollWidth": 753,
+    "title": "Compartilhar tela com áudio",
+    "videoCount": 1,
+    "videoFrame": [
+      {
+        "height": 404.4375,
+        "width": 719
+      }
+    ],
+    "width": 768
+  },
+  {
+    "name": "watch",
+    "audioCount": 1,
+    "clientWidth": 753,
+    "overflows": [],
+    "scrollWidth": 753,
+    "title": "Assistir à transmissão",
+    "videoCount": 1,
+    "videoFrame": [
+      {
+        "height": 404.4375,
+        "width": 719
+      }
+    ],
+    "width": 768
+  },
+  {
+    "name": "livekit",
+    "audioCount": 1,
+    "clientWidth": 753,
+    "overflows": [],
+    "scrollWidth": 753,
+    "title": "Prova de mídia sintética",
+    "videoCount": 1,
+    "videoFrame": [
+      {
+        "height": 404.4375,
+        "width": 719
+      }
+    ],
+    "width": 768
+  },
+  {
+    "name": "health",
+    "audioCount": 0,
+    "clientWidth": 1440,
+    "overflows": [],
+    "scrollWidth": 1440,
+    "title": "Verificação do ambiente.",
+    "videoCount": 0,
+    "videoFrame": [],
+    "width": 1440
+  },
+  {
+    "name": "broadcast",
+    "audioCount": 1,
+    "clientWidth": 1425,
+    "overflows": [],
+    "scrollWidth": 1425,
+    "title": "Compartilhar tela com áudio",
+    "videoCount": 1,
+    "videoFrame": [
+      {
+        "height": 416.34375,
+        "width": 740.1875
+      }
+    ],
+    "width": 1440
+  },
+  {
+    "name": "watch",
+    "audioCount": 1,
+    "clientWidth": 1425,
+    "overflows": [],
+    "scrollWidth": 1425,
+    "title": "Assistir à transmissão",
+    "videoCount": 1,
+    "videoFrame": [
+      {
+        "height": 416.34375,
+        "width": 740.1875
+      }
+    ],
+    "width": 1440
+  },
+  {
+    "name": "livekit",
+    "audioCount": 1,
+    "clientWidth": 1425,
+    "overflows": [],
+    "scrollWidth": 1425,
+    "title": "Prova de mídia sintética",
+    "videoCount": 1,
+    "videoFrame": [
+      {
+        "height": 416.34375,
+        "width": 740.1875
+      }
+    ],
+    "width": 1440
+  }
+]

@@ -1,0 +1,40 @@
+# T-04 opt-in. Renderizado por Initialize-CaptureTurn.ps1, sem credenciais estaticas TURN.
+# A origem HTTPS e a administracao loopback da T-03 permanecem iguais.
+port: 7880
+bind_addresses:
+  - 0.0.0.0
+rtc:
+  tcp_port: 7891
+  udp_port: 7892
+  use_external_ip: false
+  node_ip: __LAN_IP__
+  enable_loopback_candidate: false
+  stun_servers: []
+room:
+  auto_create: false
+  max_participants: 10
+  empty_timeout: 300
+  departure_timeout: 20
+  enabled_codecs:
+    - mime: audio/opus
+    - mime: video/vp8
+turn:
+  enabled: true
+  domain: __TURN_DOMAIN__
+  # roommanager.go v1.13.10 anuncia turns:<domain>:443; manter o listener em443.
+  tls_port: 443
+  udp_port: 0
+  external_tls: false
+  cert_file: /etc/livekit/turn-cert.pem
+  key_file: /etc/livekit/turn-key.pem
+  relay_range_start: 30000
+  relay_range_end: 30099
+  per_user_relay_allocation_limit: 4
+  ttl_seconds: 300
+  # v1.13.10 nega peers privados por padrao. Permitir somente o IP SFU escolhido.
+  # A politica embedded ainda limita os peers aos enderecos/portas de midia SFU.
+  allow_restricted_peer_cidrs:
+    - __LAN_IP__/32
+logging:
+  level: warn
+  pion_level: error

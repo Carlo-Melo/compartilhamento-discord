@@ -1,6 +1,8 @@
 spring:
   application:
     name: compartilhamento-discord
+  autoconfigure:
+    exclude: org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
   datasource:
     url: ${DATABASE_URL}
     username: ${DATABASE_USERNAME}
@@ -13,6 +15,16 @@ spring:
 server:
   address: 127.0.0.1
   port: 8080
+  forward-headers-strategy: none
+  servlet:
+    session:
+      timeout: 30m
+      persistent: false
+      tracking-modes: cookie
+      cookie:
+        name: ACCESS_SESSION
+        http-only: true
+        same-site: lax
   error:
     include-message: never
     include-stacktrace: never
@@ -35,6 +47,12 @@ management:
       group:
         ready:
           include: readinessState,db
+
+# Same-origin browser access; development proxy preserves this exact Origin.
+# This config does not enable product authentication (T-07).
+app:
+  security:
+    origin: ${APP_ORIGIN:http://127.0.0.1:4200}
 
 # The integration has no public token endpoint. Local auxiliary sources require
 # a separate Maven profile, a Spring profile and explicit opt-in.

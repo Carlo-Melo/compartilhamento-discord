@@ -1,0 +1,1585 @@
+[
+  {
+    "name": "health",
+    "failures": [],
+    "minContrast": 6.03,
+    "pairs": [
+      {
+        "background": [
+          25,
+          25,
+          34
+        ],
+        "color": "rgb(167, 139, 250)",
+        "gradientBacked": false,
+        "ratio": 6.41,
+        "text": "Ir para o conteúdo"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 17.9,
+        "text": "CompartilhamentoDiscord"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 7.01,
+        "text": "Discord"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.63,
+        "text": "Ambiente local"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(167, 139, 250)",
+        "gradientBacked": true,
+        "ratio": 7.3,
+        "text": "CONEXÃO COM A API"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": true,
+        "ratio": 17.9,
+        "text": "Verificação do ambiente."
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(167, 139, 250)",
+        "gradientBacked": true,
+        "ratio": 7.3,
+        "text": "."
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": true,
+        "ratio": 10.63,
+        "text": "Confira a comunicação com o backend antes de continuar os testes "
+      },
+      {
+        "background": [
+          19,
+          31,
+          52
+        ],
+        "color": "rgb(171, 200, 255)",
+        "gradientBacked": false,
+        "ratio": 9.77,
+        "text": "Saúde da API"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 16.93,
+        "text": "Estado da conexão"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "HTTP / GET"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "RESPOSTA RECEBIDA: UP"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 16.93,
+        "text": "Backend disponível."
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.05,
+        "text": "A API respondeu ao pedido de saúde. Esta consulta não verifica a "
+      },
+      {
+        "background": [
+          117,
+          64,
+          216
+        ],
+        "color": "rgb(255, 255, 255)",
+        "gradientBacked": false,
+        "ratio": 6.03,
+        "text": "Verificar novamente"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "Endpoint de saúde"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(167, 139, 250)",
+        "gradientBacked": false,
+        "ratio": 6.9,
+        "text": "/api/health/live"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 16.93,
+        "text": "Sobre esta verificação"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "O QUE É VERIFICADO"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 16.93,
+        "text": "Uma chamada real ao processo do backend, pela mesma origem da apl"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "PRÓXIMAS VALIDAÇÕES"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.05,
+        "text": "Banco de dados, integrações e transmissão de mídia precisam de su"
+      },
+      {
+        "background": [
+          19,
+          31,
+          52
+        ],
+        "color": "rgb(171, 200, 255)",
+        "gradientBacked": false,
+        "ratio": 9.77,
+        "text": "Esta página verifica somente a API. A captura e o áudio real entr"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 7.01,
+        "text": "Compartilhamento de tela e áudio"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 7.01,
+        "text": "Sem gravação de mídia"
+      }
+    ],
+    "textCount": 25
+  },
+  {
+    "name": "broadcast",
+    "failures": [],
+    "minContrast": 5.86,
+    "pairs": [
+      {
+        "background": [
+          25,
+          25,
+          34
+        ],
+        "color": "rgb(167, 139, 250)",
+        "gradientBacked": false,
+        "ratio": 6.41,
+        "text": "Ir para o conteúdo"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 17.9,
+        "text": "CompartilhamentoDiscord"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 7.01,
+        "text": "Discord"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.63,
+        "text": "Ambiente local"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(167, 139, 250)",
+        "gradientBacked": true,
+        "ratio": 7.3,
+        "text": "T-03 · Prova restrita de desenvolvimento"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": true,
+        "ratio": 17.9,
+        "text": "Compartilhar tela com áudio"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": true,
+        "ratio": 10.63,
+        "text": "Prepare sua fonte, valide o acesso e inicie com a autorização do "
+      },
+      {
+        "background": [
+          16,
+          37,
+          31
+        ],
+        "color": "rgb(117, 223, 179)",
+        "gradientBacked": false,
+        "ratio": 9.92,
+        "text": "Contexto seguro"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": true,
+        "ratio": 7.01,
+        "text": "Captura real do Windows ainda depende de homologação nas duas máq"
+      },
+      {
+        "background": [
+          43,
+          34,
+          19
+        ],
+        "color": "rgb(244, 209, 139)",
+        "gradientBacked": false,
+        "ratio": 10.69,
+        "text": "O áudio inteiro do computador pode incluir Discord e notificações"
+      },
+      {
+        "background": [
+          43,
+          34,
+          19
+        ],
+        "color": "rgb(244, 209, 139)",
+        "gradientBacked": false,
+        "ratio": 10.69,
+        "text": "Use fones e um som de teste sem conversas privadas. Câmera e micr"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "Sua fonte"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 16.93,
+        "text": "Prévia da transmissão"
+      },
+      {
+        "background": [
+          25,
+          25,
+          34
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 9.34,
+        "text": "Pronto"
+      },
+      {
+        "background": [
+          5,
+          5,
+          8
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.9,
+        "text": "Sua tela aparece aqui"
+      },
+      {
+        "background": [
+          5,
+          5,
+          8
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 7.19,
+        "text": "A prévia aparecerá depois que você autorizar uma tela com áudio."
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.05,
+        "text": "Prévia local silenciada. A publicação só é confirmada quando víde"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "No seletor do navegador, escolha Tela inteira e habilite comparti"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "Tela inteira"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "compartilhar áudio do sistema"
+      },
+      {
+        "background": [
+          19,
+          31,
+          52
+        ],
+        "color": "rgb(171, 200, 255)",
+        "gradientBacked": false,
+        "ratio": 9.77,
+        "text": "Estado: Pronto"
+      },
+      {
+        "background": [
+          19,
+          31,
+          52
+        ],
+        "color": "rgb(171, 200, 255)",
+        "gradientBacked": false,
+        "ratio": 9.77,
+        "text": "Pronto para iniciar."
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "Apresentador"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 16.93,
+        "text": "Preparar acesso"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.05,
+        "text": "Chave experimental de apresentador"
+      },
+      {
+        "background": [
+          19,
+          31,
+          52
+        ],
+        "color": "rgb(171, 200, 255)",
+        "gradientBacked": false,
+        "ratio": 9.77,
+        "text": "Cole a chave do seu papel. A validação é automática e não inicia "
+      },
+      {
+        "background": [
+          36,
+          33,
+          45
+        ],
+        "color": "rgb(163, 154, 174)",
+        "gradientBacked": false,
+        "ratio": 5.86,
+        "text": "Validar chave novamente"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "A validação confirma somente o papel da chave. Ela não inicia cap"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.05,
+        "text": "Qualidade inicial"
+      },
+      {
+        "background": [
+          36,
+          33,
+          45
+        ],
+        "color": "rgb(163, 154, 174)",
+        "gradientBacked": false,
+        "ratio": 5.86,
+        "text": "Selecionar tela e iniciar"
+      },
+      {
+        "background": [
+          36,
+          33,
+          45
+        ],
+        "color": "rgb(163, 154, 174)",
+        "gradientBacked": false,
+        "ratio": 5.86,
+        "text": "Parar transmissão"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "A seleção só começa com seu clique. Vídeo e áudio são obrigatório"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.05,
+        "text": "Histórico desta página para diagnóstico"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "Últimos 40 avisos, somente em memória. Não contém chaves, tokens,"
+      },
+      {
+        "background": [
+          36,
+          33,
+          45
+        ],
+        "color": "rgb(163, 154, 174)",
+        "gradientBacked": false,
+        "ratio": 5.86,
+        "text": "Copiar diagnóstico"
+      },
+      {
+        "background": [
+          25,
+          25,
+          34
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 9.34,
+        "text": "Aguardando a validação da chave."
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": true,
+        "ratio": 7.01,
+        "text": "Ao interromper durante a seleção, feche também o seletor nativo. "
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(167, 139, 250)",
+        "gradientBacked": true,
+        "ratio": 7.3,
+        "text": "Página do espectador"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 7.01,
+        "text": "Compartilhamento de tela e áudio"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 7.01,
+        "text": "Sem gravação de mídia"
+      }
+    ],
+    "textCount": 40
+  },
+  {
+    "name": "watch",
+    "failures": [],
+    "minContrast": 5.86,
+    "pairs": [
+      {
+        "background": [
+          25,
+          25,
+          34
+        ],
+        "color": "rgb(167, 139, 250)",
+        "gradientBacked": false,
+        "ratio": 6.41,
+        "text": "Ir para o conteúdo"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 17.9,
+        "text": "CompartilhamentoDiscord"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 7.01,
+        "text": "Discord"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.63,
+        "text": "Ambiente local"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(167, 139, 250)",
+        "gradientBacked": true,
+        "ratio": 7.3,
+        "text": "T-03 · Prova restrita de desenvolvimento"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": true,
+        "ratio": 17.9,
+        "text": "Assistir à transmissão"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": true,
+        "ratio": 10.63,
+        "text": "Valide seu acesso para receber o vídeo e o áudio do apresentador."
+      },
+      {
+        "background": [
+          16,
+          37,
+          31
+        ],
+        "color": "rgb(117, 223, 179)",
+        "gradientBacked": false,
+        "ratio": 9.92,
+        "text": "Contexto seguro"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": true,
+        "ratio": 7.01,
+        "text": "Captura real do Windows ainda depende de homologação nas duas máq"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "Recepção"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 16.93,
+        "text": "Vídeo do apresentador"
+      },
+      {
+        "background": [
+          25,
+          25,
+          34
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 9.34,
+        "text": "Pronto"
+      },
+      {
+        "background": [
+          5,
+          5,
+          8
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.9,
+        "text": "Aguardando a transmissão"
+      },
+      {
+        "background": [
+          5,
+          5,
+          8
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 7.19,
+        "text": "Valide a chave e entre como espectador para receber a mídia."
+      },
+      {
+        "background": [
+          36,
+          33,
+          45
+        ],
+        "color": "rgb(163, 154, 174)",
+        "gradientBacked": false,
+        "ratio": 5.86,
+        "text": "Ouvir áudio"
+      },
+      {
+        "background": [
+          25,
+          25,
+          34
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 15.73,
+        "text": "Tela cheia"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.05,
+        "text": "Volume local"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.05,
+        "text": "Aguardando mídia do apresentador."
+      },
+      {
+        "background": [
+          19,
+          31,
+          52
+        ],
+        "color": "rgb(171, 200, 255)",
+        "gradientBacked": false,
+        "ratio": 9.77,
+        "text": "Estado: Pronto"
+      },
+      {
+        "background": [
+          19,
+          31,
+          52
+        ],
+        "color": "rgb(171, 200, 255)",
+        "gradientBacked": false,
+        "ratio": 9.77,
+        "text": "Pronto para iniciar."
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "Espectador"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 16.93,
+        "text": "Preparar acesso"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.05,
+        "text": "Chave experimental de espectador"
+      },
+      {
+        "background": [
+          19,
+          31,
+          52
+        ],
+        "color": "rgb(171, 200, 255)",
+        "gradientBacked": false,
+        "ratio": 9.77,
+        "text": "Cole a chave do seu papel. A validação é automática e não inicia "
+      },
+      {
+        "background": [
+          36,
+          33,
+          45
+        ],
+        "color": "rgb(163, 154, 174)",
+        "gradientBacked": false,
+        "ratio": 5.86,
+        "text": "Validar chave novamente"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "A validação confirma somente o papel da chave. Ela não inicia cap"
+      },
+      {
+        "background": [
+          36,
+          33,
+          45
+        ],
+        "color": "rgb(163, 154, 174)",
+        "gradientBacked": false,
+        "ratio": 5.86,
+        "text": "Entrar como espectador"
+      },
+      {
+        "background": [
+          36,
+          33,
+          45
+        ],
+        "color": "rgb(163, 154, 174)",
+        "gradientBacked": false,
+        "ratio": 5.86,
+        "text": "Sair"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "O espectador recebe a mídia sem solicitar câmera, microfone ou ca"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.05,
+        "text": "Histórico desta página para diagnóstico"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "Últimos 40 avisos, somente em memória. Não contém chaves, tokens,"
+      },
+      {
+        "background": [
+          36,
+          33,
+          45
+        ],
+        "color": "rgb(163, 154, 174)",
+        "gradientBacked": false,
+        "ratio": 5.86,
+        "text": "Copiar diagnóstico"
+      },
+      {
+        "background": [
+          25,
+          25,
+          34
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 9.34,
+        "text": "Aguardando a validação da chave."
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": true,
+        "ratio": 7.01,
+        "text": "Ao interromper durante a seleção, feche também o seletor nativo. "
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(167, 139, 250)",
+        "gradientBacked": true,
+        "ratio": 7.3,
+        "text": "Página do apresentador"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 7.01,
+        "text": "Compartilhamento de tela e áudio"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 7.01,
+        "text": "Sem gravação de mídia"
+      }
+    ],
+    "textCount": 37
+  },
+  {
+    "name": "livekit",
+    "failures": [],
+    "minContrast": 5.86,
+    "pairs": [
+      {
+        "background": [
+          25,
+          25,
+          34
+        ],
+        "color": "rgb(167, 139, 250)",
+        "gradientBacked": false,
+        "ratio": 6.41,
+        "text": "Ir para o conteúdo"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 17.9,
+        "text": "CompartilhamentoDiscord"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 7.01,
+        "text": "Discord"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.63,
+        "text": "Ambiente local"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(167, 139, 250)",
+        "gradientBacked": true,
+        "ratio": 7.3,
+        "text": "Saúde da API"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(167, 139, 250)",
+        "gradientBacked": true,
+        "ratio": 7.3,
+        "text": "T-02 / Laboratório de mídia"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": true,
+        "ratio": 17.9,
+        "text": "Prova de mídia sintética"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(167, 139, 250)",
+        "gradientBacked": true,
+        "ratio": 7.3,
+        "text": "sintética"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": true,
+        "ratio": 10.63,
+        "text": "Verifique o transporte de vídeo e áudio, as permissões e a limpez"
+      },
+      {
+        "background": [
+          19,
+          31,
+          52
+        ],
+        "color": "rgb(171, 200, 255)",
+        "gradientBacked": false,
+        "ratio": 9.77,
+        "text": "Somente desenvolvimento"
+      },
+      {
+        "background": [
+          43,
+          34,
+          19
+        ],
+        "color": "rgb(244, 209, 139)",
+        "gradientBacked": false,
+        "ratio": 10.69,
+        "text": "Conteúdo sintético. A captura real continua pendente de homologaç"
+      },
+      {
+        "background": [
+          43,
+          34,
+          19
+        ],
+        "color": "rgb(244, 209, 139)",
+        "gradientBacked": false,
+        "ratio": 10.69,
+        "text": "Esta ferramenta usa vídeo de canvas e um tom baixo de 440 Hz. Não"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "Receptor do espectador"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 16.93,
+        "text": "Vídeo e áudio recebidos"
+      },
+      {
+        "background": [
+          25,
+          25,
+          34
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 9.34,
+        "text": "Execução local"
+      },
+      {
+        "background": [
+          5,
+          5,
+          8
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.9,
+        "text": "Aguardando a prova local"
+      },
+      {
+        "background": [
+          5,
+          5,
+          8
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 7.19,
+        "text": "O vídeo recebido aparecerá nesta área."
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.05,
+        "text": "O teste emite um tom sintético baixo de 440 Hz."
+      },
+      {
+        "background": [
+          117,
+          64,
+          216
+        ],
+        "color": "rgb(255, 255, 255)",
+        "gradientBacked": false,
+        "ratio": 6.03,
+        "text": "Executar prova local"
+      },
+      {
+        "background": [
+          36,
+          33,
+          45
+        ],
+        "color": "rgb(163, 154, 174)",
+        "gradientBacked": false,
+        "ratio": 5.86,
+        "text": "Ouvir áudio"
+      },
+      {
+        "background": [
+          36,
+          33,
+          45
+        ],
+        "color": "rgb(163, 154, 174)",
+        "gradientBacked": false,
+        "ratio": 5.86,
+        "text": "Interromper e limpar"
+      },
+      {
+        "background": [
+          19,
+          31,
+          52
+        ],
+        "color": "rgb(171, 200, 255)",
+        "gradientBacked": false,
+        "ratio": 9.77,
+        "text": "Pronto para executar a prova local."
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "Verificações desta execução"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 16.93,
+        "text": "Resultados"
+      },
+      {
+        "background": [
+          25,
+          25,
+          34
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 9.34,
+        "text": "Aguardando execução"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "A prova cria salas próprias, conecta os dois papéis, mede a mídia"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 16.93,
+        "text": "Nenhuma verificação executada"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "Os resultados aparecem aqui ao executar a prova local."
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "Informações técnicas"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 16.93,
+        "text": "Diagnóstico da recepção"
+      },
+      {
+        "background": [
+          25,
+          25,
+          34
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.16,
+        "text": "Mídia recebida"
+      },
+      {
+        "background": [
+          25,
+          25,
+          34
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 9.34,
+        "text": "Ainda não há mídia recebida."
+      },
+      {
+        "background": [
+          25,
+          25,
+          34
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.16,
+        "text": "Transporte RTC"
+      },
+      {
+        "background": [
+          25,
+          25,
+          34
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 9.34,
+        "text": "Transporte RTC ainda não iniciado."
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(192, 187, 206)",
+        "gradientBacked": false,
+        "ratio": 10.05,
+        "text": "Ambiente do navegador desta prova"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(244, 242, 250)",
+        "gradientBacked": false,
+        "ratio": 16.93,
+        "text": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHT"
+      },
+      {
+        "background": [
+          17,
+          17,
+          25
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 6.63,
+        "text": "Tokens existem apenas na memória desta execução. Nenhuma credenci"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 7.01,
+        "text": "Compartilhamento de tela e áudio"
+      },
+      {
+        "background": [
+          9,
+          9,
+          15
+        ],
+        "color": "rgb(157, 150, 175)",
+        "gradientBacked": false,
+        "ratio": 7.01,
+        "text": "Sem gravação de mídia"
+      }
+    ],
+    "textCount": 39
+  }
+]

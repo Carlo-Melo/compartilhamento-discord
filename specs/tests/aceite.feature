@@ -177,6 +177,44 @@ Funcionalidade: Compartilhamento de tela e áudio organizado por bot Discord
     E os usuários precisam voltar ao bot para iniciar novamente
     E clicar no botão de uma transmissão antiga não restaura sua sessão
 
+  @AC-19 @T-05
+  Cenário: Base nega acesso enquanto o contexto definitivo não existe
+    Dado o backend normal sem autenticação definitiva implementada
+    Quando um visitante solicita uma rota privada com identidade e papel inventados em headers
+    Então recebe 401 com code ACCESS_REQUIRED
+    E a resposta tem code, message em português, requestId próprio e retryable false
+    E não recebe formulário de login, redirect ou desafio HTTP Basic
+    E o header X-Request-Id enviado pelo visitante não é refletido
+
+  @AC-19 @T-05
+  Cenário: Bootstrap CSRF não cria contexto autorizado
+    Dado uma sessão técnica obtida por GET /api/csrf
+    Quando a mutação usa Origin exata e X-XSRF-TOKEN vinculado a essa sessão
+    Então a verificação CSRF é satisfeita
+    E a operação do produto continua negada sem contexto definitivo
+    Quando a mesma mutação usa token de outro bootstrap ou Origin externa
+    Então recebe 403 padronizado sem executar a operação
+    E CORS não autoriza a origem externa
+
+  @AC-19 @T-05
+  Cenário: Readiness e detalhes internos não são públicos
+    Dado as interfaces de API e gestão em loopback
+    Quando consulto GET /health/live na API
+    Então recebo somente status de liveness sem detalhes
+    E GET /health/ready é acessível somente na porta da gestão
+    E env, configprops, heapdump e demais métodos e caminhos da gestão são negados
+
+  @AC-19 @T-05
+  Cenário: Segurança preserva isolamento e papéis das ferramentas experimentais
+    Dado os artefatos normal, livekit-proof e capture-proof separados
+    Quando uso o artefato normal, opt-in desligado ou profile prod ou production
+    Então as rotas experimentais permanecem ausentes com 404
+    Quando uso um auxiliar explicitamente habilitado
+    Então só os métodos e caminhos declarados atravessam sua cadeia específica
+    E Host, Origin, loopback e marcador continuam exigidos
+    E espectador da T-03 não pode criar ou excluir sala
+    E nenhuma rota de integração futura é liberada antes de verificar assinatura
+
   @AC-21 @performance
   Cenário: Capacidade e consumo observáveis
     Dado um apresentador e nove espectadores durante duas horas
