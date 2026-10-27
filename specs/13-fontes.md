@@ -26,6 +26,12 @@ Consulta original: 25/10/2026; revisão de acesso por bot: 26/10/2026. As escolh
 - [Configuração oficial do servidor](https://github.com/livekit/livekit/blob/master/config-sample.yaml): room.auto_create e limites de sala; confirmar na versão fixada.
 - [API de salas](https://docs.livekit.io/reference/other/roomservice-api/): criação, participantes e exclusão.
 
+## Prova T-04 — fontes das versões fixadas (27/10/2026)
+- [SDK JS 2.22.3 — RTCEngine](https://github.com/livekit/client-sdk-js/blob/v2.22.3/src/room/RTCEngine.ts): `iceServers: []` impede copiar ICE da SFU; omitir o campo preserva os servidores administrados e permite política `relay`.
+- [LiveKit 1.13.10 — configuração](https://github.com/livekit/livekit/blob/v1.13.10/config-sample.yaml) e [TURN](https://github.com/livekit/livekit/blob/v1.13.10/pkg/service/turn.go): TLS integrado, faixa/limite de relay e allowlist restrita de peers privados.
+- [LiveKit 1.13.10 — RoomManager](https://github.com/livekit/livekit/blob/v1.13.10/pkg/service/roommanager.go): anúncio embedded TURN na porta externa443, STUN padrão e refresh real de tokens pelo servidor. Não inferir renovação real de um JWT adicional emitido pelo gateway.
+- [Resultados e limitações T-04](../tests/manual/T-04-multiespectador-turn.md): configuração/código/documentação não comprovam alocação relay, recepção RTP ou homologação Windows.
+
 ## Orçamento e método
 - [Preços DigitalOcean](https://www.digitalocean.com/pricing/droplets): referência pública consultada de VPS/franquia; não há fornecedor escolhido. Cotação real incluindo câmbio/impostos é necessária.
 - [GitHub Spec Kit](https://github.com/github/spec-kit): referência para fluxo especificação -> plano -> tarefas -> validação. Este pacote não instala nem exige Spec Kit.

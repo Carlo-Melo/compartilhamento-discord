@@ -1,7 +1,7 @@
 # 00 — Princípios de desenvolvimento
 Status: normativo para o MVP.
 
-- **C-01 Funcionalidade antes de aparência.** Cada entrega precisa executar um fluxo real. Sem landing page, animações, design system próprio ou dashboard comercial na primeira versão.
+- **C-01 Funcionalidade antes de aparência.** Cada entrega precisa executar um fluxo real. Em 27/10/2026 o usuário autorizou extrair um design system das três referências visuais e aplicá-lo às páginas existentes. A [spec 15](15-design-system.md) passa a orientar a apresentação e as próximas funcionalidades, preservando contratos, acessibilidade, consentimento e segurança. Não acrescentar landing page, dashboard comercial, controles decorativos ou funcionalidades futuras para reproduzir as referências.
 - **C-02 Decisão de produto explícita.** Dúvidas que mudam escopo, custo, acesso ou integrações externas exigem resposta do usuário. Escolhas internas reversíveis usam os ADRs propostos de 06.
 - **C-03 Permissão de captura.** Nunca selecionar tela em nome do usuário, iniciar captura ao carregar a página ou manter captura após encerramento local.
 - **C-04 Áudio obrigatório.** Não anunciar sucesso de transmissão sem vídeo e track de áudio publicados. Silêncio no conteúdo não equivale a falha; a ausência de track equivale.

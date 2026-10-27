@@ -50,5 +50,5 @@ Uma nova aba do mesmo contexto/usuário não ocupa uma segunda vaga; identidade 
 | /acesso-negado | Sem nome, título ou miniatura |
 
 ## UI mínima
-HTML semântico, foco visível, labels, aria-live, contraste e mensagens em pt-BR. Botões evitam dupla operação. Vídeo com object-fit:contain. Sem perfumaria antes do fluxo funcional.
+HTML semântico, foco visível, labels, aria-live, contraste e mensagens em pt-BR. Botões evitam dupla operação. Vídeo com object-fit:contain. A evolução visual autorizada em 27/10/2026 segue a [spec 15 — Design system](15-design-system.md), com apresentação comum para saúde, ferramentas experimentais e futuras páginas. Não altera os fluxos nem cria rotas definitivas ainda pendentes.
 Indicadores distinguem track disponível, autoplay bloqueado e track perdida. Volume é apenas local ao espectador. O mockup anterior é referência; Activity não faz parte do MVP.

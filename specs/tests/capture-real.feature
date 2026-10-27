@@ -4,6 +4,26 @@ Funcionalidade: Prova restrita de captura real T-03
   Contrato auxiliar /api/dev/capture/session, fora da API definitiva.
   Estes cenários documentam comportamento; não têm step definitions.
 
+  Cenário: Colar chave confirma o papel antes de iniciar qualquer captura
+    Quando eu colar uma chave na página de apresentador ou espectador
+    Então a página deve indicar validação em andamento após uma pausa curta
+    E consultar GET /api/dev/capture/session/access com a chave somente no header
+    E indicar chave válida, recusada, papel incorreto ou backend indisponível
+    E nenhuma sala, token de mídia ou captura deve ser criado pela validação
+    E editar a chave deve invalidar a confirmação anterior imediatamente
+    E respostas atrasadas não devem validar outro valor
+    E somente um novo clique após validar o papel correto pode iniciar a captura
+
+  Cenário: Diagnóstico visível sem credenciais
+    Dado que estou executando uma tentativa manual
+    Então devo acompanhar seleção, conexão, publicação, confirmação e encerramento
+    E falhas devem informar a etapa e uma ação de recuperação em português
+    E erros HTTP devem apresentar o UUID de requisição quando disponível
+    E falha de limpeza não deve esconder o erro original
+    E posso copiar os últimos 40 avisos da página sem chaves, tokens ou mídia
+    E o histórico é volátil e não é enviado ou persistido automaticamente
+    E o log do backend contém somente ação, status HTTP e UUID de correlação
+
   Cenário: Captura exige gesto e consentimento nativo
     Dado que abri a página experimental de apresentador
     Então nenhum seletor deve abrir automaticamente

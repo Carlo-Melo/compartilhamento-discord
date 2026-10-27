@@ -1,5 +1,5 @@
 # 11 — Plano de implementação por entregas
-**T-01 e T-02 CONCLUÍDAS em 26/10/2026**, com [evidência de bootstrap](../tests/manual/T-01-bootstrap.md) e [integração LiveKit real](../tests/manual/T-02-livekit.md). **T-03 IMPLEMENTADA, HOMOLOGAÇÃO PENDENTE**: [resultado e preparação externa](../tests/manual/T-03-captura-real.md). T-04 a T-24 continuam **NÃO INICIADAS**. Revisão 1.2 substitui login OAuth/persistência operacional por acesso emitido pelo bot e memória.
+**T-01 e T-02 CONCLUÍDAS em 26/10/2026**, com [evidência de bootstrap](../tests/manual/T-01-bootstrap.md) e [integração LiveKit real](../tests/manual/T-02-livekit.md). **T-03 IMPLEMENTADA, HOMOLOGAÇÃO PENDENTE**: [resultado e preparação externa](../tests/manual/T-03-captura-real.md). **T-05 CONCLUÍDA:** segurança, validação e erros com builds e HTTP real aprovados; [evidência e limitações](../tests/manual/T-05-seguranca-backend.md). **T-04 IMPLEMENTADA, VALIDAÇÃO PARCIAL:** [resultados e roteiro G2](../tests/manual/T-04-multiespectador-turn.md). T-06 a T-24 continuam **NÃO INICIADAS**. Revisão 1.2 substitui login OAuth/persistência operacional por acesso emitido pelo bot e memória.
 
 | ID | Entrega concreta | Depende de | Requisitos / evidência |
 |---|---|---|---|
@@ -53,11 +53,29 @@ Próxima tarefa após a T-01: **T-02 — validar SDK LiveKit JVM/browser, sala, 
 - Testes independentes e runbook entregues. O usuário pediu registrar para depois suas decisões sobre segunda máquina/rede/TLS/firewall; nenhum listener LAN ou confiança de certificado foi configurado pelo agente.
 - **T-03 não concluída:** executar G1/POC-01 (matriz Chrome/Edge Windows, 15 minutos por combinação, vídeo e som real audível) e registrar resultados antes de declarar homologação. [Roteiro completo](../tests/manual/T-03-captura-real.md).
 
+## Resultado da T-04 — implementada, validação parcial
+
+- Evolução do auxiliar `capture-proof`, aproveitando captura, player e barreiras existentes; sem nova API de produto. Nove correlações de espectador por geração recebem identidades aleatórias do backend. Repetição reutiliza a identidade; limite inclui o apresentador e é atômico.
+- Saída remove a conexão SFU, mas não recicla a vaga naquela geração: tokens originais/renovados self-hosted podem continuar válidos. Encerrar e criar outra sala irrepetível inicia outro grupo. Não constitui identidade Discord, ticket, contexto ou `/join` definitivo.
+- TURN/TLS self-hosted em configuração separada opt-in; cenário direto preservado. SDK deixa de suprimir servidores ICE fornecidos pela SFU. Diagnóstico expõe somente tipos e transportes do par selecionado, sem endereços, SDP ou credenciais.
+- **G2 pendente:** executar recepção real de vídeo/áudio por nove identidades, relay comprovado e isolamento de tokens originais e renovados na SFU real. Usuário adiou homologação em 27/10/2026. Builds/doubles não substituem esses resultados; ensaio de duas horas continua T-23.
+
 ## Fatias de entrega
 1. T-01–04: provar mídia real antes do bot completo.
 2. T-05–10: vínculo persistido, bot e acesso web por ticket, sem cadastro.
 3. T-11–16: fluxo mínimo completo com vídeo/som e encerramento.
 4. T-17–24: robustez, reinício, capacidade e operação.
+
+## Resultado da T-05 — base de segurança concluída
+
+- Spring Security com negação por padrão, política por método/caminho, liveness pública e readiness somente na gestão em loopback. Sem login/Basic, OAuth2 Client, Spring Session JDBC ou autorização provisória.
+- Bootstrap CSRF em sessão técnica exclusivamente em memória, Origin exata, CORS fechado e cabeçalhos de segurança da API. Cookie de bootstrap não cria contexto autorizado. Proteção do documento Angular depende do servidor/proxy que entrega esse documento.
+- Envelope de erro MVC/Security com mensagens sanitizadas, UUID próprio e retryable; validação estrutural com Jakarta Bean Validation. Contratos auxiliares de erro atualizados explicitamente.
+- Auxiliares preservados por fontes/artefatos/profiles/opt-in e proteções de origem/transporte/papel. Exceções CSRF limitadas aos métodos/caminhos experimentais, sem liberação ampla de API.
+- Builds dos três artefatos aprovados, zero falhas/erros: normal 19 testes aprovados/4 pulados; T-02 20 aprovados/3 pulados; T-03 28 aprovados/3 pulados. Dez testes HTTP reais de segurança por artefato e cinco testes MVC; consumidores Angular com 45 testes e três builds aprovados. SFU real opt-in e mídia Windows não executados nesta rodada.
+- T-06 implementará somente entidades/JPA/Flyway de bot/vínculo. T-07 implementará tickets, troca atômica, rotação e contexto autorizado. T-19 continua responsável por limpar salas antigas antes de readiness. Nenhuma homologação de mídia foi inferida da segurança básica.
+
+Resultados executados e itens não executados constam no [relatório T-05](../tests/manual/T-05-seguranca-backend.md).
 
 ## Entradas externas
 Antes de integração real: usuário escolhe aplicação/bot, servidor e canal; credenciais de bot por variável/gerenciador seguro. Configurar interaction URL e instalação; nenhum callback OAuth de usuário.

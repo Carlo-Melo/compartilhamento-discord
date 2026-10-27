@@ -1,7 +1,7 @@
 # Compartilhamento de tela + Discord — pacote de especificações
-Versão 1.2 • 26/10/2026 • idioma do produto: português do Brasil.
+Versão 1.3 • 27/10/2026 • idioma do produto: português do Brasil.
 
-**Estado:** T-01 e T-02 concluídas: base local executável e integração SDKs/SFU com administração, grants e recepção sintética Angular validados. T-03 implementada como prova restrita, com captura real solicitada ao navegador, publicação e player; **homologação entre duas máquinas Windows pendente**. Bot e acesso definitivo não implementados; T-04 em diante pendentes. Nenhuma hospedagem ou conta externa foi criada. Decisões de produto abaixo foram respondidas pelo usuário. Metas técnicas são critérios de aceitação propostos, sujeitos à prova de conceito indicada. [Implementação, testes e pendências T-03](../tests/manual/T-03-captura-real.md).
+**Estado:** T-01 e T-02 concluídas: base local executável e integração SDKs/SFU com administração, grants e recepção sintética Angular validados. T-03 implementada como prova restrita, com captura real solicitada ao navegador, publicação e player; **homologação entre duas máquinas Windows pendente**. **T-05 concluída:** base de segurança, CSRF, validação e erros com builds e HTTP real aprovados; [escopo e validação](../tests/manual/T-05-seguranca-backend.md). **T-04 implementada, validação parcial:** nove identidades experimentais, TURN/TLS opt-in e diagnóstico ICE; [resultados e pendências G2](../tests/manual/T-04-multiespectador-turn.md). Homologação adiada pelo usuário em 27/10/2026. Bot e acesso definitivo não implementados; T-06 em diante pendentes. Nenhuma hospedagem ou conta externa foi criada. Decisões de produto abaixo foram respondidas pelo usuário. Metas técnicas são critérios de aceitação propostos, sujeitos à prova de conceito indicada. [Implementação, testes e pendências T-03](../tests/manual/T-03-captura-real.md).
 
 ## Escopo aprovado
 - Site no MVP, sem instalar aplicativo. Bot organiza a sessão no servidor.
@@ -14,7 +14,7 @@ Versão 1.2 • 26/10/2026 • idioma do produto: português do Brasil.
 - Vídeo e áudio da fonte obrigatórios. Usuário aceita áudio inteiro do computador.
 - Uma transmissão por servidor, um apresentador + até nove espectadores.
 - Orçamento inicial de infraestrutura até R$200/mês para um grupo.
-- Interface mínima funcional; identidade visual e perfumaria ficam para depois.
+- Interface funcional com evolução visual autorizada em 27/10/2026: aplicar o [design system da spec 15](15-design-system.md) às páginas reais e às próximas funcionalidades, mantendo prioridade de funcionalidade e segurança.
 - Assistir em Activity dentro do Discord é evolução condicionada à plataforma.
 
 ## Stack definida
@@ -40,6 +40,7 @@ Java 21 + Spring Boot no backend, Angular no frontend, PostgreSQL apenas para o 
 | [12 — Decisões](12-decisoes-e-riscos.md) | Aprovado, proposto e pendente |
 | [13 — Fontes](13-fontes.md) | Documentação externa consultada |
 | [14 — Inventário](14-bootstrap-inventario.md) | Versões fixadas, compatibilidade e dependências T-01/T-02 |
+| [15 — Design system](15-design-system.md) | Tokens, componentes, acessibilidade e apresentação normativa do frontend |
 
 ## Como desenvolver com estas specs
 1. Executar POC-01: captura real de vídeo e som de sistema no Windows, entre duas máquinas. Registrar versões e resultados.
@@ -47,6 +48,7 @@ Java 21 + Spring Boot no backend, Angular no frontend, PostgreSQL apenas para o 
 3. Implementar as fatias de 11, seguindo os contratos de 08 e o OpenAPI.
 4. Atualizar requisito, contrato e cenário quando mudar comportamento; registrar a decisão em 12.
 5. Considerar pronto somente o que tem evidência em 10. Não marcar prova manual como teste automatizado.
+6. Antes de implementar ou alterar interface, consultar 15 e reutilizar seus tokens e componentes. A autorização de evolução visual não amplia escopo funcional nem homologa mídia real.
 
 ## Limites importantes
 O comando no Discord abre o fluxo; a captura começa apenas após clique e autorização no seletor do navegador. Não é possível prometer um único comando que já capture a tela sem interação no site.

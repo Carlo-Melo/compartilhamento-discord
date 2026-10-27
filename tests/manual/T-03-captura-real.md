@@ -4,6 +4,8 @@ Data: **26/10/2026**. **IMPLEMENTADA; NÃO HOMOLOGADA.** G1/POC-01 e conclusão 
 
 ## Entrega implementada
 
+Atualização para testes manuais: validação automática de chave/papel, avisos por etapa, histórico copiável e correção do proxy HTTPS/HTTP2 entregues em [avisos e diagnóstico](T-03-avisos-e-diagnostico.md). Aguardar a confirmação da chave antes do clique de início; isso não homologa mídia real.
+
 - Páginas Angular distintas de apresentador e espectador, somente no build `capture-proof`. Clique explícito chama `getDisplayMedia` com vídeo/áudio e sugestões de áudio de sistema; o navegador e o usuário decidem a fonte. Prévia silenciada, mensagens em português e validação de tracks vivas, sem medir volume para autorizar publicação.
 - Liberação de todas as tracks em falha/cancelamento/resultado tardio/parada/navegação. Término de vídeo **ou** áudio encerra o par; nova tentativa fica bloqueada enquanto há operação/limpeza pendente. Não há câmera, microfone ou gravação.
 - Publicação LiveKit `screen_share` + `screen_share_audio`; VP8/Opus, sem simulcast. Padrão 720p/30 fps/alvo 2 Mbps, opção 1080p/30 fps/teto 4 Mbps, áudio até 128 kbps. São sugestões e limites de negociação, sem promessa de qualidade constante.

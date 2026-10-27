@@ -5,6 +5,10 @@ T-02 concluída: SDKs LiveKit JVM/browser e SFU local com administração, grant
 
 **T-03 implementada, homologação pendente:** captura de tela com áudio obrigatório, publicação LiveKit e página separada de espectador em uma prova HTTPS restrita. [Como preparar e iniciar nas duas máquinas](infra/README.md#t-03--prova-restrita-em-duas-máquinas); [testes e decisões externas para resolver depois](tests/manual/T-03-captura-real.md). O som real do Windows e a matriz Chrome/Edge por 15 minutos ainda não foram homologados.
 
+**T-05 concluída — base de segurança:** Spring Security com negação por padrão, bootstrap CSRF em memória, Origin exata, validação e erros sanitizados. Builds e HTTP real aprovados; auxiliares T-02/T-03 preservam isolamento e papéis. [Política, testes e limites](tests/manual/T-05-seguranca-backend.md). Bot, tickets e contexto autorizado continuam nas próximas tarefas; bootstrap não concede acesso.
+
+**T-04 implementada, validação parcial:** auxiliar de captura estendido para nove identidades distintas, limite concorrente, TURN/TLS opt-in e diagnóstico do par ICE selecionado. [Implementação, comandos e pendências G2](tests/manual/T-04-multiespectador-turn.md). A homologação entre máquinas/redes foi adiada pelo usuário em 27/10/2026; não há aprovação de G1/G2 por builds.
+
 ## Stack
 - Backend: Java 21 + Spring Boot; arquitetura em camadas.
 - Frontend: Angular; interface mínima funcional no MVP.

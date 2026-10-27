@@ -1,6 +1,7 @@
 # Instruções do projeto
 - Stack decidida pelo usuário: Java 21 com Spring Boot, Angular, PostgreSQL; backend em camadas.
 - Ler specs/README.md e specs/00-principios.md antes de implementar.
+- Frontend: ler e seguir specs/15-design-system.md; reutilizar tokens de frontend/src/styles.css e componentes shared. Evolução visual autorizada em 27/10/2026, preservando fluxos, acessibilidade e segurança.
 - Backend: controller -> service -> repository; integrações externas encapsuladas em integration. Não retornar entidades JPA na API. DTOs explícitos e autorização no service/security.
 - Frontend: Angular organizado por core, shared e features; regras de permissão nunca dependem só de guards.
 - MVP funcional antes de aparência. Não implementar Activity, app nativo, gravação ou pagamentos sem nova decisão.
