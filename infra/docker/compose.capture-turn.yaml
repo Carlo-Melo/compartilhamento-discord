@@ -1,0 +1,22 @@
+# Overlay opt-in: usar APENAS junto de compose.capture.yaml e os dois --env-file.
+# O merge de volumes por target substitui somente o YAML LiveKit; imagem/digest,
+# bind de administracao e portas ICE sao herdados da prova T-03.
+services:
+  livekit:
+    ports:
+      # v1.13.10 anuncia TURN embedded em 443, independentemente de tls_port.
+      - "${CAPTURE_TURN_BIND_IP:?Execute Initialize-CaptureTurn.ps1}:443:443/tcp"
+      - "${CAPTURE_TURN_BIND_IP:?Execute Initialize-CaptureTurn.ps1}:30000-30099:30000-30099/udp"
+    volumes:
+      - type: bind
+        source: ${CAPTURE_TURN_CONFIG_PATH:?Execute Initialize-CaptureTurn.ps1}
+        target: /etc/livekit/livekit.capture.yaml
+        read_only: true
+      - type: bind
+        source: ${CAPTURE_TURN_CERT_PATH:?Informe o certificado TURN local}
+        target: /etc/livekit/turn-cert.pem
+        read_only: true
+      - type: bind
+        source: ${CAPTURE_TURN_KEY_PATH:?Informe a chave TURN local}
+        target: /etc/livekit/turn-key.pem
+        read_only: true
