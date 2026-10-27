@@ -61,6 +61,15 @@ public final class LiveKitGateway {
         closeErrorBody(response);
     }
 
+    /** Disconnects the current participant; self-hosted JWTs are not individually revoked. */
+    public void removeParticipant(String roomName, String identity) {
+        requireIdentifier(roomName);
+        requireIdentifier(identity);
+        Response<Void> response = executeRaw(rooms.removeParticipant(roomName, identity));
+        if (!response.isSuccessful() && response.code() != 404) reject(response);
+        closeErrorBody(response);
+    }
+
     public MediaAccessToken issueToken(String roomName, String identity, MediaRole role) {
         requireIdentifier(roomName);
         requireIdentifier(identity);

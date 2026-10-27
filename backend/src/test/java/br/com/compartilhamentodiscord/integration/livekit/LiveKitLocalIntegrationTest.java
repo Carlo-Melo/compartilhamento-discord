@@ -9,6 +9,13 @@ import java.net.http.WebSocket;
 import java.net.http.WebSocketHandshakeException;
 import java.nio.ByteBuffer;
 import java.time.Duration;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.Base64;
+import java.util.Map;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.BlockingQueue;
@@ -66,6 +73,11 @@ class LiveKitLocalIntegrationTest {
             assertEquals(0, gateway.listParticipants(roomB).size(), "Token da sala A não deve entrar na B.");
             assertTrue(gateway.listParticipants(roomA).stream().anyMatch(p -> "t02-java-scope".equals(p.identity())));
 
+            // This credential comes from the SFU signal, never a second gateway issuance.
+            String refreshed = listener.refreshed.get(8, TimeUnit.SECONDS);
+            assertFalse(tokenA.token().equals(refreshed), "A SFU deve entregar uma credencial renovada real.");
+            assertRefreshedScope(refreshed, properties, roomA, "t02-java-scope");
+
             // Bypass all browser SDK guards and ask the SFU to publish directly.
             assertPublicationDenied(socket, listener, LivekitModels.TrackType.VIDEO, LivekitModels.TrackSource.SCREEN_SHARE);
             assertPublicationDenied(socket, listener, LivekitModels.TrackType.AUDIO, LivekitModels.TrackSource.SCREEN_SHARE_AUDIO);
@@ -94,6 +106,12 @@ class LiveKitLocalIntegrationTest {
             assertEquals(404, reconnectStatus, "Sala apagada deve continuar ausente mesmo com token ainda válido.");
             assertTrue(gateway.findRoom(roomA).isEmpty());
             assertEquals(0, gateway.listParticipants(roomB).size());
+            assertJoinDenied(client, attemptOtherRoom, refreshed);
+            // B is a distinct still-live generation. The retired generation's initial and refreshed
+            // credentials cannot select it, even when a visitor explicitly requests its room name.
+            assertTrue(gateway.findRoom(roomB).isPresent());
+            assertJoinDenied(client, attemptOtherRoom, tokenA.token());
+            assertEquals(0, gateway.listParticipants(roomB).size());
         } finally {
             try {
                 if (socket != null) { socket.abort(); }
@@ -110,6 +128,42 @@ class LiveKitLocalIntegrationTest {
                         });
             }
         }
+    }
+
+    private static void assertJoinDenied(HttpClient client, URI uri, String token) throws Exception {
+        try {
+            WebSocket unexpected = client.newWebSocketBuilder().connectTimeout(Duration.ofSeconds(5))
+                    .header("Authorization", "Bearer " + token)
+                    .buildAsync(uri, new SignalListener()).get(8, TimeUnit.SECONDS);
+            unexpected.abort();
+            fail("JWT da geração excluída não pode recriar sala ou entrar em geração diferente.");
+        } catch (ExecutionException failure) {
+            if (!(failure.getCause() instanceof WebSocketHandshakeException handshake)) {
+                throw new AssertionError("Falha de transporte não comprova negação pela SFU.");
+            }
+            assertEquals(404, handshake.getResponse().statusCode());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void assertRefreshedScope(String token, LiveKitProperties properties,
+            String room, String identity) throws Exception {
+        String[] parts = token.split("\\.");
+        assertEquals(3, parts.length);
+        Mac hmac = Mac.getInstance("HmacSHA256");
+        hmac.init(new SecretKeySpec(properties.getApiSecret().getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+        assertTrue(MessageDigest.isEqual(hmac.doFinal((parts[0] + "." + parts[1]).getBytes(StandardCharsets.US_ASCII)),
+                Base64.getUrlDecoder().decode(parts[2])), "Assinatura do token renovado deve ser válida.");
+        Map<String, Object> claims = new ObjectMapper().readValue(Base64.getUrlDecoder().decode(parts[1]), Map.class);
+        // Boolean-only assertions avoid ever putting credential claims into a failure report.
+        assertTrue(identity.equals(claims.get("sub")), "Token renovado deve manter identidade.");
+        Map<?, ?> grant = (Map<?, ?>) claims.get("video");
+        assertTrue(room.equals(grant.get("room")), "Token renovado deve manter geração.");
+        assertTrue(Boolean.FALSE.equals(grant.get("canPublish")), "Renovação não pode liberar publicação.");
+        assertTrue(Boolean.TRUE.equals(grant.get("canSubscribe")), "Renovação mantém apenas assinatura.");
+        assertFalse(Boolean.TRUE.equals(grant.get("roomCreate")));
+        assertFalse(Boolean.TRUE.equals(grant.get("roomAdmin")));
+        assertTrue(((Number) claims.get("exp")).longValue() > java.time.Instant.now().getEpochSecond());
     }
 
     private static void assertPublicationDenied(WebSocket socket, SignalListener listener,
@@ -141,6 +195,7 @@ class LiveKitLocalIntegrationTest {
         private final CompletableFuture<LivekitRtc.JoinResponse> join = new CompletableFuture<>();
         private final CompletableFuture<Void> disconnected = new CompletableFuture<>();
         private final CompletableFuture<Void> closed = new CompletableFuture<>();
+        private final CompletableFuture<String> refreshed = new CompletableFuture<>();
         private final BlockingQueue<LivekitRtc.RequestResponse> requests = new LinkedBlockingQueue<>();
         private final ByteArrayOutputStream fragments = new ByteArrayOutputStream();
 
@@ -158,6 +213,7 @@ class LiveKitLocalIntegrationTest {
                     if (response.hasJoin()) { join.complete(response.getJoin()); }
                     if (response.hasLeave()) { disconnected.complete(null); }
                     if (response.hasRequestResponse()) { requests.add(response.getRequestResponse()); }
+                    if (!response.getRefreshToken().isEmpty()) { refreshed.complete(response.getRefreshToken()); }
                 } catch (Exception ignored) {
                     join.completeExceptionally(new IllegalStateException("Resposta de sinalização inválida da SFU local."));
                 }

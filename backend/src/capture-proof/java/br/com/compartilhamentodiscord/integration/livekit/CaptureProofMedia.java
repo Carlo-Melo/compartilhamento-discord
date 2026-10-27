@@ -10,6 +10,7 @@ public interface CaptureProofMedia {
     List<LiveKitParticipant> participants(String room);
     MediaAccessToken token(String room, String identity, MediaRole role);
     void delete(String room);
+    void removeViewer(String room, String identity);
 
     static CaptureProofMedia liveKit(LiveKitGateway gateway) {
         return new CaptureProofMedia() {
@@ -20,6 +21,7 @@ public interface CaptureProofMedia {
                 return gateway.issueToken(room, identity, role);
             }
             public void delete(String room) { gateway.deleteRoom(room); }
+            public void removeViewer(String room, String identity) { gateway.removeParticipant(room, identity); }
         };
     }
 }
