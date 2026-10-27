@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "T-02 — auxiliar LOCAL LiveKit",
-    "version": "0.1.0",
-    "description": "Contrato separado do produto. Fontes auxiliares ausentes do JAR padrão; requer Maven/Spring profile livekit-proof, flag explícita, loopback e Host autorizado. Indisponível com profiles prod/production. Não oferece autorização definitiva ou tickets."
+    "version": "0.2.0",
+    "description": "Contrato separado do produto. Fontes auxiliares ausentes do JAR padrão; requer Maven/Spring profile livekit-proof, flag explícita, loopback e Host autorizado. Indisponível com profiles prod/production (404). T-05 integra filtro à cadeia Spring Security e preserva exceção CSRF apenas dos métodos/caminhos declarados: autorização não usa cookies, exige header customizado e Origin exata nas mutações, com CORS fechado. Erros agora exigem requestId/retryable além de code/message. Não oferece autorização definitiva ou tickets."
   },
   "servers": [
     {
@@ -370,7 +370,14 @@
             }
           },
           "400": {
-            "description": "Papel ausente ou inválido."
+            "description": "JSON malformado, papel ausente ou inválido; erro sanitizado pela validação MVC.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Failure"
+                }
+              }
+            }
           },
           "403": {
             "description": "Fora das restrições da prova local.",
@@ -432,7 +439,9 @@
         "type": "object",
         "required": [
           "code",
-          "message"
+          "message",
+          "requestId",
+          "retryable"
         ],
         "properties": {
           "code": {
@@ -440,6 +449,14 @@
           },
           "message": {
             "type": "string"
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID próprio do backend; também em X-Request-Id. Não reflete entrada do cliente."
+          },
+          "retryable": {
+            "type": "boolean"
           }
         }
       },

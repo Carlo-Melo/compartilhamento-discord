@@ -57,11 +57,15 @@ class CaptureProofAccessTest {
     private static Result run(CaptureProofAccessFilter filter, String method, String remote, Map<String, String> headers) throws Exception {
         var result = new Result();
         var writer = new StringWriter();
+        var attributes = new HashMap<String, Object>();
         HttpServletRequest request = (HttpServletRequest) Proxy.newProxyInstance(CaptureProofAccessTest.class.getClassLoader(),
                 new Class<?>[]{HttpServletRequest.class}, (proxy, operation, args) -> switch (operation.getName()) {
                     case "getRemoteAddr" -> remote;
                     case "getMethod" -> method;
+                    case "getServletPath" -> "/api/dev/capture/session";
                     case "getHeader" -> headers.get((String) args[0]);
+                    case "getAttribute" -> attributes.get((String) args[0]);
+                    case "setAttribute" -> attributes.put((String) args[0], args[1]);
                     default -> throw new UnsupportedOperationException(operation.getName());
                 });
         HttpServletResponse response = (HttpServletResponse) Proxy.newProxyInstance(CaptureProofAccessTest.class.getClassLoader(),
@@ -71,6 +75,7 @@ class CaptureProofAccessTest {
                         case "setStatus" -> result.status = (int) args[0];
                         case "setContentType", "setCharacterEncoding" -> { }
                         case "getWriter" -> { return new PrintWriter(writer); }
+                        case "getStatus" -> { return result.status == 0 ? 200 : result.status; }
                         default -> throw new UnsupportedOperationException(operation.getName());
                     }
                     return null;

@@ -4,6 +4,8 @@ import br.com.compartilhamentodiscord.dto.response.ProofRoomResponse;
 import br.com.compartilhamentodiscord.dto.response.ProofTokenResponse;
 import br.com.compartilhamentodiscord.integration.livekit.MediaRole;
 import br.com.compartilhamentodiscord.service.LiveKitProofService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -33,7 +35,7 @@ public class LiveKitProofController {
     public ProofRoomResponse inspect(@PathVariable String name) { return service.inspect(name); }
 
     @PostMapping("/{name}/tokens")
-    public ProofTokenResponse token(@PathVariable String name, @RequestBody TokenRequest request) {
+    public ProofTokenResponse token(@PathVariable String name, @Valid @RequestBody TokenRequest request) {
         return service.token(name, request.role());
     }
 
@@ -45,5 +47,5 @@ public class LiveKitProofController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cleanup() { service.cleanup(); }
 
-    public record TokenRequest(MediaRole role) {}
+    public record TokenRequest(@NotNull MediaRole role) {}
 }
