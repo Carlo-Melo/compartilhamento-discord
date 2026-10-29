@@ -48,7 +48,7 @@ Copy-Item .env.example .env
 notepad .env
 ```
 
-Copie o exemplo somente na primeira configuração, preservando um `.env` já existente. Substitua a senha fictícia por uma senha local aleatória. Não envie credenciais ao chat nem as adicione ao Git. Se `5432` estiver ocupada, ajuste `POSTGRES_PORT` e a porta da `DATABASE_URL` juntos; nesta máquina foi usada `5433`. O banco usa volume Docker fora do diretório OneDrive, sem tabelas nesta etapa.
+Copie o exemplo somente na primeira configuração, preservando um `.env` já existente. Substitua a senha fictícia por uma senha local aleatória. Não envie credenciais ao chat nem as adicione ao Git. Se `5432` estiver ocupada, ajuste `POSTGRES_PORT` e a porta da `DATABASE_URL` juntos; nesta máquina foi usada `5433`. O banco usa volume Docker fora do diretório OneDrive. Flyway cria somente as duas tabelas de bot/vínculo e seus próprios metadados técnicos.
 
 Inicie o banco explicitamente:
 
@@ -103,4 +103,4 @@ O volume é preservado. Não há inicialização automática de produção. Cons
 Leia [specs/README.md](specs/README.md) e siga a ordem do [plano de trabalho](specs/11-plano-de-trabalho.md); a T-03 aguarda homologação real antes de avançar seu portão G1. Nenhum bot, serviço externo ou hospedagem foi registrado ou contratado.
 
 ## Revisão de acesso e persistência
-Sem tabelas de usuários, sessões web, transmissões ou filas. Reinício mantém apenas o vínculo bot–servidor e encerra/invalida o restante; usuários retornam ao bot para novo acesso. Link privado é uma credencial bearer temporária, não comprovação automática da identidade no navegador.
+Sem tabelas de usuários, sessões web, transmissões ou filas. A arquitetura prevê manter apenas o vínculo bot–servidor após reinício; invalidação dos acessos e limpeza das salas antes de readiness pertencem às tarefas futuras, incluindo T-19. Link privado é uma credencial bearer temporária, não comprovação automática da identidade no navegador.

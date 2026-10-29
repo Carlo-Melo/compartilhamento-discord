@@ -1,7 +1,7 @@
 # Compartilhamento de tela + Discord — pacote de especificações
 Versão 1.3 • 27/10/2026 • idioma do produto: português do Brasil.
 
-**Estado:** T-01 e T-02 concluídas: base local executável e integração SDKs/SFU com administração, grants e recepção sintética Angular validados. T-03 implementada como prova restrita, com captura real solicitada ao navegador, publicação e player; **homologação entre duas máquinas Windows pendente**. **T-05 concluída:** base de segurança, CSRF, validação e erros com builds e HTTP real aprovados; [escopo e validação](../tests/manual/T-05-seguranca-backend.md). **T-04 implementada, validação parcial:** nove identidades experimentais, TURN/TLS opt-in e diagnóstico ICE; [resultados e pendências G2](../tests/manual/T-04-multiespectador-turn.md). Homologação adiada pelo usuário em 27/10/2026. Bot e acesso definitivo não implementados; T-06 em diante pendentes. Nenhuma hospedagem ou conta externa foi criada. Decisões de produto abaixo foram respondidas pelo usuário. Metas técnicas são critérios de aceitação propostos, sujeitos à prova de conceito indicada. [Implementação, testes e pendências T-03](../tests/manual/T-03-captura-real.md).
+**Estado:** T-01 e T-02 concluídas: base local executável e integração SDKs/SFU com administração, grants e recepção sintética Angular validados. T-03 implementada como prova restrita, com captura real solicitada ao navegador, publicação e player; **homologação entre duas máquinas Windows pendente**. **T-05 concluída:** base de segurança, CSRF, validação e erros com builds e HTTP real aprovados; [escopo e validação](../tests/manual/T-05-seguranca-backend.md). **T-04 implementada, validação parcial:** nove identidades experimentais, TURN/TLS opt-in e diagnóstico ICE; [resultados e pendências G2](../tests/manual/T-04-multiespectador-turn.md). Homologação adiada pelo usuário em 27/10/2026. T-06 implementada com validação parcial: [persistência e capacidade](../tests/manual/T-06-persistencia-memoria.md); AC-24 completo depende dos fluxos posteriores e da validação PostgreSQL 18. T-07 em implementação e validação; a emissão confiável por interaction Discord e a revalidação real dependem de T-08/T-09. Bot e acesso definitivo ainda não estão implementados. Nenhuma hospedagem ou conta externa foi criada. Decisões de produto abaixo foram respondidas pelo usuário. Metas técnicas são critérios de aceitação propostos, sujeitos à prova de conceito indicada. [Implementação, testes e pendências T-03](../tests/manual/T-03-captura-real.md).
 
 ## Escopo aprovado
 - Site no MVP, sem instalar aplicativo. Bot organiza a sessão no servidor.
@@ -41,6 +41,7 @@ Java 21 + Spring Boot no backend, Angular no frontend, PostgreSQL apenas para o 
 | [13 — Fontes](13-fontes.md) | Documentação externa consultada |
 | [14 — Inventário](14-bootstrap-inventario.md) | Versões fixadas, compatibilidade e dependências T-01/T-02 |
 | [15 — Design system](15-design-system.md) | Tokens, componentes, acessibilidade e apresentação normativa do frontend |
+| [16 — Registro de auditorias](16-registro-auditorias.md) | Achados, evidências, pendências e acompanhamento de correções |
 
 ## Como desenvolver com estas specs
 1. Executar POC-01: captura real de vídeo e som de sistema no Windows, entre duas máquinas. Registrar versões e resultados.

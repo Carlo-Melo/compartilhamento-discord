@@ -247,6 +247,15 @@ Funcionalidade: Compartilhamento de tela e áudio organizado por bot Discord
     Então não são criados registros de usuário, sessão, acesso, transmissão, participante ou fila
     E o backup contém somente os vínculos e metadados técnicos de schema
 
+  @AC-24 @T-06
+  Cenário: Schema mínimo resiste a duplicatas e persiste vínculos após reinicialização
+    Dado um PostgreSQL descartável com schema vazio
+    Quando as migrações são aplicadas e um bot recebe vínculos com duas guilds
+    Então os identificadores exclusivos, chave composta e chave estrangeira impedem duplicatas e vínculos órfãos
+    E só existem as duas tabelas de produto e o histórico técnico Flyway
+    Quando a aplicação reinicia e valida novamente as migrações
+    Então os vínculos permanecem e a migração não é reaplicada
+
   @AC-25
   Cenário: Ticket tem uso único atômico e escopo fixado na interação
     Dado um ticket VIEWER privado ainda válido
@@ -255,3 +264,25 @@ Funcionalidade: Compartilhamento de tela e áudio organizado por bot Discord
     E nenhum cliente pode trocar o servidor, sessão, bot ou papel para OWNER
     E um ticket com mais de sessenta segundos é negado
     E o teste documenta que quem possuir um ticket repassado antes do consumo pode ser o primeiro a usá-lo
+
+  @AC-25 @T-07
+  Cenário: Revalidação após consumo falha sem restaurar ticket
+    Dado um ticket emitido por fronteira confiável e ainda válido
+    Quando a troca o consome e a revalidação de vínculo ou associação falha
+    Então a troca não cria contexto autorizado
+    E nova tentativa com o mesmo ticket é negada
+    E o usuário deve obter outro acesso privado pelo bot
+
+  @AC-25 @T-07
+  Cenário: Bootstrap e campos fornecidos pelo navegador não escolhem acesso
+    Dado uma sessão técnica de bootstrap com CSRF válido
+    Quando a troca inclui campos adicionais para alterar identidade, escopo ou papel
+    Então recebe erro de entrada e não cria contexto
+    E o cookie de bootstrap por si só não autoriza acesso
+
+  @AC-25 @T-07
+  Cenário: Repetição do acesso substitui o contexto anterior
+    Dado um contexto autorizado para um usuário e sessão
+    Quando outro ticket para o mesmo usuário e sessão é consumido com sucesso
+    Então o contexto anterior deixa de autorizar acesso
+    E o identificador da sessão web é rotacionado

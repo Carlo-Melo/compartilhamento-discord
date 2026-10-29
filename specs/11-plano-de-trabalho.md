@@ -1,5 +1,5 @@
 # 11 — Plano de implementação por entregas
-**T-01 e T-02 CONCLUÍDAS em 26/10/2026**, com [evidência de bootstrap](../tests/manual/T-01-bootstrap.md) e [integração LiveKit real](../tests/manual/T-02-livekit.md). **T-03 IMPLEMENTADA, HOMOLOGAÇÃO PENDENTE**: [resultado e preparação externa](../tests/manual/T-03-captura-real.md). **T-05 CONCLUÍDA:** segurança, validação e erros com builds e HTTP real aprovados; [evidência e limitações](../tests/manual/T-05-seguranca-backend.md). **T-04 IMPLEMENTADA, VALIDAÇÃO PARCIAL:** [resultados e roteiro G2](../tests/manual/T-04-multiespectador-turn.md). T-06 a T-24 continuam **NÃO INICIADAS**. Revisão 1.2 substitui login OAuth/persistência operacional por acesso emitido pelo bot e memória.
+**T-01 e T-02 CONCLUÍDAS em 26/10/2026**, com [evidência de bootstrap](../tests/manual/T-01-bootstrap.md) e [integração LiveKit real](../tests/manual/T-02-livekit.md). **T-03 IMPLEMENTADA, HOMOLOGAÇÃO PENDENTE**: [resultado e preparação externa](../tests/manual/T-03-captura-real.md). **T-05 CONCLUÍDA:** segurança, validação e erros com builds e HTTP real aprovados; [evidência e limitações](../tests/manual/T-05-seguranca-backend.md). **T-04 IMPLEMENTADA, VALIDAÇÃO PARCIAL:** [resultados e roteiro G2](../tests/manual/T-04-multiespectador-turn.md). T-06 **IMPLEMENTADA, VALIDAÇÃO PARCIAL**; T-07 em implementação e validação; T-08 a T-24 continuam **NÃO INICIADAS**. Revisão 1.2 substitui login OAuth/persistência operacional por acesso emitido pelo bot e memória.
 
 | ID | Entrega concreta | Depende de | Requisitos / evidência |
 |---|---|---|---|
@@ -73,9 +73,14 @@ Próxima tarefa após a T-01: **T-02 — validar SDK LiveKit JVM/browser, sala, 
 - Envelope de erro MVC/Security com mensagens sanitizadas, UUID próprio e retryable; validação estrutural com Jakarta Bean Validation. Contratos auxiliares de erro atualizados explicitamente.
 - Auxiliares preservados por fontes/artefatos/profiles/opt-in e proteções de origem/transporte/papel. Exceções CSRF limitadas aos métodos/caminhos experimentais, sem liberação ampla de API.
 - Builds dos três artefatos aprovados, zero falhas/erros: normal 19 testes aprovados/4 pulados; T-02 20 aprovados/3 pulados; T-03 28 aprovados/3 pulados. Dez testes HTTP reais de segurança por artefato e cinco testes MVC; consumidores Angular com 45 testes e três builds aprovados. SFU real opt-in e mídia Windows não executados nesta rodada.
-- T-06 implementará somente entidades/JPA/Flyway de bot/vínculo. T-07 implementará tickets, troca atômica, rotação e contexto autorizado. T-19 continua responsável por limpar salas antigas antes de readiness. Nenhuma homologação de mídia foi inferida da segurança básica.
+- Após a T-05, T-06 implementou entidades/JPA/Flyway de bot/vínculo e reserva de capacidade em memória; T-07 introduziu a base de tickets, troca e contexto, ainda dependente de integrações confiáveis. T-19 continua responsável por limpar salas antigas antes de readiness. Nenhuma homologação de mídia foi inferida da segurança básica.
 
 Resultados executados e itens não executados constam no [relatório T-05](../tests/manual/T-05-seguranca-backend.md).
+
+## Resultado da T-06 — implementada, validação parcial
+
+- Flyway/JPA para identificação de bot e vínculos; capacidade volátil limitada e locks em ordem fixa, sem fluxos posteriores. PostgreSQL 16 real verificou migração, restrições, repositórios e reinicialização do contexto; testes de concorrência aprovados.
+- **Não concluída:** falta repetir em PostgreSQL 18 e comprovar AC-24 integral com os fluxos futuros e backup. Limpeza SFU antes de readiness continua na T-19. [Evidências e reprodução](../tests/manual/T-06-persistencia-memoria.md).
 
 ## Entradas externas
 Antes de integração real: usuário escolhe aplicação/bot, servidor e canal; credenciais de bot por variável/gerenciador seguro. Configurar interaction URL e instalação; nenhum callback OAuth de usuário.
@@ -85,3 +90,11 @@ Activity e múltiplas telas simultâneas permanecem evolução sem autorização
 
 ## Pronto por tarefa
 Comportamento funcional, contratos/cenários atualizados, testes de risco e evidência real; sem credenciais ou dados operacionais persistidos. Não chamar pasta, mockup ou especificação de implementação.
+
+## T-07 — entrega e evidências
+
+O andamento, os resultados verificáveis e as limitações desta etapa estão registrados em [T-07 — ticket e acesso](../tests/manual/T-07-ticket-acesso.md). O fluxo real depende da interaction assinada T-09 e da verificação de vínculo e associação T-08; a limpeza de salas antes de readiness permanece na T-19. AC-03 e AC-25 não são declarados integralmente aprovados antes da evidência da jornada aplicável.
+
+## Acompanhamento de auditorias
+
+Os achados técnicos, seu escopo e os critérios para correção e verificação são acompanhados no [registro de auditorias](16-registro-auditorias.md). As datas e os estados das entregas acima são registros de evidências anteriores, não uma declaração de que os achados posteriores foram corrigidos. Novas auditorias podem acrescentar achados ao registro; priorização e momento da correção devem considerar a severidade e a exposição efetiva.

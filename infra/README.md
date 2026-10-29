@@ -31,7 +31,7 @@ Para verificar a conexão e executar uma consulta real sem exibir a senha:
 docker compose --env-file .env -f infra/docker/compose.yaml exec -T postgres sh -c 'PGPASSWORD="$POSTGRES_PASSWORD" psql -h 127.0.0.1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1 -c "SELECT 1 AS conectado;"'
 ```
 
-Os dados ficam no volume Docker `compartilhamento-discord-dev_postgres-data`, montado em `/var/lib/postgresql`, conforme o [layout da imagem PostgreSQL 18](https://hub.docker.com/_/postgres). Não existe bind mount de dados para o OneDrive. A T-01 não cria tabelas nem scripts SQL de inicialização; o modelo bot–servidor será implementado na T-06.
+Os dados ficam no volume Docker `compartilhamento-discord-dev_postgres-data`, montado em `/var/lib/postgresql`, conforme o [layout da imagem PostgreSQL 18](https://hub.docker.com/_/postgres). Não existe bind mount de dados para o OneDrive. A aplicação usa Flyway na inicialização para criar somente as tabelas de bot e vínculo, além do histórico técnico de migração. Não há scripts de inicialização do Compose para dados de produto.
 
 Para encerrar sem apagar os dados:
 
