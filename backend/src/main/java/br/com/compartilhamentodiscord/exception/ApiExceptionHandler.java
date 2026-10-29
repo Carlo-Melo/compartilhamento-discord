@@ -2,6 +2,7 @@ package br.com.compartilhamentodiscord.exception;
 
 import br.com.compartilhamentodiscord.dto.response.ApiError;
 import br.com.compartilhamentodiscord.integration.livekit.LiveKitIntegrationException;
+import br.com.compartilhamentodiscord.service.access.AccessFailure;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.core.Ordered;
@@ -22,6 +23,15 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class ApiExceptionHandler {
+    @ExceptionHandler(AccessFailure.class)
+    ResponseEntity<ApiError> accessFailure(AccessFailure exception, HttpServletRequest request) {
+        return switch (exception.kind()) {
+            case INVALID -> response(request, 401, "ACCESS_INVALID", "Acesso inválido ou expirado. Obtenha novo acesso pelo bot.", false);
+            case REQUIRED -> response(request, 401, "ACCESS_REQUIRED", "Obtenha um novo acesso pelo bot no Discord.", false);
+            case DENIED -> response(request, 403, "ACCESS_DENIED", "Acesso não autorizado. Retorne ao bot no Discord.", false);
+            case UNAVAILABLE -> response(request, 503, "SERVICE_UNAVAILABLE", "Não foi possível verificar o acesso. Obtenha novo acesso pelo bot.", true);
+        };
+    }
     @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentNotValidException.class,
             HandlerMethodValidationException.class, ConstraintViolationException.class,
             ServletRequestBindingException.class, MethodArgumentTypeMismatchException.class})

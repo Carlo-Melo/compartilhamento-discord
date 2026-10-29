@@ -31,7 +31,7 @@ Invoke-RestMethod http://127.0.0.1:8080/health/live
 Invoke-RestMethod http://127.0.0.1:8081/health/ready
 ```
 
-Nesta etapa readiness verifica somente aplicação e banco: não atesta mídia, bot ou limpeza de salas. A limpeza obrigatória antes de readiness entra na T-19. As portas são locais; esta configuração não é um deploy de produção.
+Após inicialização bem-sucedida, readiness verifica somente aplicação e banco: não atesta mídia, bot ou limpeza de salas. A limpeza obrigatória antes de readiness entra na T-19. As portas são locais; esta configuração não é um deploy de produção.
 
 Pacote base proposto: br.com.compartilhamentodiscord.
 Camadas: controller (HTTP/entrada) -> service (casos de uso e autorização) -> repository (somente cadastro bot/vínculo) -> PostgreSQL. Estado operacional em services de memória, sem JPA.
@@ -39,9 +39,9 @@ entity representa persistência; dto/request e dto/response representam contrato
 security trata tickets e contexto web em memória/CSRF, sem login OAuth; config reúne configuração tipada; exception padroniza erros; scheduler trata limpeza, reconciliação e fila volátil.
 Não colocar regra em controller, repository ou no cliente Angular. Não manter transação de banco aberta durante chamadas externas.
 
-Dependências: Spring MVC, JDBC (pool Hikari), Actuator, Spring Security, Jakarta Bean Validation e driver PostgreSQL, com versões transitivas gerenciadas pelo BOM Spring Boot. Health usa controller -> service -> DTO. Repository/entity continuam reservados para a T-06. Nenhum SQL de inicialização ou tabela é criado.
+Dependências: Spring MVC, Data JPA, Flyway, JDBC (pool Hikari), Actuator, Spring Security, Jakarta Bean Validation e driver PostgreSQL, com versões gerenciadas pelo BOM Spring Boot. Flyway aplica a migração de bot/vínculo no boot; Hibernate valida o schema sem modificá-lo e open-in-view fica desligado. Falha de conexão ou migração impede a inicialização normal. Health usa controller -> service -> DTO.
 
-Spring Security, Validation e erros gerais fazem parte da T-05, detalhada abaixo. JPA/Flyway e o modelo bot–servidor ficam para T-06; tickets/contexto real e rotação, para T-07. A integração LiveKit da T-02 é descrita abaixo. Sem OAuth2 Client ou Spring Session JDBC.
+Spring Security, Validation e erros gerais fazem parte da T-05, detalhada abaixo. JPA/Flyway e o modelo bot–servidor estão implementados na T-06; tickets/contexto real e rotação ficam para T-07. A integração LiveKit da T-02 é descrita abaixo. Sem OAuth2 Client ou Spring Session JDBC.
 
 Pastas de testes preservadas. Evidências do bootstrap/JDBC ficam em [T-01](../tests/manual/T-01-bootstrap.md); a regressão HTTP real de segurança está em [T-05](../tests/manual/T-05-seguranca-backend.md).
 

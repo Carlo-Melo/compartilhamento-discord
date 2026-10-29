@@ -1,0 +1,15 @@
+.section-intro { margin-top: var(--space-3); }
+.carousel-track { --card-width: calc((100% - 2 * var(--space-6)) / 3); display: flex; gap: var(--space-6); overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; padding: var(--space-4) var(--space-2); margin-top: var(--space-4); }
+.carousel-track::-webkit-scrollbar { display: none; }
+.carousel-card { flex: 0 0 var(--card-width); min-width: 0; scroll-snap-align: center; }
+.carousel-card.is-current { border-color: var(--color-accent-border); }
+.carousel-pagination { display: flex; justify-content: center; align-items: center; gap: var(--space-1); margin-top: var(--space-3); }
+.carousel-dot { display: grid; place-items: center; width: var(--control-height); height: var(--control-height); padding: 0; border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--color-text-muted); cursor: pointer; }
+.carousel-dot span { width: var(--space-3); height: var(--space-3); border: var(--border-width) solid currentColor; border-radius: var(--radius-pill); background: transparent; }
+.carousel-dot[aria-current='true'] { color: var(--color-accent); }
+.carousel-dot[aria-current='true'] span { background: currentColor; box-shadow: 0 0 0 var(--border-width) var(--color-focus); }
+.carousel-dot:hover { background: var(--color-surface-hover); }
+.carousel-count { margin-left: var(--space-2); color: var(--color-text-secondary); font-size: var(--text-sm); white-space: nowrap; }
+.carousel-note { margin-top: var(--space-4); }
+@media (max-width: 64rem) { .carousel-track { --card-width: min(30rem, 80vw); padding-inline: max(var(--space-2), (100% - var(--card-width)) / 2); } }
+@media (forced-colors: active) { .carousel-dot span { border: 2px solid ButtonText; } .carousel-dot[aria-current='true'] span { background: Highlight; border-color: Highlight; } }

@@ -37,9 +37,9 @@ Nas rotas do produto, exceções de CSRF somente nas integrações assinadas, de
 CORS fechado, dev com proxy Angular. CSP restrita a aplicação/SFU; frame-ancestors none; display-capture próprio; câmera/microfone desabilitados. Cache-Control:no-store e Referrer-Policy:no-referrer nas rotas de acesso/mídia.
 Bot token/chaves SFU apenas em segredos de ambiente. Nenhuma credencial de usuário Discord é solicitada ou guardada. Token de mídia apenas em memória com grants mínimos. Os tickets são credenciais temporárias legítimas; a proibição de segredos em links continua para bot/infra.
 
-## Base entregue na T-05 e fronteira com T-07
+## Base entregue na T-05 — registro histórico
 
-A política é negar por padrão. Somente `GET /health/live` e `GET /api/csrf` são públicos na API; `GET /health/ready` é acessível exclusivamente na gestão em loopback. Sem contexto definitivo, rotas privadas continuam negadas com `401 ACCESS_REQUIRED`, inclusive com headers de identidade/papel, cookie inventado ou Authorization fornecidos pelo navegador. Não há formulário de login, HTTP Basic, senha gerada ou contexto de usuário provisório.
+Na entrega T-05, a política era negar por padrão. Somente `GET /health/live` e `GET /api/csrf` são públicos na API; `GET /health/ready` é acessível exclusivamente na gestão em loopback. Sem contexto definitivo, rotas privadas continuam negadas com `401 ACCESS_REQUIRED`, inclusive com headers de identidade/papel, cookie inventado ou Authorization fornecidos pelo navegador. Não há formulário de login, HTTP Basic, senha gerada ou contexto de usuário provisório.
 
 O bootstrap CSRF cria somente uma sessão técnica em memória e um token sincronizado. Cookie `XSRF-TOKEN` é legível pela SPA; o cookie da sessão técnica já usa o nome contratual `ACCESS_SESSION`, com HttpOnly, SameSite=Lax, sem Domain, restrito a cookies e Secure quando o transporte é HTTPS. A existência desse cookie não representa contexto autorizado: nesta etapa guarda somente CSRF, sem SecurityContext persistido. Mutações da API exigem Origin exata configurada em `app.security.origin` e token `X-XSRF-TOKEN` vinculado à mesma sessão. A origem local padrão é `http://127.0.0.1:4200`; o proxy mantém a mesma origem vista pelo navegador. Ausência/erro de Origin e de CSRF retorna 403. CORS não libera origens externas.
 
@@ -47,7 +47,7 @@ T-02/T-03 continuam contratos experimentais separados. Somente os métodos/camin
 
 Respostas da API incluem no-store, nosniff, bloqueio de framing e Referrer-Policy no-referrer, além de CSP para o conteúdo da própria resposta. Cabeçalhos enviados pela API **não protegem o documento Angular**, servido por outro componente. O servidor/proxy do documento ainda deve aplicar CSP com `frame-ancestors 'none'`, `connect-src` restrito à aplicação/SFU e Permissions-Policy com `display-capture=(self)`, `camera=()` e `microphone=()`. Não usar `display-capture=()` ou bloquear WSS/recursos de mídia necessários às provas autorizadas. A política final do documento e HTTPS de produção serão validados na T-20.
 
-Ticket, troca atômica, rotação do identificador após troca e associação de contexto autorizado ao cookie `ACCESS_SESSION` continuam na T-07. Persistência de bot/vínculo entra na T-06; limpeza de salas antes de readiness fica na T-19. [Política e evidência T-05](../tests/manual/T-05-seguranca-backend.md).
+À época da T-05, ticket, troca atômica, rotação do identificador e contexto autorizado eram trabalhos futuros da T-07; persistência de bot/vínculo era a T-06. A limpeza de salas antes de readiness permanece na T-19. [Política e evidência T-05](../tests/manual/T-05-seguranca-backend.md).
 
 ## Revogação e reinício
 Na extensão experimental T-04, `POST` e `DELETE /api/dev/capture/session/viewer` também exigem correlação UUID v4 em `X-Capture-Viewer`, além da capacidade VIEWER e das barreiras existentes. O UUID correlaciona uma tentativa e não identifica pessoa ou conta Discord. Identidade de mídia é gerada pelo backend, até nove por geração; repetição reutiliza a identidade. A saída remove o participante, sem afirmar revogação dos JWTs e sem reciclar vaga para outro visitante. A sala tem prazo absoluto de uma hora; expiração fecha emissão e exige exclusão confirmada antes de liberar outra geração. Essa restrição pertence apenas à prova; acesso e revogação definitivos continuam nas tarefas de tickets/geração.
@@ -60,3 +60,7 @@ Nenhuma garantia de continuidade de sessão/fila/contador no reinício. A chamad
 Rate limits em memória: tickets 5/min por usuário/sessão e 30/min por guild; troca 10/min por IP e bootstrap, com cuidado para NAT do grupo; mídia 20/min por contexto; demais ações 60/min. Ajustar por evidência.
 Não persistir IDs de participantes, títulos, tickets, IPs, conteúdo de tela/áudio ou histórico de acessos em logs do produto. Logs de infraestrutura devem ser minimizados/redigidos; métricas agregadas são técnicas.
 Persistência restrita não significa ausência de tratamento de dados; não declarar isenção legal por esse desenho. Não prometer E2EE contra o operador da SFU.
+
+## Fronteira T-07
+
+O armazenamento e troca em memória são preparados sem uma rota pública de emissão. A verificação padrão falha fechada até que T-08/T-09 ofereçam provas de vínculo, associação, interaction e estado da sessão; as permissões reais continuam dependentes dessas integrações. O encerramento/remoção de mídia e a página que remove o fragmento dependem das tarefas dos respectivos fluxos. Ver [relatório e evidência](../tests/manual/T-07-ticket-acesso.md).

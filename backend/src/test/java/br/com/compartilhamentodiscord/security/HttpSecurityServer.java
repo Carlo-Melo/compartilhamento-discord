@@ -31,6 +31,10 @@ final class HttpSecurityServer implements AutoCloseable {
     final int managementPort;
 
     HttpSecurityServer(String... options) {
+        this(new Class<?>[0], options);
+    }
+
+    HttpSecurityServer(Class<?>[] extraSources, String... options) {
         List<String> arguments = new ArrayList<>(List.of(
                 "--server.address=127.0.0.1", "--server.port=0", "--management.server.address=127.0.0.1",
                 "--app.security.origin=" + ORIGIN,
@@ -39,6 +43,10 @@ final class HttpSecurityServer implements AutoCloseable {
                 "--spring.datasource.username=t05_test", "--spring.datasource.password=t05_test_only",
                 "--spring.datasource.hikari.initialization-fail-timeout=-1",
                 "--spring.datasource.hikari.connection-timeout=250", "--spring.datasource.hikari.validation-timeout=250",
+                // This suite deliberately uses an unavailable database; schema tests run separately.
+                "--spring.flyway.enabled=false", "--spring.jpa.hibernate.ddl-auto=none",
+                "--spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect",
+                "--spring.jpa.properties.hibernate.boot.allow_jdbc_metadata_access=false",
                 "--livekit.enabled=false", "--livekit.proof.enabled=false", "--capture.proof.enabled=false"));
         // Keep one value per argument: duplicate command-line properties become lists in Spring.
         for (String option : options) {
@@ -46,11 +54,13 @@ final class HttpSecurityServer implements AutoCloseable {
             arguments.removeIf(existing -> existing.startsWith(key + "="));
             arguments.add(option);
         }
-        context = new SpringApplicationBuilder(CompartilhamentoDiscordApplication.class)
+        context = new SpringApplicationBuilder(CompartilhamentoDiscordApplication.class).sources(extraSources)
                 .registerShutdownHook(false).run(arguments.toArray(String[]::new));
         port = context.getEnvironment().getRequiredProperty("local.server.port", Integer.class);
         managementPort = context.getEnvironment().getRequiredProperty("local.management.port", Integer.class);
     }
+
+    <T> T bean(Class<T> type) { return context.getBean(type); }
 
     HttpClient client() {
         return HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5))

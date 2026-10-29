@@ -7,6 +7,8 @@ T-03 implementada em prova restrita, com testes automatizados de validação/lib
 
 T-04 implementa a extensão experimental de nove identidades, limite concorrente, saída/repetição, TURN/TLS opt-in e diagnóstico ICE. **Validação parcial; G2 não homologado.** Homologação adiada pelo usuário em 27/10/2026. [Comandos, resultados desta execução e matriz pendente](../tests/manual/T-04-multiespectador-turn.md). Resultados históricos da T-02 e relatos manuais sem matriz/duração/som audível não são atribuídos à T-04.
 
+T-06 implementada com validação parcial: PostgreSQL 16 real e concorrência da primitiva de capacidade aprovados; PostgreSQL 18 e AC-24 integral com fluxos/backup permanecem pendentes. [Evidências](../tests/manual/T-06-persistencia-memoria.md).
+
 ## Portões de avanço
 - G0: stack/escopo e contratos consistentes. Atual entrega prepara isso.
 - G1 / POC-01: duas máquinas Windows, Chrome e Edge, tela inteira + áudio de sistema real. 15min por combinação; som de teste audível no receptor, sem microfone; cancelamento e encerramento funcionando.
@@ -80,3 +82,7 @@ CSRF técnico e negação sem contexto são verificáveis antes de tickets. Troc
 AC-24 inspeciona schema e SQL emitido: somente discord_bot/bot_guild_binding para produto e flyway_schema_history técnico. Nenhum INSERT/UPDATE de usuários, transmissão, contexto, ticket ou fila. Backup contém apenas esses vínculos.
 AC-25 inclui ticket repassado: documentar que o primeiro portador pode consumi-lo; não afirmar prova de identidade do navegador. Checar expiração, uso concorrente, escopo e boot anterior. Link comum não gera interaction: testar botão custom_id + resposta privada separadamente.
 Reinício: vínculos sobrevivem; todos os tickets/cookies antigos falham e salas antigas são apagadas antes de acesso novo. Mensagem velha pode ficar com status antigo, mas clicar nunca reabre a transmissão.
+
+## Evidência T-07
+
+A evidência executada e suas limitações são registradas em [T-07 — ticket e acesso](../tests/manual/T-07-ticket-acesso.md). A emissão a partir de uma interaction assinada e a verificação real de vínculo e associação continuam condicionadas às T-08/T-09; nenhum teste isolado substitui a jornada AC-03 nem confirma mídia real. A reconciliação SFU antes de readiness permanece T-19.

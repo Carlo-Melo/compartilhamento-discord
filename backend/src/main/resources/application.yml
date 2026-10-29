@@ -10,6 +10,10 @@ spring:
     hikari:
       connection-timeout: 3000
       validation-timeout: 1000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
 
 # Bootstrap local. A infraestrutura de produção será tratada na T-20.
 server:

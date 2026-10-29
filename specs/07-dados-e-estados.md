@@ -28,6 +28,10 @@ Canal e allowlist ficam em configuração de ambiente; ajuste de canal via coman
 
 Implementar mapas/locks encapsulados em services de runtime, não em repositories JPA nem tabelas genéricas JSON. Não usar arquivo, SQLite ou Redis para esconder persistência. Limitar tamanho/TTL para evitar crescimento indefinido. Sem coordenação entre réplicas no MVP.
 
+## Base T-06 implementada
+
+A migração V1 cria as duas tabelas acima; PKs e unicidades criam índices PostgreSQL automaticamente. O store de capacidade mantém uma única reserva global, locks por guild em 64 faixas fixas e ordem global → guild; só a mesma guild e sessão liberam a reserva. Não expira automaticamente: a futura orquestração deve liberar após confirmar a limpeza necessária. Nova instância começa vazia. As demais estruturas e seus TTLs serão implementados nas tarefas responsáveis pelos respectivos fluxos; este store ainda não cria sessão nem coordena processos. [Validação e limites](../tests/manual/T-06-persistencia-memoria.md).
+
 ## Concorrência
 - Vínculo: transação PostgreSQL curta, FK e PK composta impedem duplicata. Chamadas Discord fora da transação; identidade conferida antes do commit.
 - Sessão: lock global de capacidade e por guild em ordem fixa; uma aberta por guild e uma no piloto.
@@ -66,3 +70,7 @@ Antes de readiness, ListRooms e DeleteRoom de todo namespace exclusivo desta apl
 auto_create=false impede token antigo recriar sala apagada. Contexto antigo ->401; ticket anterior ->401; botão antigo -> resposta privada Sessão encerrada, inicie novamente.
 Mensagens antigas podem manter título/status anterior porque seus IDs não são persistidos. Não prometer reparo automático sem ampliar persistência.
 Processos: 5s deadlines/fila; 10s reconciliação; 30s associação/vínculo. Ao encerrar, invalidar tickets/contextos e parar tracks. Reinício administrativo deve drenar/parar salas antes de desligar quando possível.
+
+## Fronteira da T-07
+
+Ticket e contexto pertencem ao runtime do processo, nunca ao schema. A implementação e sua evidência constam em [T-07 — ticket e acesso](../tests/manual/T-07-ticket-acesso.md). Emissão a partir de interação assinada e associação/vínculo efetivos dependem de T-08/T-09; reconciliação das salas antigas e bloqueio de readiness dependem de T-19.
