@@ -17,7 +17,7 @@ O frontend é uma aplicação de compartilhamento de tela: hierarquia clara entr
 
 As cores aparentes, proporções e raios das imagens são **aproximações visuais**, não valores extraídos com precisão. As imagens não identificam as fontes; famílias, valores hexadecimais, escala, breakpoints e estados abaixo são **decisões de implementação**. O conjunto evita misturar a tipografia extrema e os grandes cartões brancos da segunda imagem com a densidade do painel da primeira. A solução local é operacional e legível, com o roxo como linguagem comum.
 
-Não copiar textos artificiais, marcas, ilustrações, números, navegação ou instruções contidas nas imagens. Usar ícones vetoriais locais e CSS como alternativas coerentes aos assets de referência. Não adicionar fontes remotas, pacotes ou serviços apenas para reproduzir a aparência.
+Não copiar textos artificiais, marcas, ilustrações, números, navegação ou instruções contidas nas imagens. A identidade própria usa um símbolo local em preto fosco de tela e áudio ao lado do nome em texto acessível e nas abas do navegador; a marca não indica estado funcional. Usar ícones vetoriais locais e CSS como alternativas coerentes aos assets de referência. Não adicionar fontes remotas, pacotes ou serviços apenas para reproduzir a aparência.
 
 ### Composição da evolução visual
 
@@ -48,6 +48,7 @@ A fonte executável dos tokens é `frontend/src/styles.css`, em `:root`. Usar os
 | `--color-accent` | `#bd9cff` | Destaques, ícones e links |
 | `--color-accent-subtle` | `#21132f` | Fundo discreto de destaque, símbolo local e ações auxiliares |
 | `--color-accent-border` | `#5c3d80` | Contorno decorativo do símbolo local |
+| `--color-brand-backdrop` | `#c9c0d7` | Fundo claro do símbolo preto fosco no cabeçalho |
 | `--color-action` | `#7938df` | Ação principal |
 | `--color-action-hover` | `#692acb` | Ação principal em hover |
 | `--color-action-active` | `#5920b2` | Ação principal pressionada |
@@ -153,7 +154,7 @@ O conteúdo principal usa respiro superior de `--space-12` no desktop e `--space
 - Usar `min-width: 0` nos filhos de grid/flex; evitar larguras fixas em campos, tabelas ou diagnósticos. Não compensar overflow com ocultação global que corte foco ou conteúdo.
 - Verificar 390, 768 e 1440 px, zoom, mensagens longas, UUID e foco. A página não deve produzir rolagem horizontal para leitura normal.
 
-Os breakpoints são decisões do projeto, não medidas retiradas das imagens. As rotas T-02 e T-03 preservam seu isolamento por configuração; o design system não cria menu público para as ferramentas experimentais.
+Os breakpoints são decisões do projeto, não medidas retiradas das imagens. As rotas T-02 e T-03 preservam seu isolamento por configuração. A home de navegação local apresenta os cartões em um carrossel horizontal manual, com indicadores de página, posição visível e sem avanço automático. Oferece links apenas às ferramentas habilitadas na configuração atual e orientações textuais para as demais; não inclui as ferramentas experimentais no build normal.
 
 ## 6. Componentes reutilizáveis e estados
 
@@ -200,10 +201,12 @@ Os elementos de vídeo e áudio devem manter as referências e a presença no DO
 | Arquivo | Responsabilidade |
 |---|---|
 | `frontend/src/styles.css` | Tokens de cor/tipografia/escala, base acessível, padrões compartilhados, layout responsivo, estados e movimento reduzido |
-| `frontend/src/app/shared/components/app-shell.ts` e `app-shell.css` | Estrutura comum da aplicação e iluminação decorativa contida |
+| `frontend/src/app/shared/components/app-shell.ts` e `app-shell.css` | Estrutura comum da aplicação, marca própria e iluminação decorativa contida |
+| `frontend/public/marca-preto-fosco.png` | Símbolo local de tela e áudio para o cabeçalho e as abas do navegador |
 | `frontend/src/app/shared/components/ambient-orb.ts` e `ambient-orb.css` | Forma luminosa local em CSS; consumo dos tokens `--color-orb-*`, máscaras e animação decorativa de 24 s; sem eventos, serviços ou estado |
 | `frontend/src/app/shared/components/app-icon.ts` | Ícones vetoriais locais, sem dependência externa |
 | `frontend/src/app/app.ts` | Composição da estrutura compartilhada com o RouterOutlet |
+| `frontend/src/app/features/home/` | Home de navegação local e orientações por configuração |
 | `frontend/src/app/features/health/health-page.html` | Saúde: consulta, resposta UP, indisponibilidade e nova tentativa |
 | `frontend/src/app/features/dev-livekit/livekit-proof-page.html` | Operação, receptor sintético, resultados e diagnósticos T-02 |
 | `frontend/src/app/features/dev-capture/capture-page.html` | Preparação por papel, captura/player, estados e histórico T-03 |

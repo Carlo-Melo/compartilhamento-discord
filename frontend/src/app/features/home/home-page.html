@@ -1,0 +1,64 @@
+<main id="main-content" tabindex="-1">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow"><span class="eyebrow-line" aria-hidden="true"></span>AMBIENTE LOCAL</p>
+      <h1>Onde você quer <span class="accent-text">começar?</span></h1>
+      <p class="page-intro">Acesse as telas disponíveis e confira o que é necessário para cada teste.</p>
+    </div>
+    <span class="badge info">Configuração: {{ configuration }}</span>
+  </header>
+
+  <section aria-labelledby="tools-title" aria-roledescription="carrossel">
+    <div class="carousel-heading">
+      <h2 id="tools-title">Telas e ferramentas</h2>
+      <p class="muted section-intro">Escolha um cartão pelos indicadores ou deslize para conhecer as opções.</p>
+    </div>
+
+    <div #carousel id="home-cards" class="carousel-track" (scroll)="updateCurrentCard(carousel)">
+      <article class="panel carousel-card" [class.is-current]="currentCard() === 0" aria-labelledby="health-card-title">
+        <div class="panel-header"><h3 id="health-card-title" class="panel-title">Saúde da API</h3><app-icon name="activity" /></div>
+        <div class="panel-body">
+          <p class="muted">Consulta se o processo do backend responde. Não verifica o banco ou as integrações.</p>
+          @if (configuration !== 'capture-proof') {
+            <a class="button button-secondary" routerLink="/health">Abrir verificação <app-icon name="arrow-right" /></a>
+          } @else {
+            <p class="helper">Indisponível nesta configuração: o proxy da prova de captura não encaminha a consulta. Execute <code>npm.cmd start</code> em outro terminal e abra <code>http://127.0.0.1:4200/health</code>.</p>
+          }
+        </div>
+      </article>
+      <article class="panel carousel-card" [class.is-current]="currentCard() === 1" aria-labelledby="synthetic-card-title">
+        <div class="panel-header"><h3 id="synthetic-card-title" class="panel-title">Mídia sintética · T-02</h3><span class="badge warning">Experimental</span></div>
+        <div class="panel-body">
+          <p class="muted">Testa vídeo e áudio sintéticos, permissões e limpeza de salas. Exige PostgreSQL, LiveKit e backend auxiliar locais.</p>
+          @if (configuration === 'development') {
+            <a class="button button-secondary" routerLink="/dev/livekit">Abrir prova sintética <app-icon name="arrow-right" /></a>
+          } @else {
+            <p class="helper">Disponível em <code>development</code>: execute <code>npm.cmd start</code> na pasta frontend e abra <code>http://127.0.0.1:4200/dev/livekit</code>.</p>
+          }
+        </div>
+      </article>
+      <article class="panel carousel-card" [class.is-current]="currentCard() === 2" aria-labelledby="capture-card-title">
+        <div class="panel-header"><h3 id="capture-card-title" class="panel-title">Captura e reprodução · T-03 / T-04</h3><span class="badge warning">Experimental</span></div>
+        <div class="panel-body">
+          <p class="muted">Prepara a captura de tela com áudio e a reprodução pelo espectador. Exige SFU, backend auxiliar, chaves experimentais, rede e HTTPS confiável configurados.</p>
+          @if (configuration === 'capture-proof') {
+            <div class="actions">
+              <a class="button button-secondary" routerLink="/dev/capture/broadcast">Abrir apresentador <app-icon name="arrow-right" /></a>
+              <a class="button button-secondary" routerLink="/dev/capture/watch">Abrir espectador <app-icon name="arrow-right" /></a>
+            </div>
+          } @else {
+            <p class="helper">Disponível em <code>capture-proof</code>. Após preparar o ambiente, use <code>scripts/Start-CaptureProofFrontend.ps1</code> com certificado e chave TLS; acesse a origem HTTPS privada na porta 4443. Consulte o README do frontend para o procedimento.</p>
+          }
+        </div>
+      </article>
+    </div>
+    <div class="carousel-pagination" role="group" aria-label="Escolher cartão">
+      <button type="button" class="carousel-dot" aria-label="Mostrar Saúde da API" aria-controls="home-cards" [attr.aria-current]="currentCard() === 0 ? 'true' : null" (click)="showCard(0, carousel)"><span></span></button>
+      <button type="button" class="carousel-dot" aria-label="Mostrar Mídia sintética" aria-controls="home-cards" [attr.aria-current]="currentCard() === 1 ? 'true' : null" (click)="showCard(1, carousel)"><span></span></button>
+      <button type="button" class="carousel-dot" aria-label="Mostrar Captura e reprodução" aria-controls="home-cards" [attr.aria-current]="currentCard() === 2 ? 'true' : null" (click)="showCard(2, carousel)"><span></span></button>
+      <span class="carousel-count">{{ currentCard() + 1 }} de {{ cardCount }}</span>
+    </div>
+    <p class="helper carousel-note">As ferramentas experimentais são provas técnicas e não representam os fluxos definitivos do produto.</p>
+  </section>
+  <p class="notice notice-info">A navegação e os testes visuais não homologam captura real, áudio do Windows, TURN ou transmissão entre máquinas.</p>
+</main>

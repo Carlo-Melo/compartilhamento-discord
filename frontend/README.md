@@ -1,6 +1,6 @@
 # Frontend — Angular
 Padrão normativo em [specs/15-design-system.md](../specs/15-design-system.md). A [validação UI-01](../tests/manual/UI-01-design-system.md) reúne imagens e limites. A [prévia isolada de estados](tests/visual/README.md) usa dados fictícios e ações inertes, sem executar captura ou transmissão.
-Aplicação standalone executável da T-01. A página inicial consulta a API real e mostra carregamento, resposta `UP` ou indisponibilidade, com nova tentativa manual e timeout de 8 segundos. O endpoint de liveness indica que o processo backend responde; não comprova conexão com PostgreSQL ou prontidão das integrações futuras.
+Aplicação standalone para navegação e testes locais. A home reúne as telas em um carrossel manual com indicadores de página e rolagem horizontal, mostra os links disponíveis na configuração atual e orienta o acesso às provas isoladas. A página de saúde consulta a API real e mostra carregamento, resposta `UP` ou indisponibilidade, com nova tentativa manual e timeout de 8 segundos. O endpoint de liveness indica que o processo backend responde; não comprova conexão com PostgreSQL ou prontidão das integrações futuras.
 
 ## Pré-requisitos e versões
 
@@ -22,9 +22,19 @@ npm.cmd ci
 npm.cmd start
 ```
 
-Abra [http://127.0.0.1:4200](http://127.0.0.1:4200). O servidor de desenvolvimento escuta apenas em `127.0.0.1`, porta **4200**. `npm.cmd` evita depender da política de execução de scripts PowerShell. Após alterar a configuração de proxy, reinicie o servidor.
+Abra a home em [http://127.0.0.1:4200](http://127.0.0.1:4200) e a verificação em [http://127.0.0.1:4200/health](http://127.0.0.1:4200/health). O servidor de desenvolvimento escuta apenas em `127.0.0.1`, porta **4200**. `npm.cmd` evita depender da política de execução de scripts PowerShell. Após alterar a configuração de proxy, reinicie o servidor.
 
 Não há variáveis de ambiente obrigatórias no frontend nesta etapa. A URL local do backend está em [proxy.conf.json](proxy.conf.json): chamadas `/api/**` são encaminhadas para `http://127.0.0.1:8080`. Somente o prefixo `/api/health` é reescrito para `/health`, preservando o caminho público `/health/live` das specs e o prefixo `/api` do consumidor Angular. Portanto, a página pede `GET /api/health/live` e o backend recebe `GET /health/live`. Outras rotas futuras `/api` mantêm seu prefixo.
+
+## Home e configurações
+
+| Configuração | Home e telas disponíveis | Como iniciar |
+|---|---|---|
+| `production` (build normal) | `/` e `/health`; provas experimentais não são rotas deste build | `npm.cmd run build`; sirva o build com fallback para rotas Angular e proxy de `/api` na mesma origem |
+| `development` | `/`, `/health` e `/dev/livekit` | `npm.cmd start` e abra `http://127.0.0.1:4200/` |
+| `capture-proof` | `/`, `/dev/capture/broadcast` e `/dev/capture/watch` | Prepare a prova e use o script HTTPS descrito em T-03 abaixo |
+
+As orientações da home para configurações diferentes são texto, não links ativos. A prova sintética exige PostgreSQL, LiveKit e backend auxiliar; a prova de captura exige também sua configuração de rede, HTTPS confiável e chaves por papel. As instruções detalhadas estão nas seções T-02 e T-03. Navegar pelas telas não comprova captura real, áudio, TURN ou transmissão entre máquinas.
 
 ## Verificar e encerrar
 
@@ -48,7 +58,8 @@ Encerre `npm.cmd start` com **Ctrl+C** no terminal correspondente. O build termi
 
 Angular standalone com TypeScript, HttpClient e Router.
 - core/services: cliente HTTP de saúde; core/models: contrato da resposta.
-- features/health: página funcional desta etapa.
+- features/home: navegação conforme a configuração Angular ativa.
+- features/health: página funcional de saúde.
 - core/auth: estado da autorização temporária recebida por ticket; guards e interceptors para experiência HTTP/CSRF.
 - core/models: contratos compartilhados; não duplicar regras de autorização.
 - shared/components: `AppShell` (estrutura, skip link e rodapé), `AppIcon` (ícones vetoriais locais) e `AmbientOrb` (decoração CSS sem estado ou interação), reutilizados nas páginas existentes.
@@ -62,9 +73,9 @@ As pastas de acesso e transmissão definitiva continuam reservadas para suas tar
 
 ## Padrão visual do frontend
 
-A [spec 15 — Design system](../specs/15-design-system.md) é a fonte normativa para novas páginas e alterações de interface. A evolução visual foi autorizada em 27/10/2026 e combina a linguagem preta/roxa das três imagens com o respiro, as formas orgânicas luminosas e a composição da [referência interativa fornecida](https://cut-mule-87308980.figma.site). A adaptação usa títulos maiores, cabeçalho e botões em pílula, superfícies discretas e uma forma ambiente local em CSS, sem fontes remotas, biblioteca visual, WebGL ou serviços adicionais. A mídia continua neutra e os avisos operacionais permanecem visíveis.
+A [spec 15 — Design system](../specs/15-design-system.md) é a fonte normativa para novas páginas e alterações de interface. A evolução visual foi autorizada em 27/10/2026 e combina a linguagem preta/roxa das três imagens com o respiro, as formas orgânicas luminosas e a composição da [referência interativa fornecida](https://cut-mule-87308980.figma.site). A identidade usa uma marca própria local em preto fosco que combina tela e áudio, junto ao nome em texto, além de títulos maiores, cabeçalho e botões em pílula, superfícies discretas e uma forma ambiente local em CSS, sem fontes remotas, biblioteca visual, WebGL ou serviços adicionais. A mídia continua neutra e os avisos operacionais permanecem visíveis.
 
-`src/styles.css` centraliza os tokens semânticos e as classes de botões, campos, painéis, avisos, mídia e diagnóstico; `src/app/shared/components/app-shell.ts` e `app-shell.css` implementam a estrutura comum, `app-icon.ts` fornece ícones locais, e `ambient-orb.ts`/`ambient-orb.css` encapsulam a decoração. A forma não indica acesso, captura ou conexão e é removida em movimento reduzido e cores forçadas. Reutilizar essas definições e preservar a organização `core/shared/features`. Estados de espera, recusa, erro e encerramento também seguem o padrão. Ícones complementam texto; informações e ações precisam continuar legíveis por teclado e sem animação. A spec registra o cálculo sRGB dos pares de tokens opacos; isso não substitui conferir os pares e estados realmente renderizados.
+`public/marca-preto-fosco.png` contém o símbolo gerado para o cabeçalho e o ícone das abas do navegador; o nome continua como texto acessível. `src/styles.css` centraliza os tokens semânticos e as classes de botões, campos, painéis, avisos, mídia e diagnóstico; `src/app/shared/components/app-shell.ts` e `app-shell.css` implementam a estrutura comum, `app-icon.ts` fornece ícones locais, e `ambient-orb.ts`/`ambient-orb.css` encapsulam a decoração. A forma não indica acesso, captura ou conexão e é removida em movimento reduzido e cores forçadas. Reutilizar essas definições e preservar a organização `core/shared/features`. Estados de espera, recusa, erro e encerramento também seguem o padrão. Ícones complementam texto; informações e ações precisam continuar legíveis por teclado e sem animação. A spec registra o cálculo sRGB dos pares de tokens opacos; isso não substitui conferir os pares e estados realmente renderizados.
 
 Para verificar uma alteração visual, executar os três builds e os testes de captura/feedback e proxy descritos abaixo, conferir a exclusão das provas no bundle de produção e inspecionar as páginas em 390, 768 e 1440 px. Registrar evidências com dados fictícios e indicar quais estados foram simulados. Verificação de layout não homologa captura ou áudio Windows; não selecionar uma tela, alterar certificados ou abrir serviços/rede para obter uma imagem de teste.
 
@@ -98,7 +109,7 @@ Somente salas criadas por esta execução são removidas. Ao finalizar, interrom
 
 O cliente chama somente `/api/dev/livekit/**` na mesma origem, com o marcador **não secreto** `X-LiveKit-Proof: local-development`. O backend valida também origem exata e loopback; seus endpoints ficam desativados por padrão, fora do artefato normal e indisponíveis em produção. A página não recebe API key/secret. JWTs são usados apenas em memória para a conexão do SDK; não são exibidos, persistidos ou enviados aos logs da aplicação. Os logs do SDK ficam desativados. Não copie URLs de sinalização ou dados da aba de rede: o transporte do SDK inclui a credencial de mídia.
 
-A rota e o import lazy da ferramenta entram somente pelo `fileReplacements` da configuração Angular `development`. `npm.cmd run build` usa **production** e não inclui a página, o SDK de mídia ou seu endpoint auxiliar nos bundles. A página de saúde da T-01 continua disponível na raiz. Para checar ambos os builds:
+A rota e o import lazy da ferramenta entram somente pelo `fileReplacements` da configuração Angular `development`. `npm.cmd run build` usa **production** e não inclui a página, o SDK de mídia ou seu endpoint auxiliar nos bundles. A home fica na raiz e a página de saúde da T-01 fica em `/health`. Para checar ambos os builds:
 
 ```powershell
 npm.cmd run build
@@ -125,7 +136,7 @@ Depois de preparar SFU, backend auxiliar, rede e HTTPS confiável conforme [infr
 .\scripts\Start-CaptureProofFrontend.ps1 -CertificatePath 'C:\certificados\capture-cert.pem' -PrivateKeyPath 'C:\certificados\capture-key.pem'
 ```
 
-O apresentador abre `https://<IPv4-privado>:4443/dev/capture/broadcast`; o outro computador abre `/dev/capture/watch` na mesma origem. Cada pessoa informa apenas a chave experimental do seu papel no campo protegido. Chaves vêm do arquivo local privado gerado pelo operador, nunca de URL, bundle ou armazenamento web; API key/secret SFU não entram no navegador.
+A home fica em `https://<IPv4-privado>:4443/` e oferece os links da prova. O apresentador abre `https://<IPv4-privado>:4443/dev/capture/broadcast`; o outro computador abre `/dev/capture/watch` na mesma origem. A saúde da API não está disponível pelo proxy restrito de captura; use o servidor local normal e `/health`. Cada pessoa informa apenas a chave experimental do seu papel no campo protegido. Chaves vêm do arquivo local privado gerado pelo operador, nunca de URL, bundle ou armazenamento web; API key/secret SFU não entram no navegador.
 
 No apresentador, o clique **Selecionar tela e iniciar** chama `getDisplayMedia` enquanto o gesto ainda está ativo. O usuário escolhe **Tela inteira** e habilita áudio do sistema no seletor nativo. A prévia fica silenciada. Ausência de vídeo/áudio vivos recusa a tentativa e libera todas as tracks; cancelamento não cria sala. O áudio inteiro pode incluir Discord e notificações; não se pede microfone/câmera. Qualidade inicial 720p/30 fps/2 Mbps ou 1080p/30 fps/4 Mbps, VP8 sem simulcast e Opus até 128 kbps; são alvos de captura/negociação.
 

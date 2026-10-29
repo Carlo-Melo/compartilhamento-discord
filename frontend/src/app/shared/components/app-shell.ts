@@ -11,7 +11,7 @@ import { AmbientOrb } from './ambient-orb';
     <header class="app-header">
       <div class="app-header-inner">
         <div class="brand" aria-label="Compartilhamento Discord">
-          <span class="brand-symbol"><app-icon name="screen" /></span>
+          <span class="brand-symbol"><img src="/marca-preto-fosco.png" alt="" width="44" height="44" /></span>
           <span>Compartilhamento<span class="brand-context">PARA SUA COMUNIDADE NO DISCORD</span></span>
         </div>
         <span class="environment-label"><span class="status-dot" aria-hidden="true"></span>Ambiente local</span>
