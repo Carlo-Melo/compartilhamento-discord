@@ -1208,7 +1208,7 @@
           "Access"
         ],
         "summary": "Consumir ticket privado emitido pelo bot; sem login de usuário.",
-        "description": "Uso único e não idempotente. Exige bootstrap CSRF, Origin e ticket TTL60s. Não aceita userId/guildId/role/redirect. Rotaciona cookie ACCESS_SESSION e cria contexto em memória.",
+        "description": "Uso único e não idempotente. Exige bootstrap CSRF, Origin e ticket TTL60s. Não aceita userId/guildId/role/redirect. Rotaciona cookie ACCESS_SESSION e cria contexto em memória. Enquanto T-08/T-09 não fornecem verificação confiável, o verificador padrão falha fechado e não autoriza uma troca válida.",
         "security": [
           {
             "bootstrapCookie": [],
@@ -1236,8 +1236,18 @@
               }
             }
           },
+          "400": {
+            "description": "INVALID_REQUEST: JSON malformado ou corpo com campos diferentes de ticket.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
           "401": {
-            "description": "ACCESS_INVALID: código expirado/usado/inexistente/boot anterior.",
+            "description": "ACCESS_INVALID: código inválido, expirado, usado, inexistente ou de boot anterior.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1258,6 +1268,12 @@
           },
           "429": {
             "description": "Limite temporário; voltar ao bot se ticket vencer.",
+            "headers": {
+              "Retry-After": {
+                "description": "Tempo de espera em segundos.",
+                "schema": { "type": "integer" }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {

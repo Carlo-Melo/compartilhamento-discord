@@ -4,6 +4,7 @@ import br.com.compartilhamentodiscord.security.BrowserOriginFilter;
 import br.com.compartilhamentodiscord.security.ProductAccessPolicy;
 import br.com.compartilhamentodiscord.security.SecuritySupport;
 import br.com.compartilhamentodiscord.security.UnavailableProofFilter;
+import br.com.compartilhamentodiscord.security.ExchangeRateFilter;
 import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -60,9 +61,12 @@ public class SecurityConfiguration {
                         }))
                 .addFilterBefore(new UnavailableProofFilter(), CsrfFilter.class)
                 .addFilterBefore(new BrowserOriginFilter(environment.getRequiredProperty("app.security.origin")), CsrfFilter.class)
+                .addFilterAfter(new ExchangeRateFilter(), CsrfFilter.class)
                 .authorizeHttpRequests(access -> access
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/health/live", "/api/csrf").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/access/exchange").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/access/session").permitAll()
                         .anyRequest().access(policy));
         return http.build();
     }

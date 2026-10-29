@@ -64,7 +64,7 @@ class SecurityHttpTest {
         assertTrue(cookies.stream().allMatch(cookie -> !cookie.toLowerCase().contains("domain=")));
         error(server.request(browser, "GET", "/api/access/session", Map.of(), null), 401, "ACCESS_REQUIRED");
         error(server.request(browser, "POST", "/api/access/exchange", Map.of(
-                "Origin", ORIGIN, "X-XSRF-TOKEN", token, "Content-Type", "application/json"), "{\"ticket\":\"untrusted\"}"), 401, "ACCESS_REQUIRED");
+                "Origin", ORIGIN, "X-XSRF-TOKEN", token, "Content-Type", "application/json"), "{\"ticket\":\"untrusted\"}"), 401, "ACCESS_INVALID");
     }
 
     @Test void mutationsRequireExactOriginAndCsrfBoundToBootstrapSession() throws Exception {
@@ -115,7 +115,7 @@ class SecurityHttpTest {
         error(server.request(second, "POST", "/api/access/exchange", Map.of(
                 "Origin", ORIGIN, "X-XSRF-TOKEN", firstToken), "{}"), 403, "CSRF_INVALID");
         error(server.request(second, "POST", "/api/access/exchange", Map.of(
-                "Origin", ORIGIN, "X-XSRF-TOKEN", secondToken), "{}"), 401, "ACCESS_REQUIRED");
+                "Origin", ORIGIN, "X-XSRF-TOKEN", secondToken, "Content-Type", "application/json"), "{}"), 400, "INVALID_REQUEST");
         try (var restarted = new HttpSecurityServer()) {
             error(restarted.request(first, "POST", "/api/access/exchange", Map.of(
                     "Origin", ORIGIN, "X-XSRF-TOKEN", firstToken), "{}"), 403, "CSRF_INVALID");
